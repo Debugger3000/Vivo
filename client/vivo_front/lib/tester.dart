@@ -23,7 +23,7 @@ class _TesterFormPageState extends State<TesterFormPage> {
       isLoading = true;
     });
 
-    final url = Uri.parse('http://localhost:3000/tester'); // Your Go server
+    final url = Uri.parse('http://localhost:3001/tester'); // Your Go server
     final body = jsonEncode({
       'first_name': firstNameController.text,
       'last_name': lastNameController.text,
