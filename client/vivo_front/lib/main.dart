@@ -6,9 +6,17 @@ import './tester.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 
 void main() async {
+  
+  // Load the .env file
+  await dotenv.load(fileName: ".env");
+
+  // Now you can safely access env variables
+  final supabaseUrl = dotenv.get('SUPABASE_URL');
+  final supabaseKey = dotenv.get('SUPABASE_PUBLISHABLE_KEY');
+
   await Supabase.initialize(
-    url: dotenv.get('SUPABASE_URL'),
-    anonKey: dotenv.get('SUPABASE_PUBLISHABLE_KEY'),
+    url: supabaseUrl,
+    anonKey: supabaseKey,
   );
 
   runApp(const MyApp());

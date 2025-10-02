@@ -1,38 +1,78 @@
-
-
-
-
 // lib/screens/login.dart
+
+// import 'package:supabase_flutter/supabase_flutter.dart';
+// import 'package:supabase_ui/supabase_ui.dart';
+
 import 'package:flutter/foundation.dart'; // For kIsWeb
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 // import 'package:supabase_ui/supabase_ui.dart';
 
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
+// import 'package:supabase_flutter/supabase_flutter.dart';
 
-class LoginPage extends StatelessWidget {
+
+class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
+
+  @override
+  _LoginPageState createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: const Text('Vivo')),
       body: Center(
         child: SizedBox(
           width: 400, // optional: restrict width for web
           child: SupaEmailAuth(
             redirectTo: kIsWeb ? null : 'io.mydomain.myapp://callback',
-            onSignInComplete: (response) {
-              // Example: navigate to home page
-              if (response.user != null) {
+            onSignInComplete: (response) async {
+              setState(() {
+                isLoading = true;
+              });
+
+              final user = response.user;
+              // final error = response.error;
+
+              if (user != null) {
                 Navigator.pushReplacementNamed(context, '/home');
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Sign in error: $response')),
+                );
               }
+
+              setState(() {
+                isLoading = false;
+              });
             },
-            onSignUpComplete: (response) {
-              // Example: navigate to welcome page
-              if (response.user != null) {
+
+            onSignUpComplete: (response) async {
+              setState(() {
+                isLoading = true;
+              });
+
+              final user = response.user;
+              // final error = response.error;
+
+              if (user != null) {
                 Navigator.pushReplacementNamed(context, '/welcome');
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Sign up error: $response')),
+                );
               }
+
+              setState(() {
+                isLoading = false;
+              });
             },
+
             metadataFields: [
               MetaDataField(
                 prefixIcon: const Icon(Icons.person),
