@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:vivo_front/pages/login_register/login.dart';
+import 'package:vivo_front/theme/app_theme.dart';
 import './tester.dart';
+import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 
-void main() {
+void main() async {
+  await Supabase.initialize(
+    url: dotenv.get('SUPABASE_URL'),
+    anonKey: dotenv.get('SUPABASE_PUBLISHABLE_KEY'),
+  );
+
   runApp(const MyApp());
 }
 
@@ -13,7 +22,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData(
+      theme: AppTheme.lightTheme, // Apply your theme here
+      //theme: ThemeData(
         // This is the theme of your application.
         //
         // TRY THIS: Try running your application with "flutter run". You'll see
@@ -29,10 +39,10 @@ class MyApp extends StatelessWidget {
         //
         // This works for code too, not just values: Most code changes can be
         // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
+      //  colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+      //),
       // home: const MyHomePage(title: 'Flutter Demo Home Page'),
-      home: TesterFormPage(),
+      home: LoginPage(),
     );
   }
 }

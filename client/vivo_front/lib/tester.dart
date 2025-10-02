@@ -3,6 +3,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class TesterFormPage extends StatefulWidget {
+  const TesterFormPage({super.key});
+
   @override
   _TesterFormPageState createState() => _TesterFormPageState();
 }
