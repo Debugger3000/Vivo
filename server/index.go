@@ -31,14 +31,13 @@ func main() {
 	app.Use(logger.New()) // log requests
 	app.Use(cors.New())   // allow cross-origin requests
 
-
 	// Mount routes
 	routes.SetupTesterRoutes(app)
 
 	// Port from env or fallback
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "3000"
+		port = "3001"
 	}
 
 	addr := fmt.Sprintf(":%s", port)

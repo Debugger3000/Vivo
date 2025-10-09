@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  final String _baseUrl = 'https://jsonplaceholder.typicode.com';
+  final String _baseUrl = 'http://localhost:3000';
   final Map<String, String> _defaultHeaders = {
     'Content-Type': 'application/json',
   };
@@ -21,6 +21,8 @@ class ApiService {
   }) async {
     final uri = Uri.parse('$_baseUrl$endpoint');
     final combinedHeaders = {..._defaultHeaders, ...?headers};
+
+ print('method: $method uri: $uri');
 
     http.Response response;
 
