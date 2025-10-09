@@ -5,7 +5,6 @@
 
 import 'package:flutter/foundation.dart'; // For kIsWeb
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 // import 'package:supabase_ui/supabase_ui.dart';
 
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
