@@ -5,6 +5,16 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+def envFile = rootProject.file(".env")
+def apiKey = ""
+
+if (envFile.exists()) {
+    def props = new Properties()
+    props.load(new FileInputStream(envFile))
+    apiKey = props.getProperty("MAPS_API_KEY")
+}
+
+
 android {
     namespace = "com.example.vivo_front"
     compileSdk = flutter.compileSdkVersion
@@ -22,6 +32,7 @@ android {
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.example.vivo_front"
+        manifestPlaceholders += [ mapsApiKey: apiKey ]
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

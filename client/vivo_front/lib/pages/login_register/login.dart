@@ -6,6 +6,7 @@
 import 'package:flutter/foundation.dart'; // For kIsWeb
 import 'package:flutter/material.dart';
 // import 'package:supabase_ui/supabase_ui.dart';
+import 'package:vivo_front/navigation_wrapper.dart';
 
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 // import 'package:supabase_flutter/supabase_flutter.dart';
@@ -38,11 +39,15 @@ class _LoginPageState extends State<LoginPage> {
               final user = response.user;
               // final error = response.error;
 
-              if (user != null) {
-                Navigator.pushReplacementNamed(context, '/home');
+              if (user != null && context.mounted) {
+                // 👇 Replace current page (login) with the NavigationWrapper
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => const NavigationWrapper()),
+                );
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Sign in error: $response')),
+                  const SnackBar(content: Text('Authentication failed')),
                 );
               }
 
@@ -60,7 +65,7 @@ class _LoginPageState extends State<LoginPage> {
               // final error = response.error;
 
               if (user != null) {
-                Navigator.pushReplacementNamed(context, '/welcome');
+                Navigator.pushReplacementNamed(context, '/map');
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('Sign up error: $response')),
