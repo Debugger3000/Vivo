@@ -3,6 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:vivo_front/pages/login_register/login.dart';
 import 'package:vivo_front/theme/app_theme.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
+import 'package:vivo_front/navigation_wrapper.dart';
 
 void main() async {
   
@@ -49,10 +50,30 @@ class MyApp extends StatelessWidget {
       //  colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       //),
       // home: const MyHomePage(title: 'Flutter Demo Home Page'),
-      home: LoginPage(),
+      home: const AuthGate(),
     );
   }
 }
+
+// auth GATE
+/// ✅ AuthGate decides which page to show initially
+class AuthGate extends StatelessWidget {
+  const AuthGate({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final session = Supabase.instance.client.auth.currentSession;
+
+    // If no session, show login/register page
+    if (session == null) {
+      return const LoginPage();
+    }
+
+    // If logged in, show the navigation shell
+    return const NavigationWrapper();
+  }
+}
+
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
