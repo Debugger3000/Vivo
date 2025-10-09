@@ -1,19 +1,28 @@
+import java.util.Properties
+
+// --- Load MAPS_API_KEY from .env (project root) or fallback to local.properties / env var ---
+val mapsApiKey: String by lazy {
+    val envFile = rootProject.file(".env")
+    if (envFile.exists()) {
+        val props = Properties().apply { envFile.inputStream().use { load(it) } }
+        props.getProperty("MAPS_API_KEY")?.trim().orEmpty()
+    } else {
+        val localPropsFile = rootProject.file("local.properties")
+        val localProps = Properties().apply {
+            if (localPropsFile.exists()) localPropsFile.inputStream().use { load(it) }
+        }
+        localProps.getProperty("MAPS_API_KEY")?.trim()
+            ?: System.getenv("MAPS_API_KEY")?.trim()
+            ?: ""
+    }
+}
+
 plugins {
     id("com.android.application")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android") // prefer this in Kotlin DSL
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
-
-def envFile = rootProject.file(".env")
-def apiKey = ""
-
-if (envFile.exists()) {
-    def props = new Properties()
-    props.load(new FileInputStream(envFile))
-    apiKey = props.getProperty("MAPS_API_KEY")
-}
-
 
 android {
     namespace = "com.example.vivo_front"
@@ -30,11 +39,11 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.example.vivo_front"
-        manifestPlaceholders += [ mapsApiKey: apiKey ]
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
+
+        // ✅ Inject placeholder for AndroidManifest.xml
+        manifestPlaceholders["mapsApiKey"] = mapsApiKey
+
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -43,8 +52,6 @@ android {
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
         }
     }
