@@ -5,7 +5,7 @@ import 'package:vivo_front/theme/app_theme.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 import 'package:vivo_front/navigation_wrapper.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:vivo_front/tester.dart'; 
+// import 'package:vivo_front/tester.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -37,7 +37,7 @@ class MyApp extends StatelessWidget {
         '/navigation': (context) => const NavigationWrapper(),
         '/map': (context) => const MapSample(), // ✅ New route for Google Map
       },
-      home: TesterFormPage(),
+      home: const AuthGate(),
     );
   }
 }

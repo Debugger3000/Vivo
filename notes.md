@@ -14,20 +14,22 @@
 
 ### General Notes / Comments
 
-- BISH BASH BOSH
+- Grab userId from session or current device to use for POST EVENTS...
+- remove id field.. thats created on row creation
+- recreate a tester account..
 
 
 ---
 ### Backend
 
-    - [ ] Register / login
+    - [ ] 
     - [ ] Map API
     - [ ] Task 3
 
 ### Frontend
     * Functionality of the front end (buttons, swiping, data display, map)
 
-    - [ ] For tester.dart lines 26-63, abstract API request into a function wrapper
+    - [ ] 
 
     - [ ] 3 Main pages (able to swipe to each)
     - [ ] Bottom Menu bar 

@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  final String _baseUrl = 'http://localhost:3000';
+  final String _baseUrl = 'http://localhost:3001';
   final Map<String, String> _defaultHeaders = {
     'Content-Type': 'application/json',
   };
