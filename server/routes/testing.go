@@ -10,6 +10,9 @@ func SetupTesterRoutes(app *fiber.App) {
 	// Example GET route
 	app.Get("/", controllers.TesterGet)
 
+	// Events Router
+	app.Post(("/api/events"))
+
 	// Example POST route
 	app.Post("/tester", controllers.CreateTester)
 }
