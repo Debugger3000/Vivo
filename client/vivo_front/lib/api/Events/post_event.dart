@@ -92,7 +92,7 @@ class _PostEventFormState extends State<PostEventForm> {
 
     try {
       // get user id
-      final userId = getCurrentUserId();
+      final userId = await getCurrentUserId();
 
       print('Current user ID: $userId');
 
