@@ -1,4 +1,18 @@
+// class Categories {
+//   final List<String> categoriesArray;
 
+//   Categories({required this.categoriesArray});
+
+//   factory Categories.fromJson(Map<String, dynamic> json) {
+//     return Categories(
+//       categoriesArray: List<String>.from(json['categoriesArray'] ?? []),
+//     );
+//   }
+
+//   Map<String, dynamic> toJson() {
+//     return {'categoriesArray': categoriesArray};
+//   }
+// }
 
 class Categories {
   final List<String> categoriesArray;
@@ -6,14 +20,9 @@ class Categories {
   Categories({required this.categoriesArray});
 
   factory Categories.fromJson(Map<String, dynamic> json) {
+    final raw = json['data'] as List<dynamic>;
     return Categories(
-      categoriesArray: List<String>.from(json['categoriesArray'] ?? []),
+      categoriesArray: raw.map((e) => e['name'] as String).toList(),
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'categoriesArray': categoriesArray,
-    };
   }
 }

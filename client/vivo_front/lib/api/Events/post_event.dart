@@ -42,10 +42,9 @@ class _PostEventFormState extends State<PostEventForm> {
   // fetch categories from DB
   Future<void> _getCategories() async {
     try {
-      final newEvent = await api.request<Categories, Map<String, dynamic>>(
+      final newEvent = await api.request<Categories, void>(
         endpoint: '/api/categories',
         method: 'GET',
-        body: {},
         parser: (json) => Categories.fromJson(json),
       );
 
