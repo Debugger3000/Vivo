@@ -1,26 +1,74 @@
 // lib/screens/login.dart
-
-// import 'package:supabase_flutter/supabase_flutter.dart';
-// import 'package:supabase_ui/supabase_ui.dart';
-
-import 'package:flutter/foundation.dart'; // For kIsWeb
+import 'dart:async';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-// import 'package:supabase_ui/supabase_ui.dart';
-import 'package:vivo_front/navigation_wrapper.dart';
-
+import 'package:app_links/app_links.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
-// import 'package:supabase_flutter/supabase_flutter.dart';
-
+import 'package:vivo_front/navigation_wrapper.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
-
   @override
-  _LoginPageState createState() => _LoginPageState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
+  static const _mobileRedirect = 'com.example.vivo_front://login-callback';
+
+  final _appLinks = AppLinks();
+  StreamSubscription<Uri>? _sub;
   bool isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _wireDeepLinks();
+    _listenAuthChanges();
+  }
+
+  void _listenAuthChanges() {
+    Supabase.instance.client.auth.onAuthStateChange.listen((e) {
+      if (e.event == AuthChangeEvent.signedIn && mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const NavigationWrapper()),
+        );
+      }
+    });
+  }
+
+  Future<void> _wireDeepLinks() async {
+    try {
+      final initial = await _appLinks.getInitialLink();
+      if (initial != null) await _handleAuthLink(initial);
+    } catch (_) {}
+    _sub = _appLinks.uriLinkStream.listen((uri) async {
+      if (uri != null) await _handleAuthLink(uri);
+    });
+  }
+
+  Future<void> _handleAuthLink(Uri uri) async {
+    if (uri.scheme != 'com.example.vivo_front' || uri.host != 'login-callback') return;
+    try {
+      setState(() => isLoading = true);
+      await Supabase.instance.client.auth.exchangeCodeForSession(uri.toString());
+      // onAuthStateChange will navigate upon signedIn
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not complete sign-in')),
+      );
+    } finally {
+      if (mounted) setState(() => isLoading = false);
+    }
+  }
+
+  @override
+  void dispose() {
+    _sub?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,71 +76,39 @@ class _LoginPageState extends State<LoginPage> {
       appBar: AppBar(title: const Text('Vivo')),
       body: Center(
         child: SizedBox(
-          width: 400, // optional: restrict width for web
-          child: SupaEmailAuth(
-            redirectTo: kIsWeb ? null : 'io.mydomain.myapp://callback',
-            onSignInComplete: (response) async {
-              setState(() {
-                isLoading = true;
-              });
-
-              final user = response.user;
-              // final error = response.error;
-
-              if (user != null && context.mounted) {
-                // 👇 Replace current page (login) with the NavigationWrapper
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (_) => const NavigationWrapper()),
-                );
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Authentication failed')),
-                );
-              }
-
-              setState(() {
-                isLoading = false;
-              });
-            },
-
-            onSignUpComplete: (response) async {
-              setState(() {
-                isLoading = true;
-              });
-
-              final user = response.user;
-              // final error = response.error;
-
-              if (user != null && context.mounted) {
-                // 👇 Replace current page (login) with the NavigationWrapper
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (_) => const NavigationWrapper()),
-                );
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Authentication failed')),
-                );
-              }
-
-              setState(() {
-                isLoading = false;
-              });
-            },
-
-            metadataFields: [
-              MetaDataField(
-                prefixIcon: const Icon(Icons.person),
-                label: 'Username',
-                key: 'username',
-                validator: (val) {
-                  if (val == null || val.isEmpty) {
-                    return 'Please enter something';
-                  }
-                  return null;
-                },
+          width: 400,
+          child: Stack(
+            children: [
+              Opacity(
+                opacity: isLoading ? 0.5 : 1,
+                child: AbsorbPointer(
+                  absorbing: isLoading,
+                  child: SupaEmailAuth(
+                    redirectTo: kIsWeb ? null : _mobileRedirect,
+                    onSignUpComplete: (response) async {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Check your email to confirm your account.')),
+                      );
+                    },
+                    onSignInComplete: (response) async {
+                      // No navigation here; rely on onAuthStateChange for consistency
+                    },
+                    metadataFields: [
+                      MetaDataField(
+                        prefixIcon: const Icon(Icons.person),
+                        label: 'Username',
+                        key: 'username',
+                        validator: (val) =>
+                        (val == null || val.isEmpty) ? 'Please enter something' : null,
+                      ),
+                    ],
+                  ),
+                ),
               ),
+              if (isLoading)
+                const Positioned.fill(
+                  child: Center(child: CircularProgressIndicator()),
+                ),
             ],
           ),
         ),
