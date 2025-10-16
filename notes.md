@@ -15,8 +15,11 @@
 ### General Notes / Comments
 
 - Grab userId from session or current device to use for POST EVENTS...
-- remove id field.. thats created on row creation
-- recreate a tester account..
+- Remove interested
+- POST Events
+- Dropdown for categories
+- Tags logic into string[]
+
 
 
 ---
