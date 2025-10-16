@@ -10,14 +10,23 @@ import (
 
 
 type EventsBody struct {
-    ID          int    `json:"id"`
     UserId      int    `json:"user_id"`
     Title       string `json:"title"`
     Description string `json:"description"`
     Tags        []string `json:"tags"`
     Categories  []string `json:"categories"`
     Date        string `json:"date"`
-    Interested  string `json:"interested"`
+}
+
+
+type EventsBodyGet struct {
+	ID 			string "json:id"
+    UserId      int    `json:"user_id"`
+    Title       string `json:"title"`
+    Description string `json:"description"`
+    Tags        []string `json:"tags"`
+    Categories  []string `json:"categories"`
+    Date        string `json:"date"`
 }
 // []string `json:"categories"`
 
@@ -38,8 +47,8 @@ func CreateEvent(c *fiber.Ctx) error {
 	// Insert into table
 	_, err := database.Conn.Exec(
 		context.Background(),
-		"INSERT INTO events (user_id, title, description, tags, categories, date, interested) VALUES ($1, $2, $3, $4, $5, $6, $7)",
-		body.UserId, body.Title, body.Description, body.Tags, body.Categories, body.Date, body.Interested,
+		"INSERT INTO events (user_id, title, description, tags, categories, date) VALUES ($1, $2, $3, $4, $5, $6, $7)",
+		body.UserId, body.Title, body.Description, body.Tags, body.Categories, body.Date,
 	)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -58,7 +67,7 @@ func CreateEvent(c *fiber.Ctx) error {
 // 
 func EditEvent(c *fiber.Ctx) error {
     // grab request body into variable
-    var body EventsBody
+    var body EventsBodyGet
     if err := c.BodyParser(&body); err != nil {
         return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
             "error": "cannot parse JSON",
@@ -69,19 +78,19 @@ func EditEvent(c *fiber.Ctx) error {
     fmt.Println("Edit Event body: ", body)
 
     // Make sure the body includes the event ID
-    if body.ID == 0 {
-        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-            "error": "missing event ID",
-        })
-    }
+    // if body.ID {
+    //     return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+    //         "error": "missing event ID",
+    //     })
+    // }
 
     // Update the event record
     _, err := database.Conn.Exec(
         context.Background(),
         `UPDATE events 
-         SET user_id = $1, title = $2, description = $3, tags = $4, categories = $5, date = $6, interested = $7
+         SET user_id = $1, title = $2, description = $3, tags = $4, categories = $5, date = $6,
          WHERE id = $8`,
-        body.UserId, body.Title, body.Description, body.Tags, body.Categories, body.Date, body.Interested, body.ID,
+        body.UserId, body.Title, body.Description, body.Tags, body.Categories, body.Date,
     )
     if err != nil {
         return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -112,10 +121,10 @@ func GetEvents(c *fiber.Ctx) error {
     }
     defer rows.Close()
 
-    var events []EventsBody
+    var events []EventsBodyGet
 
     for rows.Next() {
-        var ev EventsBody
+        var ev EventsBodyGet
         if err := rows.Scan(
             &ev.ID,
             &ev.UserId,
@@ -124,7 +133,6 @@ func GetEvents(c *fiber.Ctx) error {
             &ev.Tags,
             &ev.Categories,
             &ev.Date,
-            &ev.Interested,
         ); err != nil {
             return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
                 "error": "failed to scan row",

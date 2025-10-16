@@ -37,6 +37,7 @@ class ApiService {
             : uri;
 
         response = await http.get(uriWithParams, headers: combinedHeaders);
+        print(response.body);
         break;
 
       case 'POST':
@@ -78,14 +79,27 @@ class ApiService {
     if (response.statusCode < 200 || response.statusCode >= 300) {
       print(response.body);
       throw Exception(
-        'Request failed [${response.statusCode}]: ${response.body}',
+        'Request failed APISERVICE REQ [${response.statusCode}]: ${response.body}',
       );
     }
-    print(response.body);
-    final jsonResponse = jsonDecode(response.body) as Map<String, dynamic>;
 
-    print(jsonResponse);
-    return parser(jsonResponse);
+    final decoded = jsonDecode(response.body);
+
+    if (decoded is List) {
+      // If the parser expects a list, pass a dummy wrapper or handle differently
+      // For now just wrap in a map
+      return parser({'data': decoded});
+    } else if (decoded is Map<String, dynamic>) {
+      return parser(decoded);
+    } else {
+      throw Exception('Unexpected JSON type: ${decoded.runtimeType}');
+    }
+
+    // print(response.body);
+    // final jsonResponse = jsonDecode(response.body) as Map<String, dynamic>;
+
+    // print(jsonResponse);
+    // return parser(jsonResponse);
   }
 
   // GET request for returning a List ???
