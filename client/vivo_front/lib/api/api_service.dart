@@ -22,7 +22,7 @@ class ApiService {
     final uri = Uri.parse('$_baseUrl$endpoint');
     final combinedHeaders = {..._defaultHeaders, ...?headers};
 
- print('method: $method uri: $uri');
+    print('method: $method uri: $uri');
 
     http.Response response;
 
@@ -30,10 +30,12 @@ class ApiService {
       case 'GET':
         final uriWithParams = body != null
             ? uri.replace(
-                queryParameters: (body as Map<String, dynamic>)
-                    .map((k, v) => MapEntry(k, v.toString())),
+                queryParameters: (body as Map<String, dynamic>).map(
+                  (k, v) => MapEntry(k, v.toString()),
+                ),
               )
             : uri;
+
         response = await http.get(uriWithParams, headers: combinedHeaders);
         break;
 
@@ -74,11 +76,15 @@ class ApiService {
     }
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
+      print(response.body);
       throw Exception(
-          'Request failed [${response.statusCode}]: ${response.body}');
+        'Request failed [${response.statusCode}]: ${response.body}',
+      );
     }
-
+    print(response.body);
     final jsonResponse = jsonDecode(response.body) as Map<String, dynamic>;
+
+    print(jsonResponse);
     return parser(jsonResponse);
   }
 
