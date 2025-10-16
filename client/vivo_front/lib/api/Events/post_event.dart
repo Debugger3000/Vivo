@@ -103,7 +103,7 @@ class _PostEventFormState extends State<PostEventForm> {
           'userId': userId, // TODO: replace with actual user ID
           'title': _titleController.text,
           'description': _descriptionController.text,
-          'tags': _tagsController.text,
+          'tags': selectedTags,
           'categories': selectedCategories,
           'date': _dateController.text,
         },
