@@ -64,11 +64,15 @@ class _LoginPageState extends State<LoginPage> {
               final user = response.user;
               // final error = response.error;
 
-              if (user != null) {
-                Navigator.pushReplacementNamed(context, '/map');
+              if (user != null && context.mounted) {
+                // 👇 Replace current page (login) with the NavigationWrapper
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => const NavigationWrapper()),
+                );
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Sign up error: $response')),
+                  const SnackBar(content: Text('Authentication failed')),
                 );
               }
 
