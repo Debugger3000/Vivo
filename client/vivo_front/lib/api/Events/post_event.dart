@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vivo_front/api/api_service.dart';
 import 'package:vivo_front/types/event.dart';
+import 'package:vivo_front/utility/user_functions.dart';
 
 class PostEventForm extends StatefulWidget {
   const PostEventForm({super.key});
@@ -20,6 +21,12 @@ class _PostEventFormState extends State<PostEventForm> {
   final _categoriesController = TextEditingController();
   final _dateController = TextEditingController();
 
+
+
+  
+
+
+
   bool _isSubmitting = false;
   String _resultMessage = '';
 
@@ -32,11 +39,17 @@ class _PostEventFormState extends State<PostEventForm> {
     });
 
     try {
+
+      // get user id
+      final userId = getCurrentUserId();
+
+      print('Current user ID: $userId');
+
       final newEvent = await api.request<EventVivo, Map<String, dynamic>>(
         endpoint: '/api/events',
         method: 'POST',
         body: {
-          'userId': 1, // TODO: replace with actual user ID
+          'userId': userId, // TODO: replace with actual user ID
           'title': _titleController.text,
           'description': _descriptionController.text,
           'tags': _tagsController.text,
