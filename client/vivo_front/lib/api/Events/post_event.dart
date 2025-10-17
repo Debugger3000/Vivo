@@ -8,10 +8,10 @@ class PostEventForm extends StatefulWidget {
   const PostEventForm({super.key});
 
   @override
-  State<PostEventForm> createState() => _PostEventFormState();
+  State<PostEventForm> createState() => PostEventFormState();
 }
 
-class _PostEventFormState extends State<PostEventForm> {
+class PostEventFormState extends State<PostEventForm> {
   final _formKey = GlobalKey<FormState>();
   final ApiService api = ApiService();
 
@@ -20,7 +20,9 @@ class _PostEventFormState extends State<PostEventForm> {
   @override
   void initState() {
     super.initState();
-    _getCategories();
+    print('init in post eventer...........................');
+    // developer.log("Post event form has ran hehe", name: 'vivo-loggy', level: 0);
+    getCategories();
   }
 
   // Form controllers
@@ -40,22 +42,24 @@ class _PostEventFormState extends State<PostEventForm> {
   List<String> selectedTags = [];
 
   // fetch categories from DB
-  Future<void> _getCategories() async {
+  Future<void> getCategories() async {
     try {
-      final newEvent = await api.request<Categories, void>(
+      print('calling get on categories...');
+      final categories = await api.requestList<Categories>(
         endpoint: '/api/categories',
-        method: 'GET',
-        parser: (json) => Categories.fromJson(json),
+        parser: (item) => Categories.fromJson(item as Map<String, dynamic>),
       );
 
+      // print("printer;categories returned: $categories");
+      // developer.log("GET returned response: $categories", name:'vivo-loggy', level: 0);
+      print("returned GET data: $categories");
+
+      // IMPORTANT: setState() should be used to update UI / core to flutter/dart lifecycle...
       setState(() {
-        _resultMessage = '✅ Event created with ID: ${newEvent.categoriesArray}';
-        grabbedCategories = newEvent.categoriesArray;
+        grabbedCategories = categories.categories;
       });
     } catch (e) {
-      setState(() {
-        _resultMessage = '❌ Error: $e';
-      });
+      print('error: $e');
     } finally {
       setState(() {
         _isSubmitting = false;
@@ -89,31 +93,46 @@ class _PostEventFormState extends State<PostEventForm> {
       _resultMessage = '';
     });
 
+    // make sure categories are selected... at least one
+    if (selectedCategories.isEmpty) {
+      setState(() {
+        _isSubmitting = false;
+        _resultMessage = 'Please select at least one category for your event!';
+      });
+      return;
+    }
+
     try {
       // get user id
       final userId = await getCurrentUserId();
 
       print('Current user ID: $userId');
 
-      final newEvent = await api.request<EventVivo, Map<String, dynamic>>(
+      final newEvent = await api.request(
         endpoint: '/api/events',
         method: 'POST',
         body: {
-          'userId': userId, // TODO: replace with actual user ID
+          'userId': userId,
           'title': _titleController.text,
           'description': _descriptionController.text,
           'tags': selectedTags,
           'categories': selectedCategories,
           'date': _dateController.text,
         },
-        parser: (json) => EventVivo.fromJson(json),
       );
 
+      print(newEvent.message);
+      print("post event after req...");
+
       setState(() {
-        _resultMessage = '✅ Event created with ID: ${newEvent.id}';
+        _resultMessage = '✅ Event created with ID: $newEvent';
       });
 
+      print(newEvent);
+
       // Clear form
+      selectedCategories.clear();
+      selectedTags.clear();
       _titleController.clear();
       _descriptionController.clear();
       _tagsController.clear();
@@ -121,7 +140,7 @@ class _PostEventFormState extends State<PostEventForm> {
       _dateController.clear();
     } catch (e) {
       setState(() {
-        _resultMessage = '❌ Error: $e';
+        _resultMessage = '❌ submit event Error: $e';
       });
     } finally {
       setState(() {
@@ -157,18 +176,55 @@ class _PostEventFormState extends State<PostEventForm> {
             validator: (v) =>
                 v == null || v.isEmpty ? 'Enter description' : null,
           ),
-          TextFormField(
-            controller: _tagsController,
-            decoration: const InputDecoration(labelText: 'Tags'),
-          ),
-          TextFormField(
-            controller: _categoriesController,
-            decoration: const InputDecoration(labelText: 'Categories'),
-          ),
+
+          // Replace your TextFormField for date with this:
           TextFormField(
             controller: _dateController,
-            decoration: const InputDecoration(labelText: 'Date'),
+            readOnly: true, // prevents manual typing
+            decoration: const InputDecoration(
+              labelText: 'Date & Time',
+              suffixIcon: Icon(Icons.calendar_today),
+            ),
+            onTap: () async {
+              // Pick the date first
+              final DateTime? pickedDate = await showDatePicker(
+                context: context,
+                initialDate: DateTime.now(),
+                firstDate: DateTime(2000),
+                lastDate: DateTime(2100),
+              );
+
+              if (pickedDate == null) return; // user canceled
+
+              // Pick the time
+              final TimeOfDay? pickedTime = await showTimePicker(
+                context: context,
+                initialTime: TimeOfDay.now(),
+              );
+
+              if (pickedTime == null) return; // user canceled
+
+              // Combine date + time
+              final DateTime finalDateTime = DateTime(
+                pickedDate.year,
+                pickedDate.month,
+                pickedDate.day,
+                pickedTime.hour,
+                pickedTime.minute,
+              );
+
+              // Update the controller
+              setState(() {
+                _dateController.text =
+                    "${finalDateTime.year.toString().padLeft(4, '0')}-"
+                    "${finalDateTime.month.toString().padLeft(2, '0')}-"
+                    "${finalDateTime.day.toString().padLeft(2, '0')} "
+                    "${finalDateTime.hour.toString().padLeft(2, '0')}:"
+                    "${finalDateTime.minute.toString().padLeft(2, '0')}";
+              });
+            },
           ),
+
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -180,6 +236,7 @@ class _PostEventFormState extends State<PostEventForm> {
               // Display selected categories as removable chips
               Wrap(
                 spacing: 8,
+                alignment: WrapAlignment.start, // <-- add this
                 children: selectedCategories.map((category) {
                   return Chip(
                     label: Text(category),
@@ -252,14 +309,15 @@ class _PostEventFormState extends State<PostEventForm> {
                 label: const Text('Select Categories'),
               ),
 
-              if (selectedCategories.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.only(top: 8),
-                  child: Text(
-                    'Please select at least one category',
-                    style: TextStyle(color: Colors.red),
-                  ),
-                ),
+              // Display error on form...
+              // if (selectedCategories.isEmpty)
+              //   const Padding(
+              //     padding: EdgeInsets.only(top: 8),
+              //     child: Text(
+              //       'Please select at least one category',
+              //       style: TextStyle(color: Colors.red),
+              //     ),
+              //   ),
             ],
           ),
           Column(
