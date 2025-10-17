@@ -15,14 +15,43 @@
 // }
 
 class Categories {
-  final List<String> categoriesArray;
+  final List<String> categories;
+  final String message;
 
-  Categories({required this.categoriesArray});
+  Categories({
+    required this.categories,
+    required this.message,
+  });
 
   factory Categories.fromJson(Map<String, dynamic> json) {
-    final raw = json['data'] as List<dynamic>;
+    final raw = json['categories'] as List<dynamic>; // raw array
     return Categories(
-      categoriesArray: raw.map((e) => e['name'] as String).toList(),
+      categories: raw.map((e) => e as String).toList(),
+      message: json['message'] as String,
     );
   }
 }
+
+
+
+// POST return type
+
+class ResponseMessage {
+  final String message;
+
+  ResponseMessage({required this.message});
+
+  factory ResponseMessage.fromJson(Map<String, dynamic> json) {
+    return ResponseMessage(
+      message: json['message'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'message': message,
+    };
+  }
+}
+
+

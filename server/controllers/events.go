@@ -10,7 +10,7 @@ import (
 
 
 type EventsBody struct {
-    UserId      int    `json:"user_id"`
+    UserId      string    `json:"userId"`
     Title       string `json:"title"`
     Description string `json:"description"`
     Tags        []string `json:"tags"`
@@ -20,7 +20,7 @@ type EventsBody struct {
 
 
 type EventsBodyGet struct {
-	ID 			string "json:id"
+	id 			string "json:id"
     UserId      int    `json:"user_id"`
     Title       string `json:"title"`
     Description string `json:"description"`
@@ -42,15 +42,16 @@ func CreateEvent(c *fiber.Ctx) error {
 	}
 
 	// log the body
-	fmt.Println("Post Events body: ", body)    
+	fmt.Println("Post Events body: ", body)  
 
 	// Insert into table
 	_, err := database.Conn.Exec(
 		context.Background(),
-		"INSERT INTO events (user_id, title, description, tags, categories, date) VALUES ($1, $2, $3, $4, $5, $6, $7)",
+		"INSERT INTO events (user_id, title, description, tags, categories, date) VALUES ($1, $2, $3, $4, $5, $6)",
 		body.UserId, body.Title, body.Description, body.Tags, body.Categories, body.Date,
 	)
 	if err != nil {
+        fmt.Println(err);
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "failed to insert data",
 		})
@@ -126,7 +127,7 @@ func GetEvents(c *fiber.Ctx) error {
     for rows.Next() {
         var ev EventsBodyGet
         if err := rows.Scan(
-            &ev.ID,
+            &ev.id,
             &ev.UserId,
             &ev.Title,
             &ev.Description,

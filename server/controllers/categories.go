@@ -9,37 +9,62 @@ import (
 )
 
 
+// json tags - only deals with how it appears in the response, NOTHING TO DO WITH DB MAPPING
+// name - should map to exact COLUMN name
 type CategoriesBody struct {
-Categories []string `json:"categories"`
+Name []string `json:"Name"`
 }
 
 
 
-// POST /tester
+// GET - Cateogories
 func GetCategories(c *fiber.Ctx) error {
-	// grab request body into variable
-	var body CategoriesBody
-	if err := c.BodyParser(&body); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "cannot parse JSON",
-		})
-	}
-
+	
 	// log the body
 	fmt.Println("Grabbing categories controller...");
 
-	// Insert into table
-	_, err := database.Conn.Exec(
-		context.Background(),
-		"select name from categories",
-	)
+	// GET request - Database call line...
+	rows, err := database.Conn.Query(context.Background(), "select name from categories")
+
+	// if there is an error, err = nil
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "failed to grab categories data",
 		})
 	}
 
-	return c.JSON(fiber.Map{
-		"message": "Categories grabbed successfully",
+	fmt.Println("after query grabbed");
+
+
+
+	defer rows.Close()
+
+	// Create a slice to hold all categories
+	var categories []string
+
+	// GOlang - uses this 
+	for rows.Next() {
+		var cat string
+		if err := rows.Scan(&cat); err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error": "failed to read category data",
+			})
+		}
+		categories = append(categories, cat)
+	}
+
+	fmt.Println("Row data from GET categories returned: ", categories);
+
+	// Handle any row iteration errors
+	if rows.Err() != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "error iterating over category rows",
+		})
+	}
+
+	// Return the categories as JSON
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message":    "Categories grabbed successfully",
+		"categories": categories,
 	})
 }

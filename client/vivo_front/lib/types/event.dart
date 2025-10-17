@@ -1,6 +1,5 @@
 class EventVivo {
-  final int id;
-  final int userId;
+  final String userId;
   final String title;
   final String description;
   final List<String> tags;
@@ -8,7 +7,6 @@ class EventVivo {
   final String date;
 
   EventVivo({
-    required this.id,
     required this.userId,
     required this.title,
     required this.description,
@@ -19,8 +17,7 @@ class EventVivo {
 
   factory EventVivo.fromJson(Map<String, dynamic> json) {
     return EventVivo(
-      id: json['id'] as int,
-      userId: json['userId'] as int,
+      userId: json['userId'] as String,
       title: json['title'] as String,
       description: json['description'] as String,
       tags: json['tags'] as List<String>,

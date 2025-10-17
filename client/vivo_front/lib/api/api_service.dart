@@ -1,135 +1,107 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:http/http.dart' as http;
+import 'dart:developer' as developer;
+import 'package:vivo_front/types/categories.dart';
+
 
 class ApiService {
-  final String _baseUrl = 'http://localhost:3001';
+  final String _baseUrl = 'http://10.0.0.117:3001';
   final Map<String, String> _defaultHeaders = {
     'Content-Type': 'application/json',
   };
 
   ApiService(); // Parameterless constructor
 
-  /// Generic request method
-  /// T = expected response type
-  /// U = request body type
-  Future<T> request<T, U>({
+// ------------
+// Request method - POST, PUT/PATCH, DELETE
+// No specificed return type... just the message object from golang server
+// 
+Future<ResponseMessage> request({
+  required String endpoint,
+  required String method,
+  Map<String, dynamic>? body,
+  Map<String, String>? headers,
+}) async {
+  final uri = Uri.parse('$_baseUrl$endpoint');
+  final combinedHeaders = {..._defaultHeaders, ...?headers};
+
+  http.Response response;
+
+  switch (method.toUpperCase()) {
+    case 'POST':
+      response = await http.post(
+        uri,
+        headers: combinedHeaders,
+        body: body != null ? jsonEncode(body) : null,
+      );
+      break;
+    case 'PUT':
+      response = await http.put(
+        uri,
+        headers: combinedHeaders,
+        body: body != null ? jsonEncode(body) : null,
+      );
+      break;
+    case 'DELETE':
+      response = await http.delete(
+        uri,
+        headers: combinedHeaders,
+        body: body != null ? jsonEncode(body) : null,
+      );
+      break;
+    case 'PATCH':
+      response = await http.patch(
+        uri,
+        headers: combinedHeaders,
+        body: body != null ? jsonEncode(body) : null,
+      );
+      break;
+    default:
+      throw Exception('Unsupported HTTP method: $method');
+  }
+
+  if (response.statusCode < 200 || response.statusCode >= 300) {
+    throw Exception(
+      'Request failed [${response.statusCode}]: ${response.body}',
+    );
+  }
+
+  // Decode JSON into ResponseMessage
+  final Map<String, dynamic> json = jsonDecode(response.body) as Map<String, dynamic>;
+  return ResponseMessage.fromJson(json);
+}
+
+
+// ---------------------------------------------
+// GET method
+// Returns specified T generic type...
+// 
+// 
+  Future<T> requestList<T>({
     required String endpoint,
-    required String method,
-    U? body, // renamed from fromJson to body, JS-style
     Map<String, String>? headers,
-    required T Function(Map<String, dynamic>) parser, // convert JSON to T
+    required T Function(dynamic) parser,
   }) async {
     final uri = Uri.parse('$_baseUrl$endpoint');
     final combinedHeaders = {..._defaultHeaders, ...?headers};
 
-    print('method: $method uri: $uri');
+    final response = await http.get(uri, headers: combinedHeaders);
 
-    http.Response response;
-
-    switch (method.toUpperCase()) {
-      case 'GET':
-        final uriWithParams = body != null
-            ? uri.replace(
-                queryParameters: (body as Map<String, dynamic>).map(
-                  (k, v) => MapEntry(k, v.toString()),
-                ),
-              )
-            : uri;
-
-        response = await http.get(uriWithParams, headers: combinedHeaders);
-        print(response.body);
-        break;
-
-      case 'POST':
-        response = await http.post(
-          uri,
-          headers: combinedHeaders,
-          body: body != null ? jsonEncode(body) : null,
-        );
-        break;
-
-      case 'PUT':
-        response = await http.put(
-          uri,
-          headers: combinedHeaders,
-          body: body != null ? jsonEncode(body) : null,
-        );
-        break;
-
-      case 'DELETE':
-        response = await http.delete(
-          uri,
-          headers: combinedHeaders,
-          body: body != null ? jsonEncode(body) : null,
-        );
-        break;
-
-      case 'PATCH':
-        response = await http.patch(
-          uri,
-          headers: combinedHeaders,
-          body: body != null ? jsonEncode(body) : null,
-        );
-        break;
-
-      default:
-        throw Exception('Unsupported HTTP method: $method');
-    }
+    // developer.log("printer;GET returned response: $response", name:'vivo-loggy', level: 0);
+    print(response.body);
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
-      print(response.body);
       throw Exception(
-        'Request failed APISERVICE REQ [${response.statusCode}]: ${response.body}',
+        'Request failed [${response.statusCode}]: ${response.body}',
       );
     }
 
-    final decoded = jsonDecode(response.body);
+    // Decode the body as a Map
+    final Map<String, dynamic> json =
+        jsonDecode(response.body) as Map<String, dynamic>;
 
-    if (decoded is List) {
-      // If the parser expects a list, pass a dummy wrapper or handle differently
-      // For now just wrap in a map
-      return parser({'data': decoded});
-    } else if (decoded is Map<String, dynamic>) {
-      return parser(decoded);
-    } else {
-      throw Exception('Unexpected JSON type: ${decoded.runtimeType}');
-    }
 
-    // print(response.body);
-    // final jsonResponse = jsonDecode(response.body) as Map<String, dynamic>;
-
-    // print(jsonResponse);
-    // return parser(jsonResponse);
+    return parser(json); // this is exactly what you want
   }
-
-  // GET request for returning a List ???
-  // not sure if this is actually needed hehe
-
-  /// Helper for GET requests that return a list
-  // Future<List<T>> requestList<T, U>({
-  //   required String endpoint,
-  //   U? body,
-  //   Map<String, String>? headers,
-  //   required T Function(Map<String, dynamic>) parser,
-  // }) async {
-  //   final uri = Uri.parse('$_baseUrl$endpoint');
-  //   final combinedHeaders = {..._defaultHeaders, ...?headers};
-
-  //   final uriWithParams = body != null
-  //       ? uri.replace(
-  //           queryParameters:
-  //               (body as Map<String, dynamic>).map((k, v) => MapEntry(k, v.toString())),
-  //         )
-  //       : uri;
-
-  //   final response = await http.get(uriWithParams, headers: combinedHeaders);
-
-  //   if (response.statusCode < 200 || response.statusCode >= 300) {
-  //     throw Exception(
-  //         'Request failed [${response.statusCode}]: ${response.body}');
-  //   }
-
-  //   final jsonList = jsonDecode(response.body) as List<dynamic>;
-  //   return jsonList.map((item) => parser(item as Map<String, dynamic>)).toList();
-  // }
 }
