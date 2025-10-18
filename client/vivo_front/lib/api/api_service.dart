@@ -6,7 +6,7 @@ import 'package:vivo_front/types/categories.dart';
 
 
 class ApiService {
-  final String _baseUrl = 'http://10.0.0.117:3001';
+  final String _baseUrl = 'http://10.0.0.195:3001';
   final Map<String, String> _defaultHeaders = {
     'Content-Type': 'application/json',
   };
