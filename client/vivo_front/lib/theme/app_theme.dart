@@ -20,9 +20,29 @@ class AppTheme {
       backgroundColor: AppStyles.primaryColor,
       foregroundColor: Colors.white,
     ),
-    buttonTheme: const ButtonThemeData(
-      buttonColor: AppStyles.secondaryColor,
-      textTheme: ButtonTextTheme.primary,
+    // buttonTheme: const ButtonThemeData(
+    //   buttonColor: AppStyles.secondaryColor,
+    //   textTheme: ButtonTextTheme.primary,
+    // ),
+    filledButtonTheme: FilledButtonThemeData(
+      style: FilledButton.styleFrom(
+        backgroundColor: const Color.fromARGB(255, 24, 103, 207), // default color
+        foregroundColor: const Color.fromARGB(255, 247, 247, 247),      // text color
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        textStyle: const TextStyle(
+          fontWeight: FontWeight.bold,
+        ),
+      ),
     ),
   );
 }
+
+// ----------------------------------------
+// THEME RULES
+// 
+//  1. Use "FilledButton" for general buttons
+// 
+//  2. 

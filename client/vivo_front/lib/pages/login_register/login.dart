@@ -44,7 +44,7 @@ class _LoginPageState extends State<LoginPage> {
       if (initial != null) await _handleAuthLink(initial);
     } catch (_) {}
     _sub = _appLinks.uriLinkStream.listen((uri) async {
-      if (uri != null) await _handleAuthLink(uri);
+      await _handleAuthLink(uri);
     });
   }
 

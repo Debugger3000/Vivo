@@ -41,8 +41,8 @@ func main() {
 	}
 
 	// Listen on all interfaces
-    addr := fmt.Sprintf("0.0.0.0:%s", port) // <-- change here
-    log.Printf("🚀 Server running at http://0.0.0.0:%s", port)
+	addr := fmt.Sprintf("0.0.0.0:%s", port) // <-- change here
+	log.Printf("🚀 Server running at http://0.0.0.0:%s", port)
 
 	// addr := fmt.Sprintf(":%s", port)
 	// log.Printf("🚀 Server running at http://localhost%s", addr)

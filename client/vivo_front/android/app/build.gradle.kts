@@ -42,7 +42,8 @@ android {
         applicationId = "com.example.vivo_front"
 
         // ✅ Inject placeholder for AndroidManifest.xml
-        manifestPlaceholders["mapsApiKey"] = mapsApiKey
+        manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
+
 
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion

@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
+// import 'package:flutter_google_places_hoc081098/google_maps_webservice_places.dart';
 import 'package:vivo_front/api/api_service.dart';
-import 'package:vivo_front/types/event.dart';
+// import 'package:vivo_front/types/event.dart';
 import 'package:vivo_front/utility/user_functions.dart';
 import 'package:vivo_front/types/categories.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+// import 'package:geocoding/geocoding.dart';
+
+import 'package:vivo_front/api/google_map/google_places_search.dart';
+import 'package:google_places_api_flutter/google_places_api_flutter.dart';
+
 
 class PostEventForm extends StatefulWidget {
+  // accept callback for maps.dart - google maps instance
   const PostEventForm({super.key});
 
   @override
@@ -13,7 +21,13 @@ class PostEventForm extends StatefulWidget {
 
 class PostEventFormState extends State<PostEventForm> {
   final _formKey = GlobalKey<FormState>();
-  final ApiService api = ApiService();
+  final ApiService api = ApiService(); 
+  late GoogleMapController _mapController; // Create google map controller for google map instance in POST event form
+
+  // 📍 Initial location — you can change this to your preferred coordinates
+  LatLng _mapPosition = const LatLng(44.389355, -79.690331);
+  // marker for map to show single location given by location form field 
+  Marker? _marker;
 
   // on mount run function
   // runs on class initialization
@@ -25,12 +39,90 @@ class PostEventFormState extends State<PostEventForm> {
     getCategories();
   }
 
+  // @override
+  // void didChangeDependencies()  {
+  //   super.didChangeDependencies();
+  // _fetchCategories();
+  // }
+
+// Future<void> _fetchCategories() async {
+//   await getCategories();
+// }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _descriptionController.dispose();
+    _tagsController.dispose();
+    _categoriesController.dispose();
+    _dateController.dispose();
+    _locationController.dispose();
+    super.dispose();
+  }
+
+  void _onMapCreated(GoogleMapController controller) {
+    _mapController = controller;
+  }
+
+// ----------------------------------
+// google places autocomplete
+  double curLat = 44.389355;
+  double curLng = -79.690331;
+  String curAddress = "18 Claudio Crescent";
+
+  // Convert address to LatLng
+  Future<void> _goToAddress(Prediction placeId, PlaceDetailsModel? placeDetails) async {
+    try {
+
+      if(placeDetails != null && placeDetails.result.geometry != null){
+        final lat = placeDetails.result.geometry!.location.lat;
+        final lng = placeDetails.result.geometry!.location.lng;
+
+        final newPos = LatLng(lat, lng); // create latLng object for selected coordinates...
+        print("lat: ");
+        print(lat);
+        print("lang: ");
+        print(lng);
+        
+
+        curLat = lat; // set lat 
+        curLng = lng; // set lng
+        curAddress = placeDetails.result.formatted_address!;
+        print(placeDetails.result.formatted_address!);
+      
+
+
+        setState(() {
+          _mapPosition = newPos;
+          print("setting new map position / marker for POST-EVENT-FORM MAP");
+          _marker = Marker(
+            markerId: const MarkerId('selected_address HEHE'),
+            position: newPos,
+          );
+        });
+
+        _mapController.animateCamera(
+          CameraUpdate.newLatLngZoom(newPos, 15),
+        );
+
+      }
+
+      
+      
+    } catch (e) {
+      print('Error geocoding address: $e');
+    }
+  }
+
+
   // Form controllers
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _tagsController = TextEditingController();
   final _categoriesController = TextEditingController();
   final _dateController = TextEditingController();
+  final _locationController = TextEditingController();
+
 
   // variable to hold incoming categories
   // user will choose from these in a dropdown, to populate his chosen category array
@@ -85,6 +177,9 @@ class PostEventFormState extends State<PostEventForm> {
   bool _isSubmitting = false;
   String _resultMessage = '';
 
+
+// ----------------------
+// SUBMIT EVENT
   Future<void> _submitEvent() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -107,6 +202,17 @@ class PostEventFormState extends State<PostEventForm> {
       final userId = await getCurrentUserId();
 
       print('Current user ID: $userId');
+      print({
+          'userId': userId,
+          'title': _titleController.text,
+          'description': _descriptionController.text,
+          'tags': selectedTags,
+          'categories': selectedCategories,
+          'date': _dateController.text,
+          'address': curAddress, //needs to take physical address (77 dancer rd, toronto, On, Canada)
+          'lat': curLat,
+          'lng': curLng,
+        });
 
       final newEvent = await api.request(
         endpoint: '/api/events',
@@ -118,6 +224,9 @@ class PostEventFormState extends State<PostEventForm> {
           'tags': selectedTags,
           'categories': selectedCategories,
           'date': _dateController.text,
+          'address': curAddress, //needs to take physical address (77 dancer rd, toronto, On, Canada)
+          'lat': curLat,
+          'lng': curLng,
         },
       );
 
@@ -128,7 +237,7 @@ class PostEventFormState extends State<PostEventForm> {
         _resultMessage = '✅ Event created with ID: $newEvent';
       });
 
-      print(newEvent);
+      // print(newEvent);
 
       // Clear form
       selectedCategories.clear();
@@ -138,6 +247,10 @@ class PostEventFormState extends State<PostEventForm> {
       _tagsController.clear();
       _categoriesController.clear();
       _dateController.clear();
+      // _locationController.clear();
+      curLat = 44.389355;
+      curLng = -79.690331;
+      curAddress = "18 Claudio Crescent";
     } catch (e) {
       setState(() {
         _resultMessage = '❌ submit event Error: $e';
@@ -149,21 +262,16 @@ class PostEventFormState extends State<PostEventForm> {
     }
   }
 
-  @override
-  void dispose() {
-    _titleController.dispose();
-    _descriptionController.dispose();
-    _tagsController.dispose();
-    _categoriesController.dispose();
-    _dateController.dispose();
-    super.dispose();
-  }
+
+
 
   @override
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
-      child: Column(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
         children: [
           TextFormField(
             controller: _titleController,
@@ -224,6 +332,40 @@ class PostEventFormState extends State<PostEventForm> {
               });
             },
           ),
+
+          PlacesSearch(onPlaceSelectedCallback: _goToAddress),
+
+
+
+          // TextFormField(
+          //   controller: _locationController,
+          //   decoration: const InputDecoration(labelText: 'Location'),
+          //   validator: (v) =>
+          //       v == null || v.isEmpty ? 'Enter location' : null,
+          //   onChanged: (value) {
+          //     // call GEO-CODER to get coordinates and put a marker down on map
+          //     // _goToAddress(value);
+              
+          //   }
+          // ),
+
+          const SizedBox(height: 12),
+
+              // Google Map preview
+              SizedBox(
+                height: 250,
+                child: GoogleMap(
+                  onMapCreated: _onMapCreated,
+                  initialCameraPosition: CameraPosition(
+                    target: _mapPosition,
+                    zoom: 12,
+                  ),
+                  markers: _marker != null ? {_marker!} : {},
+                  myLocationEnabled: true,
+                  myLocationButtonEnabled: true,
+                  zoomControlsEnabled: true,
+                ),
+              ),
 
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -375,6 +517,7 @@ class PostEventFormState extends State<PostEventForm> {
             ),
         ],
       ),
+    ),
     );
   }
 }

@@ -22,6 +22,10 @@
 
 
 
+- have map current location always generically grab current user coordinates on load 
+
+
+
 ---
 ### Backend
 

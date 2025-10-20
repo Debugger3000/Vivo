@@ -38,6 +38,9 @@ dependencies:
   cupertino_icons: ^1.0.8
   supabase_auth_ui: ^0.5.5
   google_maps_flutter: ^2.13.1
+  geocoding: ^4.0.0
+  flutter_google_places_hoc081098: ^2.0.0
+  google_places_api_flutter: ^2.0.0
 
 dev_dependencies:
   flutter_test:

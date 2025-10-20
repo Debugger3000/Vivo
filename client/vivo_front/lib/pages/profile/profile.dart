@@ -5,6 +5,7 @@ import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 import 'package:vivo_front/api/Events/post_event.dart';
 import 'dart:developer' as developer;
 import 'package:vivo_front/main.dart';
+import 'package:vivo_front/stateless/generic_callback_button.dart';
 
 
 
@@ -43,6 +44,24 @@ class _ProfilePageState extends State<ProfilePage> with RouteAware {
     postEventFormKey.currentState?.getCategories();
   }
 
+  // ----------------------
+
+  // Supabase logout logic
+  void logout(BuildContext context) async {
+    // 🔐 Sign out from Supabase
+    await Supabase.instance.client.auth.signOut();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Logged out successfully')),
+    );
+
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      '/login',
+      (route) => false,
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -50,38 +69,8 @@ class _ProfilePageState extends State<ProfilePage> with RouteAware {
       appBar: AppBar(title: const Text('Profile / Create Event')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Form(
-              key: _formKey,
-              child: Column(
-                children: [
-
-                  // display EVENT POST FORM
-                  const PostEventForm(),
-                ],
-              ),
-            ),
-            const SizedBox(height: 30),
-            FilledButton(
-              onPressed: () async {
-                // 🔐 Sign out from Supabase
-                await Supabase.instance.client.auth.signOut();
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Logged out successfully')),
-                );
-
-                Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  '/login',
-                  (route) => false,
-                );
-              },
-              child: const Text('Logout'),
-            ),
-          ],
-        ),
+        child: 
+          GenericCallBackButton(name: 'Logout', onPressed: () => logout(context)), // use generic call back button...
       ),
     );
   }
