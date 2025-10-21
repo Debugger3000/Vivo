@@ -8,20 +8,17 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-
 // json tags - only deals with how it appears in the response, NOTHING TO DO WITH DB MAPPING
 // name - should map to exact COLUMN name
 type CategoriesBody struct {
-Name []string `json:"Name"`
+	Name []string `json:"Name"`
 }
-
-
 
 // GET - Cateogories
 func GetCategories(c *fiber.Ctx) error {
-	
+
 	// log the body
-	fmt.Println("Grabbing categories controller...");
+	fmt.Println("Grabbing categories controller...")
 
 	// GET request - Database call line...
 	rows, err := database.Conn.Query(context.Background(), "select name from categories")
@@ -33,16 +30,14 @@ func GetCategories(c *fiber.Ctx) error {
 		})
 	}
 
-	fmt.Println("after query grabbed");
-
-
+	fmt.Println("after query grabbed")
 
 	defer rows.Close()
 
 	// Create a slice to hold all categories
 	var categories []string
 
-	// GOlang - uses this 
+	// GOlang - uses this
 	for rows.Next() {
 		var cat string
 		if err := rows.Scan(&cat); err != nil {
@@ -53,7 +48,7 @@ func GetCategories(c *fiber.Ctx) error {
 		categories = append(categories, cat)
 	}
 
-	fmt.Println("Row data from GET categories returned: ", categories);
+	fmt.Println("Row data from GET categories returned: ", categories)
 
 	// Handle any row iteration errors
 	if rows.Err() != nil {
@@ -61,10 +56,10 @@ func GetCategories(c *fiber.Ctx) error {
 			"error": "error iterating over category rows",
 		})
 	}
-
+	return c.JSON(categories)
 	// Return the categories as JSON
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"message":    "Categories grabbed successfully",
-		"categories": categories,
-	})
+	// return c.Status(fiber.StatusOK).JSON(fiber.Map{
+	// 	"message":    "Categories grabbed successfully",
+	// 	"categories": categories,
+	// })
 }

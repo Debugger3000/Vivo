@@ -78,7 +78,7 @@ Future<ResponseMessage> request({
 // Returns specified T generic type...
 // 
 // 
-  Future<T> requestList<T>({
+  Future<List<T>> requestList<T>({
     required String endpoint,
     Map<String, String>? headers,
     required T Function(dynamic) parser,
@@ -98,10 +98,15 @@ Future<ResponseMessage> request({
     }
 
     // Decode the body as a Map
-    final Map<String, dynamic> json =
-        jsonDecode(response.body) as Map<String, dynamic>;
+    // final Map<String, dynamic> json =
+    //     jsonDecode(response.body) as Map<String, dynamic>;
+
+    final List<dynamic> jsonList = jsonDecode(response.body) as List<dynamic>;
+
+    return jsonList.map((item) => parser(item)).toList();
 
 
-    return parser(json); // this is exactly what you want
+
+    // return parser(json); // this is exactly what you want
   }
 }

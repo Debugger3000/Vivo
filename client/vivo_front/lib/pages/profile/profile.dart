@@ -6,6 +6,39 @@ import 'package:vivo_front/api/Events/post_event.dart';
 import 'dart:developer' as developer;
 import 'package:vivo_front/main.dart';
 import 'package:vivo_front/stateless/generic_callback_button.dart';
+import 'package:vivo_front/com_ui_widgets/subpage_header.dart';
+
+
+
+class ProfileTab extends StatelessWidget {
+  final GlobalKey<NavigatorState> navigatorKey;
+
+  const ProfileTab({super.key, required this.navigatorKey});
+
+  @override
+  Widget build(BuildContext context) {
+    return Navigator(
+      key: navigatorKey,
+      initialRoute: '/profile',
+      onGenerateRoute: (RouteSettings settings) {
+        WidgetBuilder builder;
+
+        switch (settings.name) {
+          case '/profile':
+            builder = (context) => ProfilePage(); // Your main map UI
+            break;
+          case '/settings':
+            builder = (context) => PostEventForm(); // Subpage to push
+            break;
+          default:
+            builder = (context) => ProfilePage();
+        }
+
+        return MaterialPageRoute(builder: builder, settings: settings);
+      },
+    );
+  }
+}
 
 
 
@@ -66,7 +99,7 @@ class _ProfilePageState extends State<ProfilePage> with RouteAware {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Profile / Create Event')),
+      appBar: const SubPageHeader(title: 'Profile'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: 

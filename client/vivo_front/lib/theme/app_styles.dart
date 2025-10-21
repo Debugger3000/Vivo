@@ -23,4 +23,8 @@ class AppStyles {
     fontSize: 16,
     color: Colors.black87,
   );
+
+  // border
+  // static const Border basicBorder = 
+
 }

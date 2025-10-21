@@ -16,18 +16,15 @@
 
 class Categories {
   final List<String> categories;
-  final String message;
 
   Categories({
     required this.categories,
-    required this.message,
   });
 
   factory Categories.fromJson(Map<String, dynamic> json) {
     final raw = json['categories'] as List<dynamic>; // raw array
     return Categories(
       categories: raw.map((e) => e as String).toList(),
-      message: json['message'] as String,
     );
   }
 }

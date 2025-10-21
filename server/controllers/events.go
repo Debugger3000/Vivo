@@ -6,6 +6,7 @@ import (
 
 	"github.com/Debugger3000/Vivo/database"
 	"github.com/gofiber/fiber/v2"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type EventsBody struct {
@@ -21,13 +22,16 @@ type EventsBody struct {
 }
 
 type EventsBodyGet struct {
-	id          string   "json:id"
-	UserId      int      `json:"user_id"`
-	Title       string   `json:"title"`
-	Description string   `json:"description"`
-	Tags        []string `json:"tags"`
-	Categories  []string `json:"categories"`
-	Date        string   `json:"date"`
+	Id          string             `json:"id"`
+	UserId      string             `json:"userId"`
+	Title       string             `json:"title"`
+	Description string             `json:"description"`
+	Tags        []string           `json:"tags"`
+	Categories  []string           `json:"categories"`
+	Date        pgtype.Timestamptz `json:"date"`
+	Interested  int32              `json:"interested"`
+	Latitude    float64            `json:"latitude"`
+	Longitude   float64            `json:"longitude"`
 }
 
 // []string `json:"categories"`
@@ -107,9 +111,10 @@ func EditEvent(c *fiber.Ctx) error {
 // GET - events
 // POST /tester
 func GetEvents(c *fiber.Ctx) error {
+	
 	rows, err := database.Conn.Query(
 		context.Background(),
-		"SELECT id, user_id, title, description, tags, categories, date, interested FROM events",
+		"SELECT id, user_id, title, description, date, interested, latitude, longitude, tags, categories FROM events",
 	)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -122,23 +127,41 @@ func GetEvents(c *fiber.Ctx) error {
 
 	for rows.Next() {
 		var ev EventsBodyGet
+		var tags pgtype.Array[string]
+		var categories pgtype.Array[string]
 		if err := rows.Scan(
-			&ev.id,
+			&ev.Id,
 			&ev.UserId,
 			&ev.Title,
 			&ev.Description,
-			&ev.Tags,
-			&ev.Categories,
 			&ev.Date,
+			&ev.Interested,
+			&ev.Latitude,
+			&ev.Longitude,
+			&tags,
+			&categories,
 		); err != nil {
+			println("Get Events preview failure:", err.Error())
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"error": "failed to scan row",
 			})
 		}
+
+		// Convert to []string
+		ev.Tags = make([]string, len(tags.Elements))
+		for i, e := range tags.Elements {
+			ev.Tags[i] = e
+		}
+
+		ev.Categories = make([]string, len(categories.Elements))
+		for i, e := range categories.Elements {
+			ev.Categories[i] = e
+		}
+
 		events = append(events, ev)
 	}
 
-	println("event data: ", events)
+	fmt.Printf("event data: %+v\n", events)
 
 	return c.JSON(events)
 }

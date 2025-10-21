@@ -1,9 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:vivo_front/api/Events/post_event.dart';
+import 'package:vivo_front/api/api_service.dart';
 // import 'package:geocoding/geocoding.dart';
 
 import 'package:vivo_front/api/google_map/google_map_wid.dart';
+import 'package:vivo_front/types/event.dart';
+
+
+// Map Page Sub Page Navigator 
+// Allows bottom tab to persist, and
+
+class MapTab extends StatelessWidget {
+  final GlobalKey<NavigatorState> navigatorKey;
+
+  const MapTab({super.key, required this.navigatorKey});
+
+  @override
+  Widget build(BuildContext context) {
+    return Navigator(
+      key: navigatorKey,
+      initialRoute: '/map',
+      onGenerateRoute: (RouteSettings settings) {
+        WidgetBuilder builder;
+
+        switch (settings.name) {
+          case '/map':
+            builder = (context) => MapPage(); // Your main map UI
+            break;
+          case '/post_event':
+            builder = (context) => PostEventForm(); // Subpage to push
+            break;
+          default:
+            builder = (context) => MapPage();
+        }
+
+        return MaterialPageRoute(builder: builder, settings: settings);
+      },
+    );
+  }
+}
+
 
 
 // STATEFUL COMPONENT
@@ -17,9 +54,15 @@ class MapPage extends StatefulWidget {
 
 class _MapPageState extends State<MapPage> {
   late GoogleMapController mapController;
+  final ApiService api = ApiService(); 
 
   // 📍 Initial location — you can change this to your preferred coordinates
   final LatLng _initialPosition = const LatLng(44.389355, -79.690331);
+
+
+
+  // event previews List
+  List<GetEventPreview> eventsList = List.empty();
 
   // flag variable to show post event form on button click
   // bool _showPostForm = false;
@@ -27,9 +70,48 @@ class _MapPageState extends State<MapPage> {
   // 
   // Marker? _marker;
 
-  void _onMapCreated(GoogleMapController controller) {
-    mapController = controller;
+  // void _onMapCreated(GoogleMapController controller) {
+  //   mapController = controller;
+  // }
+
+
+  @override
+  void initState() {
+    super.initState();
+    print('init state in map.dart');
+    // developer.log("Post event form has ran hehe", name: 'vivo-loggy', level: 0);
+    getEvents();
   }
+
+
+  // getEvent previews for markers
+  Future<void> getEvents() async {
+    try {
+      print('calling get events preview');
+      final events = await api.requestList<GetEventPreview>(
+        endpoint: '/api/events-preview',
+        parser: (item) => GetEventPreview.fromJson(item as Map<String, dynamic>),
+      );
+
+      // print("printer;categories returned: $categories");
+      // developer.log("GET returned response: $categories", name:'vivo-loggy', level: 0);
+      print("returned GET data: $events");
+
+      // IMPORTANT: setState() should be used to update UI / core to flutter/dart lifecycle...
+      setState(() {
+        eventsList = events;
+      });
+    } catch (e) {
+      print('error on getEvents in map.dart: $e');
+    } finally {
+      setState(() {
+        // _isSubmitting = false;
+        print("done get events");
+      });
+    }
+  }
+
+
 
 
   // Convert address to coordinates
@@ -57,12 +139,22 @@ class _MapPageState extends State<MapPage> {
   // }
 
 
+
 @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: null,
       body: Stack(
         children: [
-          MapSample(),
+          // create google map instance from widget
+          MapSample(
+            mapPosition: _initialPosition,  
+            zoom: 11.0,
+            myLocationEnabled: true,
+            myLocationButtonEnabled: true,
+            zoomControlsEnabled: true,
+            markers: eventsList,
+          ),
           
           // // 🗺️ Base map layer
           // GoogleMap(
@@ -122,31 +214,33 @@ class _MapPageState extends State<MapPage> {
             right: 20,
             child: FloatingActionButton(
               onPressed: () {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  isDismissible: true,  // allows tapping outside to dismiss
-                  enableDrag: true,     // allows swipe down to dismiss
-                  backgroundColor: Colors.transparent, // optional
-                  builder: (_) => DraggableScrollableSheet(
-                    initialChildSize: 0.8,
-                    minChildSize: 0.4,
-                    maxChildSize: 1.0,
+                Navigator.of(context).pushNamed('/post_event');
+
+                // showModalBottomSheet(
+                //   context: context,
+                //   isScrollControlled: true,
+                //   isDismissible: true,  // allows tapping outside to dismiss
+                //   enableDrag: true,     // allows swipe down to dismiss
+                //   backgroundColor: Colors.transparent, // optional
+                //   builder: (_) => DraggableScrollableSheet(
+                //     initialChildSize: 0.8,
+                //     minChildSize: 0.4,
+                //     maxChildSize: 1.0,
                     
-                    builder: (_, controller) => Container(
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-                      ),
-                      child: SingleChildScrollView(
-                      controller: controller,
-                      child: Builder(
-                        builder: (_) => PostEventForm(), // PlacesSearch only created inside PostEventForm on FAB press
-                      ),
-                    ),
-                                      ),
-                  ),
-                );
+                //     builder: (_, controller) => Container(
+                //       decoration: const BoxDecoration(
+                //         color: Colors.white,
+                //         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                //       ),
+                //       child: SingleChildScrollView(
+                //       controller: controller,
+                //       child: Builder(
+                //         builder: (_) => PostEventForm(), // PlacesSearch only created inside PostEventForm on FAB press
+                //       ),
+                //     ),
+                //                       ),
+                //   ),
+                // );
               },
               backgroundColor: Colors.blue,
               child: Icon(Icons.add),
@@ -159,3 +253,6 @@ class _MapPageState extends State<MapPage> {
     );
   }
 }
+
+
+

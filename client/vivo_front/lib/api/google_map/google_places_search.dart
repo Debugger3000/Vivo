@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_places_api_flutter/google_places_api_flutter.dart';
+import 'package:vivo_front/com_ui_widgets/padding.dart';
 
 // class PlacesSearch extends StatelessWidget {
 //   final void Function(Prediction placeId, PlaceDetailsModel? latLng) onPlaceSelectedCallback;
@@ -87,21 +88,28 @@ class _PlacesSearchState extends State<PlacesSearch> {
         Container(
           height: 50,
           decoration: BoxDecoration(
-            color: const Color.fromARGB(255, 255, 255, 255),
+            borderRadius: BorderRadius.circular(36),
+            
+            // border: Border.all(
+            //   color: const Color.fromARGB(255, 218, 218, 218), // light gray
+            //   width: 1.0, // thin border
+            // ),
+            // color: const Color.fromARGB(255, 255, 255, 255),
             // boxShadow: [
             //   BoxShadow(
-            //     // color: Colors.black.withOpacity(0.1),
-            //     // blurRadius: 4,
+            //     color: Colors.black.withOpacity(0.1),
+            //     blurRadius: 4,
             //     offset: const Offset(0, 2),
             //   ),
             // ],
           ),
           child: Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
             child: PlaceSearchField(
               apiKey: "AIzaSyC_o3tXMGvFS0mbvg_pTJdPwzj52uCL02w",
-              controller: _searchController, // 👈 add controller
+              controller: _searchController,
               isLatLongRequired: true,
+              
               
               
               onPlaceSelected: (prediction, placeDetails) {

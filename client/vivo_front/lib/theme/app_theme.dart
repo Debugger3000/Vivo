@@ -13,12 +13,16 @@ class AppTheme {
     textTheme: const TextTheme(
       bodyMedium: AppStyles.bodyMedium,
       headlineMedium: AppStyles.headingMedium,
-      // headline1: AppStyles.heading,
-      // bodyText1: AppStyles.body,
     ),
-    appBarTheme: const AppBarTheme(
-      backgroundColor: AppStyles.primaryColor,
-      foregroundColor: Colors.white,
+    appBarTheme: AppBarTheme(
+      backgroundColor: AppStyles.primaryColor, // AppBar background
+      foregroundColor: Colors.white,           // default icon/text color
+      elevation: 1,
+      centerTitle: true,
+      titleTextStyle: AppStyles.headingMedium.copyWith(
+        color: const Color.fromARGB(255, 240, 240, 240), // AppBar title text color
+      ),
+      iconTheme: const IconThemeData(color: Colors.white), // leading icons
     ),
     // buttonTheme: const ButtonThemeData(
     //   buttonColor: AppStyles.secondaryColor,
@@ -37,6 +41,37 @@ class AppTheme {
         ),
       ),
     ),
+     bottomNavigationBarTheme: BottomNavigationBarThemeData(
+      backgroundColor: Colors.blue,
+      selectedItemColor: Colors.white,
+      unselectedItemColor: Colors.white.withOpacity(0.7),
+      selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
+      unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal),
+      type: BottomNavigationBarType.fixed, // ensures fixed style
+    ),
+
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: const Color.fromARGB(255, 255, 255, 255),
+      contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+         borderSide: const BorderSide(
+              color: Color.fromARGB(255, 218, 218, 218), // light gray border
+              width: 0.0, // thin border
+            ),
+      
+      ),
+      hintStyle: TextStyle(
+        color: Colors.grey[600],
+        fontWeight: FontWeight.w500,
+      ),
+      labelStyle: TextStyle(
+        color: Colors.grey[800],
+        fontWeight: FontWeight.w600,
+      ),
+    ),
+     
   );
 }
 

@@ -17,37 +17,51 @@ class NavigationWrapper extends StatefulWidget {
 class _NavigationWrapperState extends State<NavigationWrapper> {
   int _selectedIndex = 0;
 
-  final List<Widget> _pages = const [
-    MapPage(),
-    ProfilePage(),
-  ];
+  // Optional: a key for the nested navigator in MapTab
+  final GlobalKey<NavigatorState> _mapNavKey = GlobalKey<NavigatorState>();
+  final GlobalKey<NavigatorState> _profileNavKey = GlobalKey<NavigatorState>();
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+   final List<Widget> _tabs = [];
+
+  // run on widget build
+  @override
+  void initState() {
+    super.initState();
+    _tabs.addAll([
+      MapTab(navigatorKey: _mapNavKey), // <-- use MapTab here
+      ProfileTab(navigatorKey: _profileNavKey),
+    ]);
+  }
+
+
+  void _onTabTapped(int index) {
+    setState(() => _selectedIndex = index);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_selectedIndex],
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _selectedIndex,
-        onDestinationSelected: _onItemTapped,
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: 'Map',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
-            label: 'Profile',
-          ),
+      appBar: null,
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: _tabs,
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Colors.blue,
+        currentIndex: _selectedIndex,
+        onTap: _onTabTapped,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.map), label: 'Map'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
     );
   }
 }
+
+
+// 
+// Navigator.push(
+//   context,
+//   MaterialPageRoute(builder: (_) => const MapPage()),
+// );

@@ -7,7 +7,7 @@ import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 import 'package:vivo_front/navigation_wrapper.dart';
 // import 'package:google_maps_flutter/google_maps_flutter.dart';
 // import 'package:vivo_front/tester.dart';
-import 'package:vivo_front/api/google_map/google_map_wid.dart';
+// import 'package:vivo_front/api/google_map/google_map_wid.dart';
 
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
@@ -39,30 +39,74 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Vivo Front',
       theme: AppTheme.lightTheme,
+      initialRoute: '/auth_gate',
+      // Root navigation
       routes: {
+        '/auth_gate': (context) => const AuthGate(),
         '/login': (context) => const LoginPage(),
         '/navigation': (context) => const NavigationWrapper(),
-        '/map': (context) => const MapPage(), // New route for Google Map
       },
       navigatorObservers: [routeObserver],
-      home: const AuthGate(),
     );
   }
 }
 
 // AuthGate decides which page to show initially
 // STATELESS 
+// class AuthGate extends StatelessWidget {
+//   const AuthGate({super.key});
+
+
+//   // returning a widget here, instead of a Scaffold for Flutter widgets
+//   @override
+//   Widget build(BuildContext context) {
+//     // see if a user session is logged in
+//     final session = Supabase.instance.client.auth.currentSession;
+
+//     // no user session found
+//     if (session == null) {
+//       Navigator.pushReplacementNamed(context, '/login');
+//     }
+
+//     // return app home
+//     Navigator.pushReplacementNamed(context, '/navigation');
+//   }
+// }
+
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
 
+  Future<String> _getInitialRoute() async {
+    final session = Supabase.instance.client.auth.currentSession;
+    return session == null ? '/login' : '/navigation';
+  }
+
   @override
   Widget build(BuildContext context) {
-    final session = Supabase.instance.client.auth.currentSession;
 
-    if (session == null) {
-      return const LoginPage();
-    }
 
-    return const NavigationWrapper();
+    // FutureBuilder watches the Future you pass in.
+    // It rebuilds its widget every time the state of the Future changes.
+    return FutureBuilder<String>(
+      future: _getInitialRoute(), // async function you provide
+      builder: (context, snapshot) { //
+        if (!snapshot.hasData) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        if(snapshot.hasError){
+          print("Error on AuthGate Future");
+        }
+
+        // basically just a .then, / makes sure widget tree builds first, and then pushes a nav
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.pushReplacementNamed(context, snapshot.data!);
+        });
+
+        return const SizedBox(); // placeholder
+      },
+    );
   }
 }
