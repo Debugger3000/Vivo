@@ -97,9 +97,9 @@ func EditEvent(c *fiber.Ctx) error {
 	_, err := database.Conn.Exec(
 		context.Background(),
 		`UPDATE events 
-         SET title = $1, description = $2, tags = $3, categories = $4, latitude = $5, longitude = $6, start_time = $7, end_time = $8
-         WHERE id = $9`,
-		body.Title, body.Description, body.Tags, body.Categories, body.Latitude, body.Longitude, body.StartTime, body.EndTime, body.Id,
+         SET title = $1, description = $2, tags = $3, categories = $4, latitude = $5, longitude = $6, address = $7, start_time = $8, end_time = $9
+         WHERE id = $10`,
+		body.Title, body.Description, body.Tags, body.Categories, body.Latitude, body.Longitude, body.Address, body.StartTime, body.EndTime, body.Id,
 	)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
