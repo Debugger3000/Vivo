@@ -97,7 +97,7 @@ func EditEvent(c *fiber.Ctx) error {
 	_, err := database.Conn.Exec(
 		context.Background(),
 		`UPDATE events 
-         title = $1, description = $2, tags = $3, categories = $4, latitude = $5, longitude = $6, start_time = $7, end_time = $8
+         SET title = $1, description = $2, tags = $3, categories = $4, latitude = $5, longitude = $6, start_time = $7, end_time = $8
          WHERE id = $9`,
 		body.Title, body.Description, body.Tags, body.Categories, body.Latitude, body.Longitude, body.StartTime, body.EndTime, body.Id,
 	)
