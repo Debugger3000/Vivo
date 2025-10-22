@@ -59,7 +59,8 @@ class PostEventFormState extends State<PostEventForm> {
     _descriptionController.dispose();
     _tagsController.dispose();
     _categoriesController.dispose();
-    _dateController.dispose();
+    _startTimeController.dispose();
+    _endTimeController.dispose();
     _locationController.dispose();
     super.dispose();
   }
@@ -124,7 +125,8 @@ class PostEventFormState extends State<PostEventForm> {
   final _descriptionController = TextEditingController();
   final _tagsController = TextEditingController();
   final _categoriesController = TextEditingController();
-  final _dateController = TextEditingController();
+  final _startTimeController = TextEditingController();
+  final _endTimeController = TextEditingController();
   final _locationController = TextEditingController();
 
 
@@ -216,7 +218,8 @@ class PostEventFormState extends State<PostEventForm> {
           'description': _descriptionController.text,
           'tags': selectedTags,
           'categories': selectedCategories,
-          'date': _dateController.text,
+          'startTime': _startTimeController.text,
+          'endTime': _endTimeController.text,
           'address': curAddress, //needs to take physical address (77 dancer rd, toronto, On, Canada)
           'lat': curLat,
           'lng': curLng,
@@ -231,18 +234,19 @@ class PostEventFormState extends State<PostEventForm> {
           'description': _descriptionController.text,
           'tags': selectedTags,
           'categories': selectedCategories,
-          'date': _dateController.text,
+          'startTime': _startTimeController.text,
+          'endTime': _endTimeController.text,
           'address': curAddress, //needs to take physical address (77 dancer rd, toronto, On, Canada)
           'lat': curLat,
           'lng': curLng,
         },
       );
 
-      print(newEvent.message);
+      print(newEvent);
       print("post event after req...");
 
       setState(() {
-        _resultMessage = '✅ Event created with ID: $newEvent';
+        _resultMessage = '✅ Event created';
       });
 
       // print(newEvent);
@@ -254,8 +258,9 @@ class PostEventFormState extends State<PostEventForm> {
       _descriptionController.clear();
       _tagsController.clear();
       _categoriesController.clear();
-      _dateController.clear();
-      // _locationController.clear();
+      _startTimeController.clear();
+      _endTimeController.clear();
+      _locationController.clear();
       curLat = 44.389355;
       curLng = -79.690331;
       curAddress = "18 Claudio Crescent";
@@ -285,21 +290,14 @@ class PostEventFormState extends State<PostEventForm> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
           children: [
+
+            // Title 
             BasicTextField( controller: _titleController,
               label: 'Title',
               validator: (v) => v == null || v.isEmpty ? 'Enter title' : null
             ),
-            // TextFormField(
-            //   controller: _titleController,
-            //   decoration: const InputDecoration(labelText: 'Title'),
-            //   validator: (v) => v == null || v.isEmpty ? 'Enter title' : null,
-            // ),
-            // TextFormField(
-            //   controller: _descriptionController,
-            //   decoration: const InputDecoration(labelText: 'Description'),
-            //   validator: (v) =>
-            //       v == null || v.isEmpty ? 'Enter description' : null,
-            // ),
+            
+            // Description
             BasicTextField( controller: _descriptionController,
               label: 'Description',
               maxLines: 5,
@@ -308,57 +306,10 @@ class PostEventFormState extends State<PostEventForm> {
               validator: (v) => v == null || v.isEmpty ? 'Description' : null
             ),
 
-            // Replace your TextFormField for date with this:
-            // TextFormField(
-            //   controller: _dateController,
-            //   readOnly: true, // prevents manual typing
-            //   decoration: const InputDecoration(
-            //     labelText: 'Date & Time',
-            //     suffixIcon: Icon(Icons.calendar_today),
-            //   ),
-            //   onTap: () async {
-            //     // Pick the date first
-            //     final DateTime? pickedDate = await showDatePicker(
-            //       context: context,
-            //       initialDate: DateTime.now(),
-            //       firstDate: DateTime(2000),
-            //       lastDate: DateTime(2100),
-            //     );
-
-            //     if (pickedDate == null) return; // user canceled
-
-            //     // Pick the time
-            //     final TimeOfDay? pickedTime = await showTimePicker(
-            //       context: context,
-            //       initialTime: TimeOfDay.now(),
-            //     );
-
-            //     if (pickedTime == null) return; // user canceled
-
-            //     // Combine date + time
-            //     final DateTime finalDateTime = DateTime(
-            //       pickedDate.year,
-            //       pickedDate.month,
-            //       pickedDate.day,
-            //       pickedTime.hour,
-            //       pickedTime.minute,
-            //     );
-
-            //     // Update the controller
-            //     setState(() {
-            //       _dateController.text =
-            //           "${finalDateTime.year.toString().padLeft(4, '0')}-"
-            //           "${finalDateTime.month.toString().padLeft(2, '0')}-"
-            //           "${finalDateTime.day.toString().padLeft(2, '0')} "
-            //           "${finalDateTime.hour.toString().padLeft(2, '0')}:"
-            //           "${finalDateTime.minute.toString().padLeft(2, '0')}";
-            //     });
-            //   },
-            // ),
-
+            // Start Time field
             BasicTextField(
-              controller: _dateController,
-              label: 'Date',
+              controller: _startTimeController,
+              label: 'Start Time',
               suffixIcon: Icon(Icons.calendar_today),
               readOnly: true, // prevents manual typing
               onTap: () async {
@@ -391,7 +342,7 @@ class PostEventFormState extends State<PostEventForm> {
 
                 // Update the controller
                 setState(() {
-                  _dateController.text =
+                  _startTimeController.text =
                       "${finalDateTime.year.toString().padLeft(4, '0')}-"
                       "${finalDateTime.month.toString().padLeft(2, '0')}-"
                       "${finalDateTime.day.toString().padLeft(2, '0')} "
@@ -401,24 +352,57 @@ class PostEventFormState extends State<PostEventForm> {
               },
             ),
 
+            // End Time 
+            BasicTextField(
+              controller: _endTimeController,
+              label: 'End Time',
+              suffixIcon: Icon(Icons.calendar_today),
+              readOnly: true, // prevents manual typing
+              onTap: () async {
+                // Pick the date first
+                final DateTime? pickedDate = await showDatePicker(
+                  context: context,
+                  initialDate: DateTime.now(),
+                  firstDate: DateTime(2000),
+                  lastDate: DateTime(2100),
+                );
+
+                if (pickedDate == null) return; // user canceled
+
+                // Pick the time
+                final TimeOfDay? pickedTime = await showTimePicker(
+                  context: context,
+                  initialTime: TimeOfDay.now(),
+                );
+
+                if (pickedTime == null) return; // user canceled
+
+                // Combine date + time
+                final DateTime finalDateTime = DateTime(
+                  pickedDate.year,
+                  pickedDate.month,
+                  pickedDate.day,
+                  pickedTime.hour,
+                  pickedTime.minute,
+                );
+
+                // Update the controller
+                setState(() {
+                  _endTimeController.text =
+                      "${finalDateTime.year.toString().padLeft(4, '0')}-"
+                      "${finalDateTime.month.toString().padLeft(2, '0')}-"
+                      "${finalDateTime.day.toString().padLeft(2, '0')} "
+                      "${finalDateTime.hour.toString().padLeft(2, '0')}:"
+                      "${finalDateTime.minute.toString().padLeft(2, '0')}";
+                });
+              },
+            ),
+
+            // Google Places search bar
             PlacesSearch(onPlaceSelectedCallback: _goToAddress),
 
-
-
-            // TextFormField(
-            //   controller: _locationController,
-            //   decoration: const InputDecoration(labelText: 'Location'),
-            //   validator: (v) =>
-            //       v == null || v.isEmpty ? 'Enter location' : null,
-            //   onChanged: (value) {
-            //     // call GEO-CODER to get coordinates and put a marker down on map
-            //     // _goToAddress(value);
-                
-            //   }
-            // ),
-
+            // mini google map to show the location picked...
             const SizedBox(height: 12),
-
                 // Google Map preview
                 SizedBox(
                   height: 250,

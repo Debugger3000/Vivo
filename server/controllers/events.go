@@ -15,10 +15,11 @@ type EventsBody struct {
 	Description string   `json:"description"`
 	Tags        []string `json:"tags"`
 	Categories  []string `json:"categories"`
-	Date        string   `json:"date"`
+	StartTime   string   `json:"startTime"`
+	EndTime     string   `json:"endTime"`
 	Address     string   `json:"address"`
 	Lat         float64  `json:"lat"`
-	Lng         float64  `json:"lng"`
+	Lng         float64  `json:"lng"` // access field | data type | FIELD to map from req body
 }
 
 type EventsBodyGet struct {
@@ -48,12 +49,13 @@ func CreateEvent(c *fiber.Ctx) error {
 
 	// log the body
 	fmt.Println("Post Events body: ", body)
+	fmt.Println("Post ev start: ", body.StartTime)
 
 	// Insert into table
 	_, err := database.Conn.Exec(
 		context.Background(),
-		"INSERT INTO events (user_id, title, description, tags, categories, date, address, latitude, longitude) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)",
-		body.UserId, body.Title, body.Description, body.Tags, body.Categories, body.Date, body.Address, body.Lat, body.Lng,
+		"INSERT INTO events (user_id, title, description, tags, categories, start_time, end_time, address, latitude, longitude) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)",
+		body.UserId, body.Title, body.Description, body.Tags, body.Categories, body.StartTime, body.EndTime, body.Address, body.Lat, body.Lng,
 	)
 	if err != nil {
 		fmt.Println(err)

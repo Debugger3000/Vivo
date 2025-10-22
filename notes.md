@@ -14,15 +14,12 @@
 
 ### General Notes / Comments
 
-- Grab userId from session or current device to use for POST EVENTS...
-- Remove interested
-- POST Events
-- Dropdown for categories
-- Tags logic into string[]
+- Listview main nav page
+- popup widget for reuse
+- edit event / delete event
 
 
 
-- have map current location always generically grab current user coordinates on load 
 
 
 
