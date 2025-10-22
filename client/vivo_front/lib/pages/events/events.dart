@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:vivo_front/api/Events/post_event.dart';
 import 'package:vivo_front/api/api_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:vivo_front/com_ui_widgets/mainpage_header.dart';
 import 'package:vivo_front/types/event.dart';
 
 
@@ -43,10 +44,10 @@ class EventsTab extends StatelessWidget {
 
 
 class EventsPage extends StatefulWidget {
-  const EventsPage({ Key? key }) : super(key: key);
+  const EventsPage({super.key});
 
   @override
-  _EventsState createState() => _EventsState();
+  State<EventsPage> createState() => _EventsState();
 }
 
 class _EventsState extends State<EventsPage> {
@@ -54,29 +55,30 @@ class _EventsState extends State<EventsPage> {
   final ApiService api = ApiService(); 
 
   List<GetEventPreview> eventsList = [];
-  bool _loading = true;
-  String? _error;
+  // bool _loading = true;
+  // String? _error;
 
   @override
   void initState() {
     super.initState();
     _load();
+    //getEvents();
   }
 
   Future<void> _load() async {
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
+    // setState(() {
+    //   _loading = true;
+    //   _error = null;
+    // });
 
     try {
       await getEvents();
     } catch (e) {
-      _error = e.toString();
+      //_error = e.toString();
     } finally {
-      setState(() {
-        _loading = false;
-      });
+      // setState(() {
+      //   _loading = false;
+      // });
     }
   }
 
@@ -84,7 +86,14 @@ class _EventsState extends State<EventsPage> {
   // getEvent previews for markers
   Future<void> getEvents() async {
     try {
-      print('calling get events preview');
+
+
+    //   setState(() {
+    //   _loading = true;
+    //   _error = null;
+    // });
+
+      print('calling get events preview....................');
       final events = await api.requestList<GetEventPreview>(
         endpoint: '/api/events-preview',
         parser: (item) => GetEventPreview.fromJson(item as Map<String, dynamic>),
@@ -92,10 +101,15 @@ class _EventsState extends State<EventsPage> {
 
       // print("printer;categories returned: $categories");
       // developer.log("GET returned response: $categories", name:'vivo-loggy', level: 0);
-      print("returned GET data: events");
+      print("returned GET event page: events............................................");
+      print(events);
+
+      
 
       // IMPORTANT: setState() should be used to update UI / core to flutter/dart lifecycle...
       setState(() {
+        print("--------------setting events data---------------");
+        // _loading = false;
         eventsList = events;
       });
     } catch (e) {
@@ -111,36 +125,40 @@ class _EventsState extends State<EventsPage> {
   void _goToCreate() async {
     await Navigator.of(context).pushNamed('/post_event');
     // Reload events after returning
-    await _load();
+    // await _load();
   }
 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Events')),
+      appBar: MainPageHeader(),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _goToCreate,
         icon: const Icon(Icons.add),
         label: const Text('Post event'),
       ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : (_error != null)
-              ? _ErrorState(message: 'Could not load events.', detail: _error!, onRetry: _load)
-              : (eventsList.isEmpty)
-                  ? _EmptyState(onCreate: _goToCreate)
-                  : EventsListView(
-                      events: eventsList,
-                      onRefresh: _load,
-                      onTap: (e) {
-                        // TODO: push details page if/when you add one
-                        // Navigator.of(context).pushNamed('/event_details', arguments: e.id);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Open details for "${_titleOf(e)}"')),
-                        );
-                      },
-                    ),
+      body: 
+          ListView.builder(
+              itemCount: eventsList.length,
+              itemBuilder: (context, index) {
+                final event = eventsList[index];
+                return ListTile(
+                  leading: const Icon(Icons.event),
+                  title: Text(event.title),
+                  subtitle: Text(
+                      '${event.startTime} → ${event.endTime}\n${event.description}'),
+                  isThreeLine: true,
+                  trailing: Text('${event.interested} 👍'),
+                  onTap: () {
+                    // Handle tap if needed
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Tapped: ${event.title}')),
+                    );
+                  },
+                );
+              },
+            ),
     );
   }
 }

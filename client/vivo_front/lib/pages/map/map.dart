@@ -99,7 +99,7 @@ class _MapPageState extends State<MapPage> {
     // developer.log("Post event form has ran hehe", name: 'vivo-loggy', level: 0);
     // getEvents();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-    getEvents();
+    //getEvents();
   });
   }
 

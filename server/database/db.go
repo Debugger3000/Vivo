@@ -4,7 +4,8 @@ import (
 	"context"
 	"log"
 	"os"
-	"time"
+
+	//"time"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -13,8 +14,8 @@ var Conn *pgx.Conn
 
 // ConnectDB establishes the initial DB connection
 func ConnectDB() {
-    connect()
-    go startHealthCheck() // start background health check
+	connect()
+	//go startHealthCheck() // start background health check
 }
 
 func connect() {
@@ -34,33 +35,33 @@ func connect() {
 	//log.Println("Postgres version:", version)
 }
 
-// health check 
+// health check
 // // startHealthCheck pings the DB every 15 seconds
-func startHealthCheck() {
-    ticker := time.NewTicker(15 * time.Second)
-    defer ticker.Stop()
+// func startHealthCheck() {
+// 	ticker := time.NewTicker(60 * time.Second)
+// 	defer ticker.Stop()
 
-    for range ticker.C {
-        if Conn == nil {
-            log.Println("DB connection nil, reconnecting...")
-            connect()
-            continue
-        }
+// 	for range ticker.C {
+// 		if Conn == nil {
+// 			log.Println("DB connection nil, reconnecting...")
+// 			connect()
+// 			continue
+// 		}
 
-        ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-        defer cancel()
+// 		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+// 		defer cancel()
 
-        var one int
-        err := Conn.QueryRow(ctx, "SELECT 1").Scan(&one)
-        if err != nil {
-            log.Println("DB health check failed:", err)
-            log.Println("Attempting to reconnect...")
-            connect()
-        } else {
-            log.Println("DB is healthy ✅")
-        }
-    }
-}
+// 		var one int
+// 		err := Conn.QueryRow(ctx, "SELECT 1").Scan(&one)
+// 		if err != nil {
+// 			log.Println("DB health check failed:", err)
+// 			log.Println("Attempting to reconnect...")
+// 			connect()
+// 		} else {
+// 			log.Println("DB is healthy ✅")
+// 		}
+// 	}
+// }
 
 // Close connection on shutdown
 func CloseDB() {

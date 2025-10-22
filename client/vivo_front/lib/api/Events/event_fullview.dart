@@ -75,7 +75,7 @@ class _EventFullViewState extends State<EventFullView> {
             ),
             const SizedBox(height: 4),
             Text(
-              event.date,
+              event.createdAt,
               style: TextStyle(
                 color: Colors.grey[600],
                 fontSize: 14,

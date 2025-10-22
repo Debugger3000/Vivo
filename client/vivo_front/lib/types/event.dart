@@ -35,19 +35,24 @@ class GetEventPreview {
   final String userId;
   final String title;
   final String description;
-  final String date;
+  final String createdAt;
+  final String startTime;
+  final String endTime;
   final double latitude;
   final double longitude;
   final int interested;
   final List<String> tags;
   final List<String> categories;
 
+
   GetEventPreview({
     required this.id,
     required this.userId,
     required this.title,
     required this.description,
-    required this.date,
+    required this.createdAt,
+    required this.startTime,
+    required this.endTime,
     required this.latitude,
     required this.longitude,
     this.interested = 0,
@@ -61,7 +66,9 @@ class GetEventPreview {
       userId: json['userId'] as String,
       title: json['title'] as String,
       description: json['description'] as String,
-      date: json['date'] as String,
+      createdAt: json['createdAt'] as String,
+      startTime: json['startTime'] as String,
+      endTime: json['endTime'] as String,
       latitude: (json['latitude'] as num).toDouble(),
       longitude: (json['longitude'] as num).toDouble(),
       interested: (json['interested'] as num?)?.toInt() ?? 0,

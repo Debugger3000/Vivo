@@ -97,6 +97,12 @@ Future<ResponseMessage> request({
       );
     }
 
+    if( response.body.length < 1){
+      throw Exception(
+        'List returned from req is EMPTY [${response.statusCode}]: ${response.body}',
+      );
+    }
+
     // Decode the body as a Map
     // final Map<String, dynamic> json =
     //     jsonDecode(response.body) as Map<String, dynamic>;

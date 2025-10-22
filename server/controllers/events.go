@@ -29,7 +29,7 @@ type EventsBodyGet struct {
 	Description string             `json:"description"`
 	Tags        []string           `json:"tags"`
 	Categories  []string           `json:"categories"`
-	Date        pgtype.Timestamptz `json:"dateCreated"`
+	CreatedAt   pgtype.Timestamptz `json:"createdAt"`
 	Interested  int32              `json:"interested"`
 	Latitude    float64            `json:"latitude"`
 	Longitude   float64            `json:"longitude"`
@@ -116,10 +116,11 @@ func EditEvent(c *fiber.Ctx) error {
 // GET - events
 // POST /tester
 func GetEvents(c *fiber.Ctx) error {
+	fmt.Println("Get events preview...")
 
 	rows, err := database.Conn.Query(
 		context.Background(),
-		"SELECT id, user_id, title, description, date_created, interested, latitude, longitude, tags, categories FROM events",
+		"SELECT id, user_id, title, description, created_at, interested, latitude, longitude, start_time, end_time, tags, categories FROM events",
 	)
 	// check if there was error fetching data
 	if err != nil {
@@ -143,17 +144,21 @@ func GetEvents(c *fiber.Ctx) error {
 			&ev.UserId,
 			&ev.Title,
 			&ev.Description,
-			&ev.Date,
+			&ev.CreatedAt,
 			&ev.Interested,
 			&ev.Latitude,
 			&ev.Longitude,
+			&ev.StartTime,
+			&ev.EndTime,
 			&tags,
 			&categories,
 		); err != nil {
-			println("Get Events preview failure:", err.Error())
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error": "failed to scan row",
-			})
+			// println("Get Events preview failure:", err.Error())
+			// return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			// 	"error": "failed to scan row",
+			// })
+			fmt.Println("Skipping row:", err)
+			continue
 		}
 
 		// Convert to []string
