@@ -31,6 +31,8 @@ class PostEventFormState extends State<PostEventForm> {
   // marker for map to show single location given by location form field 
   Marker? _marker;
 
+
+
   // on mount run function
   // runs on class initialization
   @override
@@ -298,12 +300,12 @@ class PostEventFormState extends State<PostEventForm> {
             //   validator: (v) =>
             //       v == null || v.isEmpty ? 'Enter description' : null,
             // ),
-            BasicTextField( controller: _titleController,
+            BasicTextField( controller: _descriptionController,
               label: 'Description',
               maxLines: 5,
               maxLength: 250,
               keyboardType: TextInputType.multiline,
-              validator: (v) => v == null || v.isEmpty ? 'Enter title' : null
+              validator: (v) => v == null || v.isEmpty ? 'Description' : null
             ),
 
             // Replace your TextFormField for date with this:

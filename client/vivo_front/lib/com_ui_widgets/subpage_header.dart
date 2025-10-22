@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:vivo_front/theme/app_theme.dart'; // adjust import as needed
 
+
+// Basic header for BACK + TITLE on subpages
+// 
 class SubPageHeader extends StatelessWidget implements PreferredSizeWidget {
   final String title;
 
@@ -8,7 +10,6 @@ class SubPageHeader extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return AppBar(
       automaticallyImplyLeading: false, // remove default back arrow    
       leading: IconButton(

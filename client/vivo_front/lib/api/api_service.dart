@@ -89,7 +89,7 @@ Future<ResponseMessage> request({
     final response = await http.get(uri, headers: combinedHeaders);
 
     // developer.log("printer;GET returned response: $response", name:'vivo-loggy', level: 0);
-    print(response.body);
+    
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw Exception(
@@ -103,6 +103,7 @@ Future<ResponseMessage> request({
 
     final List<dynamic> jsonList = jsonDecode(response.body) as List<dynamic>;
 
+    print(jsonList.length);
     return jsonList.map((item) => parser(item)).toList();
 
 

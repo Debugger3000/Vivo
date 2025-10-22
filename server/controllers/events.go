@@ -111,16 +111,20 @@ func EditEvent(c *fiber.Ctx) error {
 // GET - events
 // POST /tester
 func GetEvents(c *fiber.Ctx) error {
-	
+
 	rows, err := database.Conn.Query(
 		context.Background(),
 		"SELECT id, user_id, title, description, date, interested, latitude, longitude, tags, categories FROM events",
 	)
+	// check if there was error fetching data
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "failed to fetch events",
 		})
+	} else {
+		fmt.Println("Query no error...")
 	}
+
 	defer rows.Close()
 
 	var events []EventsBodyGet
@@ -157,9 +161,16 @@ func GetEvents(c *fiber.Ctx) error {
 		for i, e := range categories.Elements {
 			ev.Categories[i] = e
 		}
-
+		fmt.Println("Event appended in Get")
 		events = append(events, ev)
 	}
+
+	// check if rows are empty...
+	// if len(events) == 0 {
+	// 	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+	// 		"error": "Event array is empty",
+	// 	})
+	// }
 
 	fmt.Printf("event data: %+v\n", events)
 

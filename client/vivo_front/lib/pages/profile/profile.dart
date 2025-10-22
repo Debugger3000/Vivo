@@ -51,7 +51,7 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> with RouteAware {
-  final _formKey = GlobalKey<FormState>();
+  // final _formKey = GlobalKey<FormState>();
   final ApiService api = ApiService();
 
   final GlobalKey<PostEventFormState> postEventFormKey = GlobalKey<PostEventFormState>();

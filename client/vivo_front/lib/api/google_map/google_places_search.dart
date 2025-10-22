@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_places_api_flutter/google_places_api_flutter.dart';
-import 'package:vivo_front/com_ui_widgets/padding.dart';
 
 // class PlacesSearch extends StatelessWidget {
 //   final void Function(Prediction placeId, PlaceDetailsModel? latLng) onPlaceSelectedCallback;

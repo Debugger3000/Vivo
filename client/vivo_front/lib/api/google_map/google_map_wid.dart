@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+  import 'dart:math';
 
 // ===============================
 // ✅ Google Maps Sample Page
 // ===============================
-import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+
 import 'package:vivo_front/types/event.dart';
 
 class MapSample extends StatefulWidget {
   final LatLng mapPosition;
   final double zoom;
   final List<GetEventPreview>? markers;
+  final Set<Marker>? markersSet;
   final bool myLocationEnabled;
   final bool myLocationButtonEnabled;
   final bool zoomControlsEnabled;
@@ -24,6 +25,7 @@ class MapSample extends StatefulWidget {
     required this.mapPosition,
     this.zoom = 12,
     this.markers,
+    this.markersSet,
     this.myLocationEnabled = true,
     this.myLocationButtonEnabled = true,
     this.zoomControlsEnabled = true,
@@ -36,8 +38,13 @@ class MapSample extends StatefulWidget {
 }
 
 class _MapSampleState extends State<MapSample> {
+  
   GoogleMapController? _controller;
-  Set<Marker> _markersSet = {};
+  Set<Marker> _markersSet = {Marker(
+             markerId: MarkerId("2934930sedf"), //title
+             position: LatLng(44.3448329, -79.7044902), //lat+lng
+             //infoWindow: InfoWindow(title: event.title, snippet: event.description), // title, time, address
+           )};
 
   // marker set
 
@@ -52,17 +59,31 @@ class _MapSampleState extends State<MapSample> {
   void initState() {
     super.initState();
     _buildMarkers();
+    // final markers = <Marker>{};
+    // Marker(
+    //         markerId: MarkerId("2934930sedf"), //title
+    //         position: LatLng(44.3448329, -79.7044902), //lat+lng
+    //         //infoWindow: InfoWindow(title: event.title, snippet: event.description), // title, time, address
+    //       );
   }
 
 
   // run when new data is given to this component from its parent
   @override
   void didUpdateWidget(covariant MapSample oldWidget) {
+    print("main map; didupdateWidget ran");
     super.didUpdateWidget(oldWidget);
-    if (widget.markers != oldWidget.markers) {
+    // if new markers are present rebuild marker set for google map
+    if (widget.markers != oldWidget.markers && widget.markers != null) {
       _buildMarkers();
+
+      
     }
+    
+
   }
+String randomString(int length) => String.fromCharCodes(List.generate(length, (_) => Random().nextInt(1000) + 65));
+
 
 
   // receive enough information to display a marker..
@@ -77,28 +98,48 @@ class _MapSampleState extends State<MapSample> {
   void _buildMarkers() {
     final markers = <Marker>{};
 
+
     // if parent provided event positions
     if (widget.markers != null) {
+
+      print("Events passed to google map not NULL");
+      print(widget.markers);
       for (int i = 0; i < widget.markers!.length; i++) {
         final event = widget.markers![i];
         final lat = event.latitude;
         final lng = event.longitude;
+
+        // Skip invalid coordinates
+        if (lat == 0.0 && lng == 0.0) continue;
+        print(lat);
+        print(lng);
+
+
         markers.add(
           Marker(
-            markerId: MarkerId(event.title), //title
+            markerId: MarkerId(randomString(10)), //title
             position: LatLng(lat, lng), //lat+lng
-            infoWindow: InfoWindow(title: event.title, snippet: event.description), // title, time, address
+            //infoWindow: InfoWindow(title: event.title, snippet: event.description), // title, time, address
           ),
         );
+        print("added marker new");
       }
     }
+    setState(() {
+      _markersSet = {...markers};
+    });
 
     print("markers ret: ");
     // print(markers);
 
-    setState(() {
-      _markersSet = markers;
-    });
+
+    
+
+    // move camera to first marker 
+    if (_controller != null && _markersSet.isNotEmpty) {
+      _controller!.animateCamera(
+      CameraUpdate.newLatLng(_markersSet.first.position),
+    );} 
   }
   
 
@@ -108,15 +149,21 @@ class _MapSampleState extends State<MapSample> {
 
     // get markers
     // final mark = _buildMarkers();
+    print("Map widget rebuild triggered, markers: ${_markersSet.length}");
+    print("markers set on build: $_markersSet");
+    // print("'markers from parent...");
+    // print(widget.markersSet);
+
 
 
     final mapWidget = GoogleMap(
+      key: ValueKey(Random().nextInt(1000)),
       onMapCreated: _onMapCreated,
       initialCameraPosition:CameraPosition(
         target: widget.mapPosition,
         zoom: widget.zoom,
       ),
-      markers: _markersSet,
+      markers:  widget.markersSet ?? {},
       myLocationEnabled: widget.myLocationEnabled,
       myLocationButtonEnabled: widget.myLocationButtonEnabled,
       zoomControlsEnabled: widget.zoomControlsEnabled,
@@ -133,7 +180,7 @@ class _MapSampleState extends State<MapSample> {
     // otherwise full screen map
     return Scaffold(
       appBar: null,
-      body: mapWidget,
+      body: mapWidget 
     );
   }
 }

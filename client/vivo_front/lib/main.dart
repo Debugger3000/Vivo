@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:vivo_front/pages/login_register/login.dart';
-import 'package:vivo_front/pages/map/map.dart';
 import 'package:vivo_front/theme/app_theme.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 import 'package:vivo_front/navigation_wrapper.dart';

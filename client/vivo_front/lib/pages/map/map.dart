@@ -16,6 +16,8 @@ class MapTab extends StatelessWidget {
 
   const MapTab({super.key, required this.navigatorKey});
 
+  
+
   @override
   Widget build(BuildContext context) {
     return Navigator(
@@ -59,6 +61,21 @@ class _MapPageState extends State<MapPage> {
   // 📍 Initial location — you can change this to your preferred coordinates
   final LatLng _initialPosition = const LatLng(44.389355, -79.690331);
 
+  GoogleMapController? _controller;
+  Set<Marker> _markersSet = {Marker(
+             markerId: MarkerId("2934930sedf"), //title
+             position: LatLng(44.3448329, -79.7044902), //lat+lng
+             //infoWindow: InfoWindow(title: event.title, snippet: event.description), // title, time, address
+           )};
+
+  // marker set
+
+  // create google map instance
+  void _onMapCreated(GoogleMapController controller) {
+    _controller = controller;
+    // widget.onMapCreated?.call(controller);
+  }
+
 
 
   // event previews List
@@ -80,7 +97,10 @@ class _MapPageState extends State<MapPage> {
     super.initState();
     print('init state in map.dart');
     // developer.log("Post event form has ran hehe", name: 'vivo-loggy', level: 0);
+    // getEvents();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
     getEvents();
+  });
   }
 
 
@@ -95,19 +115,28 @@ class _MapPageState extends State<MapPage> {
 
       // print("printer;categories returned: $categories");
       // developer.log("GET returned response: $categories", name:'vivo-loggy', level: 0);
-      print("returned GET data: $events");
+      print("returned GET data: events");
 
       // IMPORTANT: setState() should be used to update UI / core to flutter/dart lifecycle...
       setState(() {
         eventsList = events;
+
+        _markersSet = events
+          .where((e) => e.latitude != 0.0 && e.longitude != 0.0)
+          .map((e) => Marker(
+                markerId: MarkerId(e.id),
+                position: LatLng(e.latitude, e.longitude),
+                infoWindow: InfoWindow(title: e.title),
+              ))
+          .toSet();
       });
     } catch (e) {
       print('error on getEvents in map.dart: $e');
     } finally {
-      setState(() {
-        // _isSubmitting = false;
-        print("done get events");
-      });
+      // setState(() {
+      //   // _isSubmitting = false;
+      //   print("done get events");
+      // });
     }
   }
 
@@ -147,26 +176,28 @@ class _MapPageState extends State<MapPage> {
       body: Stack(
         children: [
           // create google map instance from widget
-          MapSample(
-            mapPosition: _initialPosition,  
-            zoom: 11.0,
-            myLocationEnabled: true,
-            myLocationButtonEnabled: true,
-            zoomControlsEnabled: true,
-            markers: eventsList,
-          ),
-          
-          // // 🗺️ Base map layer
-          // GoogleMap(
-          //   onMapCreated: _onMapCreated,
-          //   initialCameraPosition: CameraPosition(
-          //     target: _initialPosition,
-          //     zoom: 11.0,
-          //   ),
+          // MapSample(
+          //   mapPosition: _initialPosition,  
+          //   zoom: 11.0,
           //   myLocationEnabled: true,
           //   myLocationButtonEnabled: true,
           //   zoomControlsEnabled: true,
+          //   markers: eventsList,
+          //   markersSet: _markersSet,
           // ),
+          
+          // // 🗺️ Base map layer
+          GoogleMap(
+            onMapCreated: _onMapCreated,
+            initialCameraPosition: CameraPosition(
+              target: _initialPosition,
+              zoom: 11.0,
+            ),
+            myLocationEnabled: true,
+            myLocationButtonEnabled: true,
+            zoomControlsEnabled: true,
+            markers: _markersSet,
+          ),
 
           // 🔍 Search bar overlay
           Positioned(
