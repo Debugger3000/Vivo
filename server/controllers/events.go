@@ -29,10 +29,13 @@ type EventsBodyGet struct {
 	Description string             `json:"description"`
 	Tags        []string           `json:"tags"`
 	Categories  []string           `json:"categories"`
-	Date        pgtype.Timestamptz `json:"date"`
+	Date        pgtype.Timestamptz `json:"dateCreated"`
 	Interested  int32              `json:"interested"`
 	Latitude    float64            `json:"latitude"`
 	Longitude   float64            `json:"longitude"`
+	Address     string             `json:"address"`
+	StartTime   pgtype.Timestamptz `json:"startTime"`
+	EndTime     pgtype.Timestamptz `json:"endTime"`
 }
 
 // []string `json:"categories"`
@@ -94,9 +97,9 @@ func EditEvent(c *fiber.Ctx) error {
 	_, err := database.Conn.Exec(
 		context.Background(),
 		`UPDATE events 
-         SET user_id = $1, title = $2, description = $3, tags = $4, categories = $5, date = $6,
-         WHERE id = $8`,
-		body.UserId, body.Title, body.Description, body.Tags, body.Categories, body.Date,
+         title = $1, description = $2, tags = $3, categories = $4, latitude = $5, longitude = $6, start_time = $7, end_time = $8
+         WHERE id = $9`,
+		body.Title, body.Description, body.Tags, body.Categories, body.Latitude, body.Longitude, body.StartTime, body.EndTime, body.Id,
 	)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -116,7 +119,7 @@ func GetEvents(c *fiber.Ctx) error {
 
 	rows, err := database.Conn.Query(
 		context.Background(),
-		"SELECT id, user_id, title, description, date, interested, latitude, longitude, tags, categories FROM events",
+		"SELECT id, user_id, title, description, date_created, interested, latitude, longitude, tags, categories FROM events",
 	)
 	// check if there was error fetching data
 	if err != nil {
