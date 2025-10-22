@@ -74,7 +74,7 @@ Future<ResponseMessage> request({
 
 
 // ---------------------------------------------
-// GET method
+// GET method for LISTS
 // Returns specified T generic type...
 // 
 // 
@@ -110,4 +110,41 @@ Future<ResponseMessage> request({
 
     // return parser(json); // this is exactly what you want
   }
+
+
+  // -------------------------
+// GET -  single item get
+
+Future<T> requestSingle<T>({
+  required String endpoint,
+  Map<String, String>? headers,
+  required T Function(dynamic) parser,
+}) async {
+  final uri = Uri.parse('$_baseUrl$endpoint');
+  final combinedHeaders = {..._defaultHeaders, ...?headers};
+
+  final response = await http.get(uri, headers: combinedHeaders);
+
+  if (response.statusCode < 200 || response.statusCode >= 300) {
+    throw Exception(
+      'Request failed [${response.statusCode}]: ${response.body}',
+    );
+  }
+
+  final dynamic jsonData = jsonDecode(response.body);
+
+  // If the server returns a list with one element, safely unwrap it
+  if (jsonData is List && jsonData.isNotEmpty) {
+    return parser(jsonData.first);
+  }
+
+  // Otherwise, assume it’s a single JSON object
+  return parser(jsonData);
 }
+
+
+
+} // end of class.....
+
+
+
