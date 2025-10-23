@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:vivo_front/api/google_map/map_helpers.dart';
 
   import 'dart:math';
 
@@ -40,32 +41,17 @@ class MapSample extends StatefulWidget {
 class _MapSampleState extends State<MapSample> {
   
   GoogleMapController? _controller;
-  Set<Marker> _markersSet = {Marker(
-             markerId: MarkerId("2934930sedf"), //title
-             position: LatLng(44.3448329, -79.7044902), //lat+lng
-             //infoWindow: InfoWindow(title: event.title, snippet: event.description), // title, time, address
-           )};
+  Set<Marker> _markersSet = {};   // marker set
 
-  // marker set
+  String randomString(int length) => String.fromCharCodes(List.generate(length, (_) => Random().nextInt(1000) + 65));
 
-
-  // create google map instance
-  void _onMapCreated(GoogleMapController controller) {
-    _controller = controller;
-    widget.onMapCreated?.call(controller);
-  }
+// ---------------------------------
 
   // run on widget creation...
   @override
   void initState() {
     super.initState();
     // _buildMarkers();
-    // final markers = <Marker>{};
-    // Marker(
-    //         markerId: MarkerId("2934930sedf"), //title
-    //         position: LatLng(44.3448329, -79.7044902), //lat+lng
-    //         //infoWindow: InfoWindow(title: event.title, snippet: event.description), // title, time, address
-    //       );
   }
 
 
@@ -77,64 +63,43 @@ class _MapSampleState extends State<MapSample> {
     // if new markers are present rebuild marker set for google map
     if (widget.events != oldWidget.events && widget.events != null) {
       _buildMarkers();
-
-      
     }
-    
-
+    else if(widget.markersSet != oldWidget.markersSet && widget.markersSet != null){
+      setState(() {
+        print("set new marker set heheheheheheheheheheheheheheh");
+        _markersSet = widget.markersSet!;
+      });
+    }
   }
-String randomString(int length) => String.fromCharCodes(List.generate(length, (_) => Random().nextInt(1000) + 65));
 
+  // ------------------------------------
 
-
-  // receive enough information to display a marker..
-  // plus give a preview of the card...
-  // FULL EVENT DATA fetch can be called if a user clicks about 2 levels deep onto the event page...
-
-  // receive getEventPreview type (preview data for marker / popup/preview)
-  // getEventFull type (all event data for event page)
+  // create google map instance
+  void _onMapCreated(GoogleMapController controller) {
+    _controller = controller;
+    widget.onMapCreated?.call(controller);
+  }
 
 
   /// Builds marker set from event positions
   void _buildMarkers() {
     final markers = <Marker>{};
-
-
     // if parent provided event positions
     if (widget.events != null) {
-
       print("Events passed to google map not NULL");
-      print(widget.events);
       for (int i = 0; i < widget.events!.length; i++) {
         final event = widget.events![i];
-        final lat = event.latitude;
-        final lng = event.longitude;
-
         // Skip invalid coordinates
-        if (lat == 0.0 && lng == 0.0) continue;
-        print(lat);
-        print(lng);
-
-
-        markers.add(
-          Marker(
-            markerId: MarkerId(randomString(10)), //title
-            position: LatLng(lat, lng), //lat+lng
-            //infoWindow: InfoWindow(title: event.title, snippet: event.description), // title, time, address
-          ),
-        );
-        print("added marker new");
+        if (event.longitude == 0.0 || event.latitude == 0.0) continue;
+        final marker = MarkerBuilder.build(lat: event.latitude, lng: event.longitude, title: event.title, description: event.description);
+        
+        // add a marker to the new set
+        markers.add(marker);
       }
     }
     setState(() {
       _markersSet = markers;
     });
-
-    print("markers ret: ");
-    // print(markers);
-
-
-    
 
     // move camera to first marker 
     if (_controller != null && _markersSet.isNotEmpty) {
@@ -142,21 +107,13 @@ String randomString(int length) => String.fromCharCodes(List.generate(length, (_
       CameraUpdate.newLatLng(_markersSet.first.position),
     );} 
   }
-  
 
-
+// --------------------------------------------------
+// Build
   @override
   Widget build(BuildContext context) {
-
-    // get markers
-    // final mark = _buildMarkers();
     print("Map widget rebuild triggered, markers: ${_markersSet.length}");
-    print("markers set on build: $_markersSet");
-    // print("'markers from parent...");
-    // print(widget.markersSet);
-
-
-
+    
     final mapWidget = GoogleMap(
       key: ValueKey(Random().nextInt(1000)),
       onMapCreated: _onMapCreated,
@@ -169,9 +126,6 @@ String randomString(int length) => String.fromCharCodes(List.generate(length, (_
       myLocationButtonEnabled: widget.myLocationButtonEnabled,
       zoomControlsEnabled: widget.zoomControlsEnabled,
     );
-
-    // add markers to map if there are any
-
 
     // if height is provided, wrap in a SizedBox
     if (widget.height != null) {

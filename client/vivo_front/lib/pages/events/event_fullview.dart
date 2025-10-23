@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:vivo_front/api/Events/delete_event.dart';
 import 'package:vivo_front/api/api_service.dart';
+import 'package:vivo_front/stateless/generic_callback_button.dart';
+import 'package:vivo_front/stateless/yes_no_dialog.dart';
 import 'package:vivo_front/types/event.dart';
 
 
 class EventFullView extends StatefulWidget {
-  const EventFullView({super.key});
+  final GetEventPreview event; // receives widget.event from navigator call
+  const EventFullView({super.key, required this.event});
   //  final Set<Marker>? markersSet;
 
   @override
@@ -14,36 +18,37 @@ class EventFullView extends StatefulWidget {
 class _EventFullViewState extends State<EventFullView> {
   final ApiService api = ApiService(); 
 
-  late GetEventPreview event;
+  // late GetEventPreview widget.event;
 
+  void _goToEditEvent() async {
+    print('going to edit event page...');
+    final updatedEvent = await Navigator.pushNamed(
+      context,
+      '/edit_event',
+      arguments: widget.event,
+    ) as GetEventPreview?;
 
-  // fetch full event data right away ?
-  // getEvent previews for markers
-  Future<void> getEvents() async {
-    try {
-      print('calling get events preview');
-      final event = await api.requestSingle<GetEventPreview>(
-        endpoint: '/api/event-fullview', // or however your endpoint works
-        parser: (item) => GetEventPreview.fromJson(item as Map<String, dynamic>),
-      );
+    // Execution resumes here after the page is popped
+    // if (updatedEvent != null) {
+    //   setState(() {
+    //     // update your events list
+    //     final index = eventsList.indexWhere((e) => e.id == updatedEvent.id);
+    //     if (index != -1) eventsList[index] = updatedEvent;
+    //   });
+    // }
+  }
 
-
-      // print("printer;categories returned: $categories");
-      // developer.log("GET returned response: $categories", name:'vivo-loggy', level: 0);
-      print("returned GET data: event");
-
-      // IMPORTANT: setState() should be used to update UI / core to flutter/dart lifecycle...
-      setState(() {
-        this.event = event;
-      });
-    } catch (e) {
-      print('error on getEvents in map.dart: $e');
-    } finally {
-      // setState(() {
-      //   // _isSubmitting = false;
-      //   print("done get events");
-      // });
+  void _deleteEvent() async {
+    final result = await deleteEvent(api, widget.event.id);
+    if(result){
+      Navigator.of(context).pop();
     }
+    else{
+      print('event deletion failed...');
+    }
+    
+    // Reload events after returning
+    // await _load();
   }
 
 
@@ -54,7 +59,7 @@ class _EventFullViewState extends State<EventFullView> {
   @override
   Widget build(BuildContext context) {
     // final dateFormatted = DateFormat('EEEE, MMM d • hh:mm a').format(
-    //   DateTime.tryParse(event.date) ?? DateTime.now(),
+    //   DateTime.tryParse(widget.event.date) ?? DateTime.now(),
     // );
     return Scaffold(
       appBar: AppBar(
@@ -66,16 +71,30 @@ class _EventFullViewState extends State<EventFullView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            GenericCallBackButton(name: "Edit", onPressed: () {_goToEditEvent();}),
+            GenericCallBackButton(name: "Delete", onPressed: () async {
+              // pop up first
+              final confirmed = await showYesNoDialog(
+                context,
+                title: "Are you sure you want to delete this Event?",
+              );
+
+              if (confirmed == true) {
+                _deleteEvent();
+              }
+                      
+              }
+            ),
             // --- Title & Meta Info ---
             Text(
-              event.title,
+              widget.event.title,
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
             ),
             const SizedBox(height: 4),
             Text(
-              event.createdAt,
+              widget.event.createdAt,
               style: TextStyle(
                 color: Colors.grey[600],
                 fontSize: 14,
@@ -86,7 +105,7 @@ class _EventFullViewState extends State<EventFullView> {
               children: [
                 const Icon(Icons.people_alt_rounded, size: 18),
                 const SizedBox(width: 4),
-                Text("${event.interested} interested"),
+                Text("${widget.event.interested} interested"),
               ],
             ),
 
@@ -102,8 +121,8 @@ class _EventFullViewState extends State<EventFullView> {
             ),
             const SizedBox(height: 6),
             Text(
-              event.description.isNotEmpty
-                  ? event.description
+              widget.event.description.isNotEmpty
+                  ? widget.event.description
                   : "No description provided.",
               style: TextStyle(color: Colors.grey[800]),
             ),
@@ -112,7 +131,7 @@ class _EventFullViewState extends State<EventFullView> {
             const Divider(),
 
             // --- Categories ---
-            if (event.categories.isNotEmpty) ...[
+            if (widget.event.categories.isNotEmpty) ...[
               Text(
                 "Categories",
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -123,7 +142,7 @@ class _EventFullViewState extends State<EventFullView> {
               Wrap(
                 spacing: 8,
                 runSpacing: 6,
-                children: event.categories
+                children: widget.event.categories
                     .map((c) => Chip(
                           label: Text(c),
                           backgroundColor: Colors.blue.shade50,
@@ -134,7 +153,7 @@ class _EventFullViewState extends State<EventFullView> {
             ],
 
             // --- Tags ---
-            if (event.tags.isNotEmpty) ...[
+            if (widget.event.tags.isNotEmpty) ...[
               Text(
                 "Tags",
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -145,7 +164,7 @@ class _EventFullViewState extends State<EventFullView> {
               Wrap(
                 spacing: 8,
                 runSpacing: 6,
-                children: event.tags
+                children: widget.event.tags
                     .map((t) => Chip(
                           label: Text("#$t"),
                           backgroundColor: Colors.green.shade50,
@@ -170,8 +189,7 @@ class _EventFullViewState extends State<EventFullView> {
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
-                    "Lat: ${event.latitude.toStringAsFixed(5)}, "
-                    "Lng: ${event.longitude.toStringAsFixed(5)}",
+                    widget.event.address,
                     style: TextStyle(color: Colors.grey[700]),
                   ),
                 ),

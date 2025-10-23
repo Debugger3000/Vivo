@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:vivo_front/api/Events/post_event.dart';
+import 'package:vivo_front/api/Events/get_events.dart';
+import 'package:vivo_front/pages/events/CRUD/post_event.dart';
 import 'package:vivo_front/api/api_service.dart';
 // import 'package:geocoding/geocoding.dart';
 
@@ -42,7 +43,7 @@ class MapTab extends StatelessWidget {
     );
   }
 }
-
+// -------------------------
 
 
 // STATEFUL COMPONENT
@@ -55,75 +56,30 @@ class MapPage extends StatefulWidget {
 }
 
 class _MapPageState extends State<MapPage> {
-  late GoogleMapController mapController;
   final ApiService api = ApiService(); 
-
   // 📍 Initial location — you can change this to your preferred coordinates
   final LatLng _initialPosition = const LatLng(44.389355, -79.690331);
-
-  GoogleMapController? _controller;
-
-
-
   // event previews List
   List<GetEventPreview> eventsList = List.empty();
-  Future<void> _loadEvents() async {
-    final events = await getEvents();
-    setState(() {
-      print("set state for events list...");
-      eventsList = events;
-    });
-  }
 
+// -------------------------------
 
   @override
   void initState() {
     super.initState();
     print('init state in map.dart');
-    // _loadEvents();
-    // developer.log("Post event form has ran hehe", name: 'vivo-loggy', level: 0);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
     _loadEvents();
-  });
-
-  
   }
 
+  // ---------------------------
 
-  // getEvent previews for markers
-  Future<List<GetEventPreview>> getEvents() async {
-    try {
-      print('calling get events preview');
-      final events = await api.requestList<GetEventPreview>(
-        endpoint: '/api/events-preview',
-        parser: (item) => GetEventPreview.fromJson(item as Map<String, dynamic>),
-      );
-
-      // print("printer;categories returned: $categories");
-      // developer.log("GET returned response: $categories", name:'vivo-loggy', level: 0);
-      print("returned GET data: events");
-
-      // IMPORTANT: setState() should be used to update UI / core to flutter/dart lifecycle...
-      // setState(() {
-      //   eventsList = events;
-
-      //   // _markersSet = events
-      //   //   .where((e) => e.latitude != 0.0 && e.longitude != 0.0)
-      //   //   .map((e) => Marker(
-      //   //         markerId: MarkerId(e.id),
-      //   //         position: LatLng(e.latitude, e.longitude),
-      //   //         infoWindow: InfoWindow(title: e.title),
-      //   //       ))
-      //   //   .toSet();
-      // });
-      return events;
-    } catch (e) {
-      
-      print('error on getEvents in map.dart: $e');
-      return [];
-    } 
+  Future<void> _loadEvents() async {
+    final events = await getEvents(api);
+    setState(() {
+      print("set state for events list...");
+      eventsList = events;
+    });
   }
-
 
 
 

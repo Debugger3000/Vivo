@@ -21,7 +21,7 @@ class GenericCallBackButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FilledButton(
       onPressed: onPressed, // invoke callback function passed to this child widget
-      child: Text(val.toString()),
+      child: Text(name),
     );
   }
 }

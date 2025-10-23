@@ -13,7 +13,7 @@ class SubPageHeader extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       automaticallyImplyLeading: false, // remove default back arrow    
       leading: IconButton(
-        icon: const Icon(Icons.close),
+        icon: const Icon(Icons.arrow_back),
         onPressed: () {
           Navigator.of(context).pop(); // go back to previous page in navigator stack
         },

@@ -1,9 +1,11 @@
 
 import 'package:flutter/material.dart';
-import 'package:vivo_front/api/Events/post_event.dart';
+import 'package:vivo_front/api/Events/get_events.dart';
+import 'package:vivo_front/pages/events/CRUD/patch_event.dart';
+import 'package:vivo_front/pages/events/CRUD/post_event.dart';
 import 'package:vivo_front/api/api_service.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vivo_front/com_ui_widgets/mainpage_header.dart';
+import 'package:vivo_front/pages/events/event_fullview.dart';
 import 'package:vivo_front/stateless/generic_callback_button.dart';
 import 'package:vivo_front/types/event.dart';
 
@@ -29,6 +31,14 @@ class EventsTab extends StatelessWidget {
             break;
           case '/post_event':
             builder = (context) => PostEventForm(); // Subpage to push
+            break;
+          case '/edit_event':
+            final event = settings.arguments as GetEventPreview; //pass data to this widget page on nav
+            builder = (context) => PatchEventForm(event: event); // Subpage to push
+            break;
+          case '/view_event':
+            final event = settings.arguments as GetEventPreview; //pass data to this widget page on nav
+            builder = (context) => EventFullView(event: event); // Subpage to push
             break;
           default:
             builder = (context) => EventsPage();
@@ -65,78 +75,53 @@ class _EventsState extends State<EventsPage> {
   @override
   void initState() {
     super.initState();
-    // _load();
     _loadEvents();
-    //eventsList = getEvents();
-
-
-
-      // WidgetsBinding.instance.addPostFrameCallback((_) {
-      //   getEvents();
-      // });
-
       print("after get events after post frame");
   }
 
+  // -------------------------------------------
+
   Future<void> _loadEvents() async {
-    final events = await getEvents();
+    final events = await getEvents(api);
     setState(() {
-      print("set state for events list...");
+      print("-------------set state for events list----------");
       eventsList = events;
+      for (var e in eventsList) {
+      print('Event: ${e.id}, ${e.title}, ${e.startTime} → ${e.endTime}, ${e.address}');
+      }
     });
   }
 
-  // Future<void> _load() async {
-  //   // setState(() {
-  //   //   _loading = true;
-  //   //   _error = null;
-  //   // });
-
-  //   try {
-  //     // await getEvents();
-  //   } catch (e) {
-  //     //_error = e.toString();
-  //   } finally {
-  //     // setState(() {
-  //     //   _loading = false;
-  //     // });
-  //   }
-  // }
-
-
-  // getEvent previews for markers
-  Future<List<GetEventPreview>> getEvents() async {
-    try {
-
-
-    //   setState(() {
-    //   _loading = true;
-    //   _error = null;
-    // });
-
-      print('calling get events in EVENTS');
-      final events = await api.requestList<GetEventPreview>(
-        endpoint: '/api/events-preview',
-        parser: (item) => GetEventPreview.fromJson(item as Map<String, dynamic>),
-      );
-
-      print("returned GET event page: events............................................");
-      print(events.length);
-
-      return events;
-
-
-    } catch (e) {
-      print('Error on getEvents in event.dart: $e');
-      return [];
-    } 
-  }
 
   void _goToCreate() async {
     await Navigator.of(context).pushNamed('/post_event');
     // Reload events after returning
     // await _load();
   }
+
+  
+
+  // full view for an event...
+  void _goToEventPage(GetEventPreview event) async {
+    print('going to full view event page...');
+    final updatedEvent = await Navigator.pushNamed(
+      context,
+      '/view_event',
+      arguments: event,
+    ) as GetEventPreview?;
+
+    // // Execution resumes here after the page is popped
+    // if (updatedEvent != null) {
+    //   setState(() {
+    //     // update your events list
+    //     final index = eventsList.indexWhere((e) => e.id == updatedEvent.id);
+    //     if (index != -1) eventsList[index] = updatedEvent;
+    //   });
+    // }
+  }
+
+
+
 
 
   @override
@@ -150,7 +135,6 @@ class _EventsState extends State<EventsPage> {
       ),
       body: Column(
         children: [
-          const Text('EVENTS PAGER'),
           
           GenericCallBackButton(name: 'Increment', onPressed: () {
             setState(() {
@@ -176,10 +160,12 @@ class _EventsState extends State<EventsPage> {
                   isThreeLine: true,
                   trailing: Text('${event.interested} 👍'),
                   onTap: () {
+                    _goToEventPage(event);
+
                     // Handle tap if needed
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Tapped: ${event.title}')),
-                    );
+                    // ScaffoldMessenger.of(context).showSnackBar(
+                    //   SnackBar(content: Text('Tapped: ${event.title}')),
+                    // );
                   },
                 );
               },
@@ -197,186 +183,186 @@ class _EventsState extends State<EventsPage> {
 // 
 // --------------------------------------------------------------------------------------------
 
-class EventsListView extends StatelessWidget {
-  final List<GetEventPreview> events;
-  final Future<void> Function() onRefresh;
-  final void Function(GetEventPreview)? onTap;
+// class EventsListView extends StatelessWidget {
+//   final List<GetEventPreview> events;
+//   final Future<void> Function() onRefresh;
+//   final void Function(GetEventPreview)? onTap;
 
-  const EventsListView({
-    super.key,
-    required this.events,
-    required this.onRefresh,
-    this.onTap,
-  });
+//   const EventsListView({
+//     super.key,
+//     required this.events,
+//     required this.onRefresh,
+//     this.onTap,
+//   });
 
-  @override
-  Widget build(BuildContext context) {
-    return RefreshIndicator(
-      onRefresh: onRefresh,
-      child: ListView.separated(
-        physics: const AlwaysScrollableScrollPhysics(),
-        itemCount: events.length,
-        separatorBuilder: (_, __) => const Divider(height: 1),
-        itemBuilder: (context, i) {
-          final e = events[i];
-          return EventListTile(event: e, onTap: () => onTap?.call(e));
-        },
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return RefreshIndicator(
+//       onRefresh: onRefresh,
+//       child: ListView.separated(
+//         physics: const AlwaysScrollableScrollPhysics(),
+//         itemCount: events.length,
+//         separatorBuilder: (_, __) => const Divider(height: 1),
+//         itemBuilder: (context, i) {
+//           final e = events[i];
+//           return EventListTile(event: e, onTap: () => onTap?.call(e));
+//         },
+//       ),
+//     );
+//   }
+// }
 
-// --------------------------
-// 
-// ---------------------------------------------------------------------------------------------
+// // --------------------------
+// // 
+// // ---------------------------------------------------------------------------------------------
 
-class EventListTile extends StatelessWidget {
-  final GetEventPreview event;
-  final VoidCallback? onTap;
+// class EventListTile extends StatelessWidget {
+//   final GetEventPreview event;
+//   final VoidCallback? onTap;
 
-  const EventListTile({super.key, required this.event, this.onTap});
+//   const EventListTile({super.key, required this.event, this.onTap});
 
-  @override
-  Widget build(BuildContext context) {
-    final title = _titleOf(event);
-    final start = _startOf(event);
-    final end   = _endOf(event);
-    final range = _formatRange(start, end);
+//   @override
+//   Widget build(BuildContext context) {
+//     final title = _titleOf(event);
+//     final start = _startOf(event);
+//     final end   = _endOf(event);
+//     final range = _formatRange(start, end);
 
-    return ListTile(
-      leading: const CircleAvatar(child: Icon(Icons.event)),
-      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (range != null) ...[
-            const SizedBox(height: 4),
-            Text(range),
-          ],
-        ],
-      ),
-      trailing: const Icon(Icons.chevron_right),
-      onTap: onTap,
-    );
-  }
-}
+//     return ListTile(
+//       leading: const CircleAvatar(child: Icon(Icons.event)),
+//       title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+//       subtitle: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           if (range != null) ...[
+//             const SizedBox(height: 4),
+//             Text(range),
+//           ],
+//         ],
+//       ),
+//       trailing: const Icon(Icons.chevron_right),
+//       onTap: onTap,
+//     );
+//   }
+// }
 
-String _titleOf(GetEventPreview e) {
-  try {
-    final m = (e as dynamic);
-    return (m.title ?? m.name ?? 'Untitled').toString();
-  } catch (_) {
-    return 'Untitled';
-  }
-}
+// String _titleOf(GetEventPreview e) {
+//   try {
+//     final m = (e as dynamic);
+//     return (m.title ?? m.name ?? 'Untitled').toString();
+//   } catch (_) {
+//     return 'Untitled';
+//   }
+// }
 
-DateTime? _startOf(GetEventPreview e) {
-  try {
-    final m = (e as dynamic);
-    final raw = (m.startTime ?? m.start_time ?? m.starts_at ?? m.start);
-    return _toDateTime(raw);
-  } catch (_) {
-    return null;
-  }
-}
+// DateTime? _startOf(GetEventPreview e) {
+//   try {
+//     final m = (e as dynamic);
+//     final raw = (m.startTime ?? m.start_time ?? m.starts_at ?? m.start);
+//     return _toDateTime(raw);
+//   } catch (_) {
+//     return null;
+//   }
+// }
 
-DateTime? _endOf(GetEventPreview e) {
-  try {
-    final m = (e as dynamic);
-    final raw = (m.endTime ?? m.end_time ?? m.ends_at ?? m.end);
-    return _toDateTime(raw);
-  } catch (_) {
-    return null;
-  }
-}
+// DateTime? _endOf(GetEventPreview e) {
+//   try {
+//     final m = (e as dynamic);
+//     final raw = (m.endTime ?? m.end_time ?? m.ends_at ?? m.end);
+//     return _toDateTime(raw);
+//   } catch (_) {
+//     return null;
+//   }
+// }
 
-DateTime? _toDateTime(dynamic v) {
-  if (v == null) return null;
-  if (v is DateTime) return v;
-  if (v is int) return DateTime.fromMillisecondsSinceEpoch(v);
-  if (v is String) { try { return DateTime.parse(v); } catch (_) {} }
-  return null;
-}
+// DateTime? _toDateTime(dynamic v) {
+//   if (v == null) return null;
+//   if (v is DateTime) return v;
+//   if (v is int) return DateTime.fromMillisecondsSinceEpoch(v);
+//   if (v is String) { try { return DateTime.parse(v); } catch (_) {} }
+//   return null;
+// }
 
-String? _formatRange(DateTime? start, DateTime? end) {
-  if (start == null && end == null) return null;
+// String? _formatRange(DateTime? start, DateTime? end) {
+//   if (start == null && end == null) return null;
 
-  String two(int n) => n.toString().padLeft(2, '0');
-  String day(DateTime d) => '${d.year}/${two(d.month)}/${two(d.day)}';
-  String time(DateTime d) => '${two(d.hour)}:${two(d.minute)}';
+//   String two(int n) => n.toString().padLeft(2, '0');
+//   String day(DateTime d) => '${d.year}/${two(d.month)}/${two(d.day)}';
+//   String time(DateTime d) => '${two(d.hour)}:${two(d.minute)}';
 
-  if (start != null && end != null) {
-    final sameDay = start.year == end.year && start.month == end.month && start.day == end.day;
-    return sameDay
-        ? '${day(start)}  ${time(start)} – ${time(end)}'
-        : '${day(start)}  ${time(start)} → ${day(end)}  ${time(end)}';
-  }
-  final d = start ?? end!;
-  return '${day(d)}  ${time(d)}';
-}
+//   if (start != null && end != null) {
+//     final sameDay = start.year == end.year && start.month == end.month && start.day == end.day;
+//     return sameDay
+//         ? '${day(start)}  ${time(start)} – ${time(end)}'
+//         : '${day(start)}  ${time(start)} → ${day(end)}  ${time(end)}';
+//   }
+//   final d = start ?? end!;
+//   return '${day(d)}  ${time(d)}';
+// }
 
-class _EmptyState extends StatelessWidget {
-  final VoidCallback onCreate;
-  const _EmptyState({required this.onCreate});
+// class _EmptyState extends StatelessWidget {
+//   final VoidCallback onCreate;
+//   const _EmptyState({required this.onCreate});
 
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.event_busy, size: 48),
-            const SizedBox(height: 12),
-            const Text('No events yet', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-            const SizedBox(height: 6),
-            const Text('Post your first event to get started.', textAlign: TextAlign.center),
-            const SizedBox(height: 16),
-            FilledButton.icon(
-              onPressed: onCreate,
-              icon: const Icon(Icons.add),
-              label: const Text('Post event'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Center(
+//       child: Padding(
+//         padding: const EdgeInsets.symmetric(horizontal: 24),
+//         child: Column(
+//           mainAxisSize: MainAxisSize.min,
+//           children: [
+//             const Icon(Icons.event_busy, size: 48),
+//             const SizedBox(height: 12),
+//             const Text('No events yet', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+//             const SizedBox(height: 6),
+//             const Text('Post your first event to get started.', textAlign: TextAlign.center),
+//             const SizedBox(height: 16),
+//             FilledButton.icon(
+//               onPressed: onCreate,
+//               icon: const Icon(Icons.add),
+//               label: const Text('Post event'),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
 
-class _ErrorState extends StatelessWidget {
-  final String message;
-  final String? detail;
-  final Future<void> Function() onRetry;
+// class _ErrorState extends StatelessWidget {
+//   final String message;
+//   final String? detail;
+//   final Future<void> Function() onRetry;
 
-  const _ErrorState({required this.message, this.detail, required this.onRetry});
+//   const _ErrorState({required this.message, this.detail, required this.onRetry});
 
-  @override
-  Widget build(BuildContext context) {
-    final outline = Theme.of(context).colorScheme.outline;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.error_outline, size: 48),
-            const SizedBox(height: 12),
-            Text(message, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-            if ((detail ?? '').isNotEmpty) ...[
-              const SizedBox(height: 6),
-              Text(detail!, textAlign: TextAlign.center, style: TextStyle(color: outline)),
-            ],
-            const SizedBox(height: 16),
-            FilledButton.icon(
-              onPressed: onRetry,
-              icon: const Icon(Icons.refresh),
-              label: const Text('Try again'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     final outline = Theme.of(context).colorScheme.outline;
+//     return Center(
+//       child: Padding(
+//         padding: const EdgeInsets.symmetric(horizontal: 24),
+//         child: Column(
+//           mainAxisSize: MainAxisSize.min,
+//           children: [
+//             const Icon(Icons.error_outline, size: 48),
+//             const SizedBox(height: 12),
+//             Text(message, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+//             if ((detail ?? '').isNotEmpty) ...[
+//               const SizedBox(height: 6),
+//               Text(detail!, textAlign: TextAlign.center, style: TextStyle(color: outline)),
+//             ],
+//             const SizedBox(height: 16),
+//             FilledButton.icon(
+//               onPressed: onRetry,
+//               icon: const Icon(Icons.refresh),
+//               label: const Text('Try again'),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }

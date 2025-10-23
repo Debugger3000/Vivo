@@ -56,9 +56,12 @@ class PlacesSearch extends StatefulWidget {
   final void Function(Prediction prediction, PlaceDetailsModel? details)
       onPlaceSelectedCallback;
 
+  final String? address; // receives event from navigator call
+
   const PlacesSearch({
     super.key,
     required this.onPlaceSelectedCallback,
+    this.address,
   });
 
   @override
@@ -66,7 +69,23 @@ class PlacesSearch extends StatefulWidget {
 }
 
 class _PlacesSearchState extends State<PlacesSearch> {
-  final TextEditingController _searchController = TextEditingController();
+  late TextEditingController _searchController;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController(text: widget.address ?? '');
+  }
+
+  // @override
+  // void didUpdateWidget(covariant PlacesSearch oldWidget) {
+  //   super.didUpdateWidget(oldWidget);
+  //   if (widget.address != oldWidget.address && widget.address != null) {
+  //     setState(() {
+  //       _searchController.text = widget.address!;
+  //     });
+  //   }
+  // }
 
   @override
   void dispose() {
@@ -103,7 +122,7 @@ class _PlacesSearchState extends State<PlacesSearch> {
             // ],
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+            padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 0),
             child: PlaceSearchField(
               apiKey: "AIzaSyC_o3tXMGvFS0mbvg_pTJdPwzj52uCL02w",
               controller: _searchController,
