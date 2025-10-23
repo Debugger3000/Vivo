@@ -43,6 +43,7 @@ class GetEventPreview {
   final int interested;
   final List<String> tags;
   final List<String> categories;
+  final String address;
 
 
   GetEventPreview({
@@ -58,6 +59,7 @@ class GetEventPreview {
     this.interested = 0,
     this.tags = const [],
     this.categories = const [],
+    required this.address
   });
 
   factory GetEventPreview.fromJson(Map<String, dynamic> json) {
@@ -80,6 +82,7 @@ class GetEventPreview {
               ?.map((e) => e.toString())
               .toList() ??
           [],
+      address: json['address'] as String,
     );
   }
 }

@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 // import 'dart:developer' as developer;
 import 'package:vivo_front/types/categories.dart';
-import 'package:vivo_front/types/event.dart';
 
 
 class ApiService {
@@ -105,19 +104,7 @@ Future<ResponseMessage> request({
       return jsonList.map((item) => parser(item)).toList();
     }
 
-    // if( response.body.length < 1){
-    //   throw Exception(
-    //     'List returned from req is EMPTY [${response.statusCode}]: ${response.body}',
-    //   );
-    // }
 
-    // Decode the body as a Map
-    // final Map<String, dynamic> json =
-    //     jsonDecode(response.body) as Map<String, dynamic>;
-
-
-
-    // return parser(json); // this is exactly what you want
   }
 
 
@@ -149,7 +136,33 @@ Future<T> requestSingle<T>({
 
   // Otherwise, assume it’s a single JSON object
   return parser(jsonData);
-}
+  }
+
+
+  // Delete something....
+  /// Makes a DELETE request to the given endpoint.
+  Future<bool> requestDelete({
+    required String endpoint,
+    Map<String, String>? headers,
+  }) async {
+    final uri = Uri.parse('$_baseUrl$endpoint');
+    final combinedHeaders = {..._defaultHeaders, ...?headers};
+
+    try {
+      final response = await http.delete(uri, headers: combinedHeaders);
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        return true;
+      } else {
+        print(
+            'DELETE failed [${response.statusCode}]: ${response.body}'); // optional logging
+        return false;
+      }
+    } catch (e) {
+      print('DELETE request error: $e');
+      return false;
+    }
+  }
 
 
 

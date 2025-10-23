@@ -120,7 +120,7 @@ func GetEvents(c *fiber.Ctx) error {
 
 	rows, err := database.Pool.Query(
 		context.Background(),
-		"SELECT id, user_id, title, description, created_at, interested, latitude, longitude, start_time, end_time, tags, categories FROM events",
+		"SELECT id, user_id, title, description, created_at, interested, latitude, longitude, start_time, end_time, tags, categories, address FROM events",
 	)
 	// check if there was error fetching data
 	if err != nil {
@@ -154,6 +154,7 @@ func GetEvents(c *fiber.Ctx) error {
 			&ev.EndTime,
 			&tags,
 			&categories,
+			&ev.Address,
 		); err != nil {
 			// println("Get Events preview failure:", err.Error())
 			// return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -188,3 +189,40 @@ func GetEvents(c *fiber.Ctx) error {
 
 	return c.JSON(events)
 }
+
+
+// DELETE /api/events/:id
+func DeleteEvent(c *fiber.Ctx) error {
+    // Grab the event ID from the route parameter
+    eventID := c.Params("id")
+    if eventID == "" {
+        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+            "error": "missing event ID",
+        })
+    }
+
+    // Execute the delete query
+    commandTag, err := database.Pool.Exec(
+        context.Background(),
+        "DELETE FROM events WHERE id = $1",
+        eventID,
+    )
+    if err != nil {
+        fmt.Println("Delete error:", err)
+        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+            "error": "failed to delete event",
+        })
+    }
+
+    if commandTag.RowsAffected() == 0 {
+        return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+            "error": "event not found",
+        })
+    }
+
+    return c.JSON(fiber.Map{
+        "message": "Event deleted successfully",
+        "id": eventID,
+    })
+}
+

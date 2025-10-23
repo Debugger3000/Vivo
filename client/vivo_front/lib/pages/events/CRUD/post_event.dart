@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
-// import 'package:flutter_google_places_hoc081098/google_maps_webservice_places.dart';
 import 'package:vivo_front/api/api_service.dart';
+import 'package:vivo_front/api/categories/get_categories.dart';
+import 'package:vivo_front/api/google_map/google_map_wid.dart';
+import 'package:vivo_front/api/google_map/map_helpers.dart';
 import 'package:vivo_front/com_ui_widgets/padding.dart';
 import 'package:vivo_front/com_ui_widgets/subpage_header.dart';
-// import 'package:vivo_front/types/event.dart';
 import 'package:vivo_front/utility/user_functions.dart';
-import 'package:vivo_front/types/categories.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-// import 'package:geocoding/geocoding.dart';
-
 import 'package:vivo_front/api/google_map/google_places_search.dart';
 import 'package:google_places_api_flutter/google_places_api_flutter.dart';
 
@@ -24,100 +22,22 @@ class PostEventForm extends StatefulWidget {
 class PostEventFormState extends State<PostEventForm> {
   final _formKey = GlobalKey<FormState>();
   final ApiService api = ApiService(); 
-  late GoogleMapController _mapController; // Create google map controller for google map instance in POST event form
 
-  // 📍 Initial location — you can change this to your preferred coordinates
-  LatLng _mapPosition = const LatLng(44.389355, -79.690331);
-  // marker for map to show single location given by location form field 
-  Marker? _marker;
-
-
-
-  // on mount run function
-  // runs on class initialization
-  @override
-  void initState() {
-    super.initState();
-    print('init in post eventer...........................');
-    // developer.log("Post event form has ran hehe", name: 'vivo-loggy', level: 0);
-    getCategories();
-  }
-
-  // @override
-  // void didChangeDependencies()  {
-  //   super.didChangeDependencies();
-  // _fetchCategories();
-  // }
-
-// Future<void> _fetchCategories() async {
-//   await getCategories();
-// }
-
-  @override
-  void dispose() {
-    _titleController.dispose();
-    _descriptionController.dispose();
-    _tagsController.dispose();
-    _categoriesController.dispose();
-    _startTimeController.dispose();
-    _endTimeController.dispose();
-    _locationController.dispose();
-    super.dispose();
-  }
-
-  void _onMapCreated(GoogleMapController controller) {
-    _mapController = controller;
-  }
-
-// ----------------------------------
-// google places autocomplete
+  // 📍 Initial location - should be grabbed from USER DEVICE
+  LatLng _initialPosition = const LatLng(44.389355, -79.690331);
   double curLat = 44.389355;
   double curLng = -79.690331;
   String curAddress = "18 Claudio Crescent";
 
-  // Convert address to LatLng
-  Future<void> _goToAddress(Prediction placeId, PlaceDetailsModel? placeDetails) async {
-    try {
+  late Set<Marker> _markerSet = {};
 
-      if(placeDetails != null && placeDetails.result.geometry != null){
-        final lat = placeDetails.result.geometry!.location.lat;
-        final lng = placeDetails.result.geometry!.location.lng;
+  List<String> grabbedCategories = List.empty(); // fetched categories to choose from
+  List<String> selectedCategories = []; // selected categories
+  List<String> selectedTags = []; // tags
 
-        final newPos = LatLng(lat, lng); // create latLng object for selected coordinates...
-        print("lat: ");
-        print(lat);
-        print("lang: ");
-        print(lng);
-        
-
-        curLat = lat; // set lat 
-        curLng = lng; // set lng
-        curAddress = placeDetails.result.formatted_address!;
-        print(placeDetails.result.formatted_address!);
-      
-
-
-        setState(() {
-          _mapPosition = newPos;
-          print("setting new map position / marker for POST-EVENT-FORM MAP");
-          _marker = Marker(
-            markerId: const MarkerId('selected_address HEHE'),
-            position: newPos,
-          );
-        });
-
-        _mapController.animateCamera(
-          CameraUpdate.newLatLngZoom(newPos, 15),
-        );
-
-      }
-
-      
-      
-    } catch (e) {
-      print('Error geocoding address: $e');
-    }
-  }
+  // is loading / message
+  bool _isSubmitting = false;
+  String _resultMessage = '';
 
 
   // Form controllers
@@ -130,42 +50,65 @@ class PostEventFormState extends State<PostEventForm> {
   final _locationController = TextEditingController();
 
 
-  // variable to hold incoming categories
-  // user will choose from these in a dropdown, to populate his chosen category array
-  List<String> grabbedCategories = List.empty();
-  List<String> selectedCategories = [];
+  // ------------------------------------
 
-  // tags
-  // user sort of Hashtags.. They input via a field, and we see them as little buttons like category dropdown
-  List<String> selectedTags = [];
+  // runs on widget creation
+  @override
+  void initState() {
+    super.initState();
+    print('init in post eventer...........................');
+    // developer.log("Post event form has ran hehe", name: 'vivo-loggy', level: 0);
+    _loadData();
+  }
 
-  // fetch categories from DB
-  Future<void> getCategories() async {
+  
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _descriptionController.dispose();
+    _tagsController.dispose();
+    _categoriesController.dispose();
+    _startTimeController.dispose();
+    _endTimeController.dispose();
+    _locationController.dispose();
+    super.dispose();
+  }
+
+  // ----------------------------
+
+
+  Future<void> _loadData() async {
+    final categories = await getCategories(api);
+    setState(() {
+      print("set state for events list...");
+      grabbedCategories = categories;
+    });
+  }
+
+  // Convert address to LatLng
+  Future<void> _goToAddress(Prediction placeId, PlaceDetailsModel? placeDetails) async {
     try {
-      print('calling get on categories...');
-      final categories = await api.requestList<String>(
-        endpoint: '/api/categories',
-        parser: (item) => item as String,
-      );
 
-      // print("printer;categories returned: $categories");
-      // developer.log("GET returned response: $categories", name:'vivo-loggy', level: 0);
-      print("returned GET data: $categories");
+      print('inside goTo address after added...');
 
-      if(categories != null) {
-         // IMPORTANT: setState() should be used to update UI / core to flutter/dart lifecycle...
+      if(placeDetails != null && placeDetails.result.geometry != null){
+        final lat = placeDetails.result.geometry!.location.lat;
+        final lng = placeDetails.result.geometry!.location.lng;
+        final marker = MarkerBuilder.build(lat: lat, lng: lng);
+        
+        // form fields to set when new address is clicked on
+        curLat = lat; // set lat 
+        curLng = lng; // set lng
+        curAddress = placeDetails.result.formatted_address!;
+        print(placeDetails.result.formatted_address!);
+      
+        // set State to show new marker for clicked on address.
         setState(() {
-          grabbedCategories = categories;
+          _markerSet = {marker};
         });
       }
-
-     
     } catch (e) {
-      print('error: $e');
-    } finally {
-      setState(() {
-        _isSubmitting = false;
-      });
+      print('Error geocoding address: $e');
     }
   }
 
@@ -181,12 +124,6 @@ class PostEventFormState extends State<PostEventForm> {
       });
     }
   }
-
-  // call get Categories to populate dropdown for categories
-
-  bool _isSubmitting = false;
-  String _resultMessage = '';
-
 
 // ----------------------
 // SUBMIT EVENT
@@ -211,7 +148,7 @@ class PostEventFormState extends State<PostEventForm> {
       // get user id
       final userId = await getCurrentUserId();
 
-      print('Current user ID: $userId');
+    
       print({
           'userId': userId,
           'title': _titleController.text,
@@ -402,22 +339,15 @@ class PostEventFormState extends State<PostEventForm> {
             PlacesSearch(onPlaceSelectedCallback: _goToAddress),
 
             // mini google map to show the location picked...
-            const SizedBox(height: 12),
-                // Google Map preview
-                SizedBox(
-                  height: 250,
-                  child: GoogleMap(
-                    onMapCreated: _onMapCreated,
-                    initialCameraPosition: CameraPosition(
-                      target: _mapPosition,
-                      zoom: 12,
-                    ),
-                    markers: _marker != null ? {_marker!} : {},
-                    myLocationEnabled: true,
-                    myLocationButtonEnabled: true,
-                    zoomControlsEnabled: true,
-                  ),
-                ),
+            MapSample(
+              mapPosition: _initialPosition,  
+              zoom: 11.0,
+              height: 250,
+              myLocationEnabled: true,
+              myLocationButtonEnabled: true,
+              zoomControlsEnabled: true,
+              markersSet: _markerSet,
+            ),
 
             Column(
               crossAxisAlignment: CrossAxisAlignment.center,

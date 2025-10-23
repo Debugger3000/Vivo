@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vivo_front/api/api_service.dart'; // your ApiService
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
-import 'package:vivo_front/api/Events/post_event.dart';
+import 'package:vivo_front/pages/events/CRUD/post_event.dart';
 import 'package:vivo_front/com_ui_widgets/mainpage_header.dart';
 import 'dart:developer' as developer;
 import 'package:vivo_front/main.dart';
 import 'package:vivo_front/stateless/generic_callback_button.dart';
-import 'package:vivo_front/com_ui_widgets/subpage_header.dart';
 
 
 
@@ -41,9 +40,11 @@ class ProfileTab extends StatelessWidget {
   }
 }
 
+// ---------------------------------------------
 
 
 
+// stateful profile widget
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
@@ -75,7 +76,6 @@ class _ProfilePageState extends State<ProfilePage> with RouteAware {
     developer.log("Post event form has ran hehe", name:'vivo-loggy', level: 0);
     print("did pop next in profile.... calling get CATTERsss");
     // Calls _getCategories on the PostEventForm component
-    postEventFormKey.currentState?.getCategories();
   }
 
   // ----------------------

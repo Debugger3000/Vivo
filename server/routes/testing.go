@@ -7,6 +7,10 @@ import (
 )
 
 func SetupTesterRoutes(app *fiber.App) {
+
+	// Events
+	app.Delete("/api/events/:id", controllers.DeleteEvent)
+
 	// Example GET route
 	app.Get("/", controllers.TesterGet)
 
