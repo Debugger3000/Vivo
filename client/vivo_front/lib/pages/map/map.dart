@@ -62,49 +62,36 @@ class _MapPageState extends State<MapPage> {
   final LatLng _initialPosition = const LatLng(44.389355, -79.690331);
 
   GoogleMapController? _controller;
-  Set<Marker> _markersSet = {Marker(
-             markerId: MarkerId("2934930sedf"), //title
-             position: LatLng(44.3448329, -79.7044902), //lat+lng
-             //infoWindow: InfoWindow(title: event.title, snippet: event.description), // title, time, address
-           )};
-
-  // marker set
-
-  // create google map instance
-  void _onMapCreated(GoogleMapController controller) {
-    _controller = controller;
-    // widget.onMapCreated?.call(controller);
-  }
 
 
 
   // event previews List
   List<GetEventPreview> eventsList = List.empty();
-
-  // flag variable to show post event form on button click
-  // bool _showPostForm = false;
-
-  // 
-  // Marker? _marker;
-
-  // void _onMapCreated(GoogleMapController controller) {
-  //   mapController = controller;
-  // }
+  Future<void> _loadEvents() async {
+    final events = await getEvents();
+    setState(() {
+      print("set state for events list...");
+      eventsList = events;
+    });
+  }
 
 
   @override
   void initState() {
     super.initState();
     print('init state in map.dart');
+    // _loadEvents();
     // developer.log("Post event form has ran hehe", name: 'vivo-loggy', level: 0);
-  //   WidgetsBinding.instance.addPostFrameCallback((_) {
-  //   //getEvents();
-  // });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+    _loadEvents();
+  });
+
+  
   }
 
 
   // getEvent previews for markers
-  Future<void> getEvents() async {
+  Future<List<GetEventPreview>> getEvents() async {
     try {
       print('calling get events preview');
       final events = await api.requestList<GetEventPreview>(
@@ -117,26 +104,24 @@ class _MapPageState extends State<MapPage> {
       print("returned GET data: events");
 
       // IMPORTANT: setState() should be used to update UI / core to flutter/dart lifecycle...
-      setState(() {
-        eventsList = events;
-
-        _markersSet = events
-          .where((e) => e.latitude != 0.0 && e.longitude != 0.0)
-          .map((e) => Marker(
-                markerId: MarkerId(e.id),
-                position: LatLng(e.latitude, e.longitude),
-                infoWindow: InfoWindow(title: e.title),
-              ))
-          .toSet();
-      });
-    } catch (e) {
-      print('error on getEvents in map.dart: $e');
-    } finally {
       // setState(() {
-      //   // _isSubmitting = false;
-      //   print("done get events");
+      //   eventsList = events;
+
+      //   // _markersSet = events
+      //   //   .where((e) => e.latitude != 0.0 && e.longitude != 0.0)
+      //   //   .map((e) => Marker(
+      //   //         markerId: MarkerId(e.id),
+      //   //         position: LatLng(e.latitude, e.longitude),
+      //   //         infoWindow: InfoWindow(title: e.title),
+      //   //       ))
+      //   //   .toSet();
       // });
-    }
+      return events;
+    } catch (e) {
+      
+      print('error on getEvents in map.dart: $e');
+      return [];
+    } 
   }
 
 
@@ -175,32 +160,18 @@ class _MapPageState extends State<MapPage> {
       body: Stack(
         children: [
           // create google map instance from widget
-          // MapSample(
-          //   mapPosition: _initialPosition,  
-          //   zoom: 11.0,
-          //   myLocationEnabled: true,
-          //   myLocationButtonEnabled: true,
-          //   zoomControlsEnabled: true,
-          //   markers: eventsList,
-          //   markersSet: _markersSet,
-          // ),
-          
-          // // 🗺️ Base map layer
-          GoogleMap(
-            onMapCreated: _onMapCreated,
-            initialCameraPosition: CameraPosition(
-              target: _initialPosition,
-              zoom: 11.0,
-            ),
+          MapSample(
+            mapPosition: _initialPosition,  
+            zoom: 11.0,
             myLocationEnabled: true,
             myLocationButtonEnabled: true,
             zoomControlsEnabled: true,
-            markers: _markersSet,
+            events: eventsList,
           ),
 
           // 🔍 Search bar overlay
           Positioned(
-            top: 50,
+            top: 10,
             left: 20,
             right: 20,
             child: SafeArea(

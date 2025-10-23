@@ -12,7 +12,7 @@ import 'package:vivo_front/types/event.dart';
 class MapSample extends StatefulWidget {
   final LatLng mapPosition;
   final double zoom;
-  final List<GetEventPreview>? markers;
+  final List<GetEventPreview>? events;
   final Set<Marker>? markersSet;
   final bool myLocationEnabled;
   final bool myLocationButtonEnabled;
@@ -24,7 +24,7 @@ class MapSample extends StatefulWidget {
     super.key,
     required this.mapPosition,
     this.zoom = 12,
-    this.markers,
+    this.events,
     this.markersSet,
     this.myLocationEnabled = true,
     this.myLocationButtonEnabled = true,
@@ -48,6 +48,7 @@ class _MapSampleState extends State<MapSample> {
 
   // marker set
 
+
   // create google map instance
   void _onMapCreated(GoogleMapController controller) {
     _controller = controller;
@@ -58,7 +59,7 @@ class _MapSampleState extends State<MapSample> {
   @override
   void initState() {
     super.initState();
-    _buildMarkers();
+    // _buildMarkers();
     // final markers = <Marker>{};
     // Marker(
     //         markerId: MarkerId("2934930sedf"), //title
@@ -74,7 +75,7 @@ class _MapSampleState extends State<MapSample> {
     print("main map; didupdateWidget ran");
     super.didUpdateWidget(oldWidget);
     // if new markers are present rebuild marker set for google map
-    if (widget.markers != oldWidget.markers && widget.markers != null) {
+    if (widget.events != oldWidget.events && widget.events != null) {
       _buildMarkers();
 
       
@@ -100,12 +101,12 @@ String randomString(int length) => String.fromCharCodes(List.generate(length, (_
 
 
     // if parent provided event positions
-    if (widget.markers != null) {
+    if (widget.events != null) {
 
       print("Events passed to google map not NULL");
-      print(widget.markers);
-      for (int i = 0; i < widget.markers!.length; i++) {
-        final event = widget.markers![i];
+      print(widget.events);
+      for (int i = 0; i < widget.events!.length; i++) {
+        final event = widget.events![i];
         final lat = event.latitude;
         final lng = event.longitude;
 
@@ -126,7 +127,7 @@ String randomString(int length) => String.fromCharCodes(List.generate(length, (_
       }
     }
     setState(() {
-      _markersSet = {...markers};
+      _markersSet = markers;
     });
 
     print("markers ret: ");
@@ -163,7 +164,7 @@ String randomString(int length) => String.fromCharCodes(List.generate(length, (_
         target: widget.mapPosition,
         zoom: widget.zoom,
       ),
-      markers:  widget.markersSet ?? {},
+      markers:  _markersSet,
       myLocationEnabled: widget.myLocationEnabled,
       myLocationButtonEnabled: widget.myLocationButtonEnabled,
       zoomControlsEnabled: widget.zoomControlsEnabled,
