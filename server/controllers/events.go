@@ -55,7 +55,7 @@ func CreateEvent(c *fiber.Ctx) error {
 	fmt.Println("Post ev start: ", body.StartTime)
 
 	// Insert into table
-	_, err := database.Conn.Exec(
+	_, err := database.Pool.Query(
 		context.Background(),
 		"INSERT INTO events (user_id, title, description, tags, categories, start_time, end_time, address, latitude, longitude) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)",
 		body.UserId, body.Title, body.Description, body.Tags, body.Categories, body.StartTime, body.EndTime, body.Address, body.Lat, body.Lng,
@@ -94,7 +94,7 @@ func EditEvent(c *fiber.Ctx) error {
 	// }
 
 	// Update the event record
-	_, err := database.Conn.Exec(
+	_, err := database.Pool.Query(
 		context.Background(),
 		`UPDATE events 
          SET title = $1, description = $2, tags = $3, categories = $4, latitude = $5, longitude = $6, address = $7, start_time = $8, end_time = $9
@@ -118,7 +118,7 @@ func EditEvent(c *fiber.Ctx) error {
 func GetEvents(c *fiber.Ctx) error {
 	fmt.Println("Get events preview...")
 
-	rows, err := database.Conn.Query(
+	rows, err := database.Pool.Query(
 		context.Background(),
 		"SELECT id, user_id, title, description, created_at, interested, latitude, longitude, start_time, end_time, tags, categories FROM events",
 	)
@@ -134,6 +134,8 @@ func GetEvents(c *fiber.Ctx) error {
 	defer rows.Close()
 
 	var events []EventsBodyGet
+
+	fmt.Println("After Query, before scan")
 
 	for rows.Next() {
 		var ev EventsBodyGet
@@ -182,7 +184,7 @@ func GetEvents(c *fiber.Ctx) error {
 	// 	})
 	// }
 
-	fmt.Printf("event data: %+v\n", events)
+	fmt.Printf("event data: %+v\n", len(events))
 
 	return c.JSON(events)
 }

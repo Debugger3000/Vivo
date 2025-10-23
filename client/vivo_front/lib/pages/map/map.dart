@@ -97,10 +97,9 @@ class _MapPageState extends State<MapPage> {
     super.initState();
     print('init state in map.dart');
     // developer.log("Post event form has ran hehe", name: 'vivo-loggy', level: 0);
-    // getEvents();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-    //getEvents();
-  });
+  //   WidgetsBinding.instance.addPostFrameCallback((_) {
+  //   //getEvents();
+  // });
   }
 
 

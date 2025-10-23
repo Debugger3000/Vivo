@@ -16,7 +16,7 @@ class NavigationWrapper extends StatefulWidget {
 }
 
 class _NavigationWrapperState extends State<NavigationWrapper> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 1;
 
   // Optional: a key for the nested navigator in MapTab
   final GlobalKey<NavigatorState> _eventsNavKey = GlobalKey<NavigatorState>();

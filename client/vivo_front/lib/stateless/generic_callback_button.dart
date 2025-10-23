@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 
 
@@ -7,18 +8,20 @@ import 'package:flutter/material.dart';
 class GenericCallBackButton extends StatelessWidget {
   final String name;
   final VoidCallback onPressed;
+  final int? val; 
 
   const GenericCallBackButton({
     super.key,
     required this.name,
     required this.onPressed,
+    this.val
   });
 
   @override
   Widget build(BuildContext context) {
     return FilledButton(
       onPressed: onPressed, // invoke callback function passed to this child widget
-      child: Text(name),
+      child: Text(val.toString()),
     );
   }
 }

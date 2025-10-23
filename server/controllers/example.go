@@ -26,10 +26,10 @@ func CreateTester(c *fiber.Ctx) error {
 	}
 
 	// log the body
-	fmt.Println("Post Test body: ", body)    
+	fmt.Println("Post Test body: ", body)
 
 	// Insert into table
-	_, err := database.Conn.Exec(
+	_, err := database.Pool.Query(
 		context.Background(),
 		"INSERT INTO tester (first_name, last_name, color) VALUES ($1, $2, $3)",
 		body.FirstName, body.LastName, body.Color,
@@ -44,7 +44,6 @@ func CreateTester(c *fiber.Ctx) error {
 		"message": "data inserted successfully",
 	})
 }
-
 
 // GET handler
 func TesterGet(c *fiber.Ctx) error {

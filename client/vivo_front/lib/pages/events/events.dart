@@ -1,8 +1,10 @@
+
 import 'package:flutter/material.dart';
 import 'package:vivo_front/api/Events/post_event.dart';
 import 'package:vivo_front/api/api_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vivo_front/com_ui_widgets/mainpage_header.dart';
+import 'package:vivo_front/stateless/generic_callback_button.dart';
 import 'package:vivo_front/types/event.dart';
 
 
@@ -42,7 +44,6 @@ class EventsTab extends StatelessWidget {
 
 
 
-
 class EventsPage extends StatefulWidget {
   const EventsPage({super.key});
 
@@ -58,33 +59,53 @@ class _EventsState extends State<EventsPage> {
   // bool _loading = true;
   // String? _error;
 
+  int increTest = 0;
+
+
   @override
   void initState() {
     super.initState();
-    _load();
-    //getEvents();
-  }
+    // _load();
+    _loadEvents();
+    //eventsList = getEvents();
 
-  Future<void> _load() async {
-    // setState(() {
-    //   _loading = true;
-    //   _error = null;
-    // });
 
-    try {
-      await getEvents();
-    } catch (e) {
-      //_error = e.toString();
-    } finally {
-      // setState(() {
-      //   _loading = false;
+
+      // WidgetsBinding.instance.addPostFrameCallback((_) {
+      //   getEvents();
       // });
-    }
+
+      print("after get events after post frame");
   }
+
+  Future<void> _loadEvents() async {
+    final events = await getEvents();
+    setState(() {
+      print("set state for events list...");
+      eventsList = events;
+    });
+  }
+
+  // Future<void> _load() async {
+  //   // setState(() {
+  //   //   _loading = true;
+  //   //   _error = null;
+  //   // });
+
+  //   try {
+  //     // await getEvents();
+  //   } catch (e) {
+  //     //_error = e.toString();
+  //   } finally {
+  //     // setState(() {
+  //     //   _loading = false;
+  //     // });
+  //   }
+  // }
 
 
   // getEvent previews for markers
-  Future<void> getEvents() async {
+  Future<List<GetEventPreview>> getEvents() async {
     try {
 
 
@@ -93,33 +114,22 @@ class _EventsState extends State<EventsPage> {
     //   _error = null;
     // });
 
-      print('calling get events preview....................');
+      print('calling get events in EVENTS');
       final events = await api.requestList<GetEventPreview>(
         endpoint: '/api/events-preview',
         parser: (item) => GetEventPreview.fromJson(item as Map<String, dynamic>),
       );
 
-      // print("printer;categories returned: $categories");
-      // developer.log("GET returned response: $categories", name:'vivo-loggy', level: 0);
       print("returned GET event page: events............................................");
-      print(events);
+      print(events.length);
 
-      
+      return events;
 
-      // IMPORTANT: setState() should be used to update UI / core to flutter/dart lifecycle...
-      setState(() {
-        print("--------------setting events data---------------");
-        // _loading = false;
-        eventsList = events;
-      });
+
     } catch (e) {
-      print('error on getEvents in map.dart: $e');
-    } finally {
-      // setState(() {
-      //   // _isSubmitting = false;
-      //   print("done get events");
-      // });
-    }
+      print('Error on getEvents in event.dart: $e');
+      return [];
+    } 
   }
 
   void _goToCreate() async {
@@ -138,8 +148,23 @@ class _EventsState extends State<EventsPage> {
         icon: const Icon(Icons.add),
         label: const Text('Post event'),
       ),
-      body: 
-          ListView.builder(
+      body: Column(
+        children: [
+          const Text('EVENTS PAGER'),
+          
+          GenericCallBackButton(name: 'Increment', onPressed: () {
+            setState(() {
+              print(increTest);
+              increTest++;
+              
+            });
+          },
+          val: increTest,
+          ),
+
+          Expanded(
+
+          child: ListView.builder(
               itemCount: eventsList.length,
               itemBuilder: (context, index) {
                 final event = eventsList[index];
@@ -158,10 +183,19 @@ class _EventsState extends State<EventsPage> {
                   },
                 );
               },
-            ),
+          ),
+          ),
+        ]
+          
+      ),
     );
   }
 }
+
+
+// ---------------------------------------
+// 
+// --------------------------------------------------------------------------------------------
 
 class EventsListView extends StatelessWidget {
   final List<GetEventPreview> events;
@@ -191,6 +225,10 @@ class EventsListView extends StatelessWidget {
     );
   }
 }
+
+// --------------------------
+// 
+// ---------------------------------------------------------------------------------------------
 
 class EventListTile extends StatelessWidget {
   final GetEventPreview event;

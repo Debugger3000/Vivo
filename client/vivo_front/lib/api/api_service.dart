@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 // import 'dart:developer' as developer;
 import 'package:vivo_front/types/categories.dart';
+import 'package:vivo_front/types/event.dart';
 
 
 class ApiService {
@@ -91,26 +92,28 @@ Future<ResponseMessage> request({
     // developer.log("printer;GET returned response: $response", name:'vivo-loggy', level: 0);
     
 
-    if (response.statusCode < 200 || response.statusCode >= 300) {
+    // Check for 200
+    if (response.statusCode >= 300) {
       throw Exception(
         'Request failed [${response.statusCode}]: ${response.body}',
       );
     }
-
-    if( response.body.length < 1){
-      throw Exception(
-        'List returned from req is EMPTY [${response.statusCode}]: ${response.body}',
-      );
+    else{
+      // return GetEventPreview.fromJson(jsonDecode(response.body)) as List<dynamic>;
+      final List<dynamic> jsonList = jsonDecode(response.body) as List<dynamic>;
+      print(jsonList.length);
+      return jsonList.map((item) => parser(item)).toList();
     }
+
+    // if( response.body.length < 1){
+    //   throw Exception(
+    //     'List returned from req is EMPTY [${response.statusCode}]: ${response.body}',
+    //   );
+    // }
 
     // Decode the body as a Map
     // final Map<String, dynamic> json =
     //     jsonDecode(response.body) as Map<String, dynamic>;
-
-    final List<dynamic> jsonList = jsonDecode(response.body) as List<dynamic>;
-
-    print(jsonList.length);
-    return jsonList.map((item) => parser(item)).toList();
 
 
 

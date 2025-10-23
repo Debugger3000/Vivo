@@ -21,7 +21,7 @@ func GetCategories(c *fiber.Ctx) error {
 	fmt.Println("Grabbing categories controller...")
 
 	// GET request - Database call line...
-	rows, err := database.Conn.Query(context.Background(), "select name from categories")
+	rows, err := database.Pool.Query(context.Background(), "select name from categories")
 
 	// if there is an error, err = nil
 	if err != nil {

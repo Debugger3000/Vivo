@@ -7,33 +7,61 @@ import (
 
 	//"time"
 
-	"github.com/jackc/pgx/v5"
+	// "github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-var Conn *pgx.Conn
+// var Conn *pgxpool.Pool
 
 // ConnectDB establishes the initial DB connection
+// func ConnectDB() {
+// 	connect()
+// 	//go startHealthCheck() // start background health check
+// }
+
+var Pool *pgxpool.Pool
+
 func ConnectDB() {
-	connect()
-	//go startHealthCheck() // start background health check
-}
+	databaseUrl := os.Getenv("DATABASE_URL")
+	if databaseUrl == "" {
+		log.Fatal("DATABASE_URL not set")
+	}
 
-func connect() {
-	conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
+	pool, err := pgxpool.New(context.Background(), databaseUrl)
 	if err != nil {
-		log.Fatalf("Failed to connect to the database: %v", err)
+		log.Fatalf("Failed to connect to database: %v", err)
 	}
 
-	Conn = conn
-	log.Println("✅ Database connection established")
-
-	// Optional test query
-	var version string
-	if err := Conn.QueryRow(context.Background(), "SELECT version()").Scan(&version); err != nil {
-		log.Fatalf("Query failed: %v", err)
+	if err := pool.Ping(context.Background()); err != nil {
+		log.Fatalf("Database ping failed: %v", err)
 	}
-	//log.Println("Postgres version:", version)
+
+	Pool = pool
+	log.Println("✅ Database connection pool established")
 }
+
+func CloseDB() {
+	if Pool != nil {
+		Pool.Close()
+	}
+}
+
+// func connect() {
+// 	conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
+// 	if err != nil {
+// 		log.Fatalf("Failed to connect to the database: %v", err)
+// 	}
+
+// 	Conn = conn
+// 	log.Println("✅ Database connection established")
+
+// 	// Optional test query
+// 	var version string
+// 	if err := Conn.QueryRow(context.Background(), "SELECT version()").Scan(&version); err != nil {
+// 		log.Fatalf("Query failed: %v", err)
+// 	}
+// 	//log.Println("Postgres version:", version)
+// }
 
 // health check
 // // startHealthCheck pings the DB every 15 seconds
@@ -64,8 +92,8 @@ func connect() {
 // }
 
 // Close connection on shutdown
-func CloseDB() {
-	if Conn != nil {
-		Conn.Close(context.Background())
-	}
-}
+// func CloseDB() {
+// 	if Conn != nil {
+// 		Conn.Close(context.Background())
+// 	}
+// }
