@@ -14,10 +14,7 @@ import 'package:vivo_front/types/event.dart';
 
 class MapTab extends StatelessWidget {
   final GlobalKey<NavigatorState> navigatorKey;
-
   const MapTab({super.key, required this.navigatorKey});
-
-  
 
   @override
   Widget build(BuildContext context) {
@@ -55,18 +52,35 @@ class MapPage extends StatefulWidget {
   State<MapPage> createState() => _MapPageState();
 }
 
-class _MapPageState extends State<MapPage> {
+class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
   final ApiService api = ApiService(); 
   // 📍 Initial location — you can change this to your preferred coordinates
   final LatLng _initialPosition = const LatLng(44.389355, -79.690331);
   // event previews List
-  List<GetEventPreview> eventsList = List.empty();
+  // List<GetEventPreview> eventsList = List.empty();
+
+  ValueNotifier<List<GetEventPreview>> eventsList = ValueNotifier<List<GetEventPreview>>([]);
+
+
+// Update this widget + its ancestors
+// super useful...
+// -----------
+// our reactive value holder
+//  final ValueNotifier<int> counter = ValueNotifier<int>(0);
+// //  ValueListenableBuilder<int>(
+//           valueListenable: counter,
+//           builder: (context, value, _) {
+//             print('Only this builder rebuilds');
+//             return Text('Count: $value');
+//           },
+//         ),
 
 // -------------------------------
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     print('init state in map.dart');
     _loadEvents();
   }
@@ -75,10 +89,23 @@ class _MapPageState extends State<MapPage> {
 
   Future<void> _loadEvents() async {
     final events = await getEvents(api);
-    setState(() {
+    
       print("set state for events list...");
-      eventsList = events;
-    });
+    eventsList.value = events;
+    
+  }
+
+  // watch life cycle state of this page
+  // 
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    print("App state changed: $state");
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
 
@@ -115,15 +142,30 @@ class _MapPageState extends State<MapPage> {
       appBar: null,
       body: Stack(
         children: [
-          // create google map instance from widget
-          MapSample(
-            mapPosition: _initialPosition,  
-            zoom: 11.0,
-            myLocationEnabled: true,
-            myLocationButtonEnabled: true,
-            zoomControlsEnabled: true,
-            events: eventsList,
+          ValueListenableBuilder(
+            valueListenable: eventsList, 
+            builder: (context, list, _) {
+              
+              print('🔁 List rebuilt heheheheheheheheh');
+              return MapSample(
+                mapPosition: _initialPosition,  
+                zoom: 11.0,
+                myLocationEnabled: true,
+                myLocationButtonEnabled: true,
+                zoomControlsEnabled: true,
+                events: list,
+              );
+            }
           ),
+          // create google map instance from widget
+          // MapSample(
+          //   mapPosition: _initialPosition,  
+          //   zoom: 11.0,
+          //   myLocationEnabled: true,
+          //   myLocationButtonEnabled: true,
+          //   zoomControlsEnabled: true,
+          //   events: eventsList.value,
+          // ),
 
           // 🔍 Search bar overlay
           Positioned(
@@ -165,39 +207,14 @@ class _MapPageState extends State<MapPage> {
               ),
             ),
           ),
-           // 📍 Floating button overlay
+          // 📍 Floating button overlay
+          // + | add event button
           Positioned(
             top: 175,
             right: 20,
             child: FloatingActionButton(
               onPressed: () {
                 Navigator.of(context).pushNamed('/post_event');
-
-                // showModalBottomSheet(
-                //   context: context,
-                //   isScrollControlled: true,
-                //   isDismissible: true,  // allows tapping outside to dismiss
-                //   enableDrag: true,     // allows swipe down to dismiss
-                //   backgroundColor: Colors.transparent, // optional
-                //   builder: (_) => DraggableScrollableSheet(
-                //     initialChildSize: 0.8,
-                //     minChildSize: 0.4,
-                //     maxChildSize: 1.0,
-                    
-                //     builder: (_, controller) => Container(
-                //       decoration: const BoxDecoration(
-                //         color: Colors.white,
-                //         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-                //       ),
-                //       child: SingleChildScrollView(
-                //       controller: controller,
-                //       child: Builder(
-                //         builder: (_) => PostEventForm(), // PlacesSearch only created inside PostEventForm on FAB press
-                //       ),
-                //     ),
-                //                       ),
-                //   ),
-                // );
               },
               backgroundColor: Colors.blue,
               child: Icon(Icons.add),

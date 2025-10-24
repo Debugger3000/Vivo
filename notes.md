@@ -24,6 +24,11 @@
 
 
 ---
+### Dart Useful classes
+    - InheritedWidget : For propagating data down the widget tree efficiently (state management base).
+    - 
+
+
 ### Backend
 
     - [ ] 
