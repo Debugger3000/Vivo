@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vivo_front/api/Events/delete_event.dart';
 import 'package:vivo_front/api/api_service.dart';
+import 'package:vivo_front/stateless/delete_button.dart';
 import 'package:vivo_front/stateless/generic_callback_button.dart';
 import 'package:vivo_front/stateless/yes_no_dialog.dart';
 import 'package:vivo_front/types/event.dart';
@@ -72,19 +73,19 @@ class _EventFullViewState extends State<EventFullView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             GenericCallBackButton(name: "Edit", onPressed: () {_goToEditEvent();}),
-            GenericCallBackButton(name: "Delete", onPressed: () async {
-              // pop up first
-              final confirmed = await showYesNoDialog(
-                context,
-                title: "Are you sure you want to delete this Event?",
-              );
+            // GenericCallBackButton(name: "Delete", onPressed: () async {
+            //   // pop up first
+            //   final confirmed = await showYesNoDialog(
+            //     context,
+            //     title: "Are you sure you want to delete this Event?",
+            //   );
 
-              if (confirmed == true) {
-                _deleteEvent();
-              }
+            //   if (confirmed == true) {
+            //     _deleteEvent();
+            //   }
                       
-              }
-            ),
+            //   }
+            // ),
             // --- Title & Meta Info ---
             Text(
               widget.event.title,
@@ -206,6 +207,18 @@ class _EventFullViewState extends State<EventFullView> {
                 },
               ),
             ),
+            const SizedBox(height: 30),
+            DeleteButton(text: 'Delete Event', onPressed: () async {
+              // pop up first
+              final confirmed = await showYesNoDialog(
+                context,
+                title: "Are you sure you want to delete this Event?",
+              );
+
+              if (confirmed == true) {
+                _deleteEvent();
+              }
+            })
           ],
         ),
       ),
