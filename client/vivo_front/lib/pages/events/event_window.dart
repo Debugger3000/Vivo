@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vivo_front/com_ui_widgets/event_chip.dart';
 import 'package:vivo_front/types/event.dart';
 
 
@@ -85,23 +86,12 @@ class _EventWindowState extends State<EventWindow> {
                     const SizedBox(height: 8),
                     Wrap(
                       spacing: 6,
-                      children: widget.event.categories.map((category) => Chip(label: Text(category))).toList(),
+                      children: widget.event.categories.map((category) => EventChip(label: category)).toList(),
                     ),
                     Wrap(
                       spacing: 6,
-                      children: widget.event.tags.map((tag) => Chip(label: Text(tag))).toList(),
+                      children: widget.event.tags.map((tag) => EventChip(label: tag, isCategory: false)).toList(),
                     ),
-                    const SizedBox(height: 12),
-
-                    if (_loading)
-                      const Center(child: CircularProgressIndicator())
-                    else
-                      ElevatedButton(
-                        onPressed: () {
-                          print('pressed some random button...');
-                        },
-                        child: const Text("Load More Info"),
-                      ),
                   ],
                 ),
               ),

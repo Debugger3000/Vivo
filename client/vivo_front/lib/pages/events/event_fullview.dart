@@ -73,19 +73,6 @@ class _EventFullViewState extends State<EventFullView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             GenericCallBackButton(name: "Edit", onPressed: () {_goToEditEvent();}),
-            // GenericCallBackButton(name: "Delete", onPressed: () async {
-            //   // pop up first
-            //   final confirmed = await showYesNoDialog(
-            //     context,
-            //     title: "Are you sure you want to delete this Event?",
-            //   );
-
-            //   if (confirmed == true) {
-            //     _deleteEvent();
-            //   }
-                      
-            //   }
-            // ),
             // --- Title & Meta Info ---
             Text(
               widget.event.title,

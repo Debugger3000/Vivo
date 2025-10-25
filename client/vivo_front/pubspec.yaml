@@ -41,6 +41,7 @@ dependencies:
   geocoding: ^4.0.0
   flutter_google_places_hoc081098: ^2.0.0
   google_places_api_flutter: ^2.0.0
+  lucide_icons: ^0.257.0
 
 dev_dependencies:
   flutter_test:
