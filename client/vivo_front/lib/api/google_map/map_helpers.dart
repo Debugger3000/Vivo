@@ -18,6 +18,7 @@ class MarkerBuilderWithWindow {
       //onTap: () {
        
       //},
+      //icon: , // use BitMapDescriptor
       infoWindow: InfoWindow(
         // on tap for info window...
         onTap: () {
@@ -31,6 +32,7 @@ class MarkerBuilderWithWindow {
   }
 }
 
+// marker builder for Edit / Create events...
 class MarkerBuilder {
   static Marker build({
     required double lat,

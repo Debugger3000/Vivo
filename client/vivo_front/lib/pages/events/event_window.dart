@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vivo_front/com_ui_widgets/event_chip.dart';
+import 'package:vivo_front/stateless/time_helpers.dart';
 import 'package:vivo_front/types/event.dart';
 
 
@@ -79,8 +80,10 @@ class _EventWindowState extends State<EventWindow> {
                     Text(widget.event.description),
                     const SizedBox(height: 8),
                     Text("Address: ${widget.event.address}"),
-                    const SizedBox(height: 8),
-                    Text("Start: ${widget.event.startTime}  |  End: ${widget.event.endTime}"),
+
+                    // time / cool time displays...
+                    TimeDisplay(startTime: widget.event.startTime, endTime: widget.event.endTime),
+                    //------------------------
                     const SizedBox(height: 8),
                     Text("Interested: ${widget.event.interested}"),
                     const SizedBox(height: 8),
