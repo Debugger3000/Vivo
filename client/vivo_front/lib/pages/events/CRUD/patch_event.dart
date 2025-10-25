@@ -43,6 +43,8 @@ class PatchEventFormState extends State<PatchEventForm> {
   bool _isSubmitting = false;
   String _resultMessage = '';
 
+  ValueNotifier<bool> isEventWindow = ValueNotifier<bool>(false);
+
 
 
   // Form controllers
@@ -74,6 +76,20 @@ class PatchEventFormState extends State<PatchEventForm> {
       curAddress = widget.event.address;
     });
   }
+
+
+  // basic event marker window display
+  // use same styles as other card... however this one is obviously immutable
+
+  void showWindow() {
+    isEventWindow.value = true;
+  }
+
+
+
+
+
+
 
   // fill in controller fields...
   void setFields() {

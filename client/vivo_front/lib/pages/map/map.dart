@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:vivo_front/api/Events/get_events.dart';
@@ -6,6 +7,7 @@ import 'package:vivo_front/api/api_service.dart';
 // import 'package:geocoding/geocoding.dart';
 
 import 'package:vivo_front/api/google_map/google_map_wid.dart';
+import 'package:vivo_front/pages/events/event_window.dart';
 import 'package:vivo_front/types/event.dart';
 
 
@@ -60,6 +62,13 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
   // List<GetEventPreview> eventsList = List.empty();
 
   ValueNotifier<List<GetEventPreview>> eventsList = ValueNotifier<List<GetEventPreview>>([]);
+  ValueNotifier<bool> isEventWindow = ValueNotifier<bool>(false);
+  ValueNotifier<int> event_cycle_index = ValueNotifier<int>(0);
+
+  // selected event
+
+  OverlayEntry? _overlayEntry; // hold overlay reference
+
 
 
 // Update this widget + its ancestors
@@ -109,6 +118,68 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
   }
 
 
+  // ----------------------
+  // Event window functions 
+
+  // open a solid window for the marker pop-up we click on..
+  void openEventMarkerWindow(int index) {
+    // re render that window...
+    isEventWindow.value = true;
+    // use event id to display that event ?
+    if(index > -1 && index < eventsList.value.length){
+      event_cycle_index.value = index;
+    }
+    
+    print('opening event marker win...');
+  }
+
+  void cycleEventsWindow(int cycleVal) {
+    int curIndex = event_cycle_index.value;
+    if(cycleVal == 1){
+      print("swipe upp, cycle +1");
+      if(eventsList.value.length - curIndex == 1){
+        //  we can increment fine
+        event_cycle_index.value = 0;        
+      }
+      else{
+        event_cycle_index.value++;
+      }
+    }
+    else{
+      print("swipe down, cycle -1");
+      if(curIndex-1 < 0){
+        event_cycle_index.value = eventsList.value.length-1;
+      }
+      else{
+        event_cycle_index.value--;
+      }
+    }
+    print("events length: ${eventsList.value.length}");
+    print("current cycle index: ${event_cycle_index.value}");
+  }
+
+
+
+//   void _showEventOverlay(GetEventPreview event) {
+
+//   _overlayEntry = OverlayEntry(
+//     builder: (context) => EventOverlayContent(
+//       event: event,
+//       closeWindow: _hideOverlay,
+//       cycleEvent: (i) =>  cycleEventsWindow(i),
+//     ),
+//   );
+
+//   Overlay.of(context)!.insert(_overlayEntry!);
+// }
+
+// void _hideOverlay() {
+//   _overlayEntry?.remove();
+//   _overlayEntry = null;
+// }
+
+
+
 
   // Convert address to coordinates
   // Future<void> _searchAddress(String address) async {
@@ -154,9 +225,14 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
                 myLocationButtonEnabled: true,
                 zoomControlsEnabled: true,
                 events: list,
+                callback: openEventMarkerWindow,
               );
             }
           ),
+
+
+          
+
           // create google map instance from widget
           // MapSample(
           //   mapPosition: _initialPosition,  
@@ -220,6 +296,35 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
               child: Icon(Icons.add),
             ),
           ),
+
+          // -----------------------------------
+          // render event window
+          ValueListenableBuilder(
+            valueListenable: isEventWindow,
+            builder : (context, val, _) {
+              if(val) {
+                return ValueListenableBuilder(
+                  valueListenable: event_cycle_index,
+                  builder : (context, index, _) {
+                    print('dispalying event window i think...');
+                    //return showEventWindow(context, eventsList.value[index]);
+                    return EventWindow(
+                      event: eventsList.value[index], 
+                      closeWindow: () {
+                        isEventWindow.value = false; 
+                        print('basic close window through isEventWindow...');
+                      },
+                      cycleEvent: cycleEventsWindow,
+                      
+                    );
+                  }
+                );                
+              }
+              else{
+                return const SizedBox.shrink(); // show nothing
+              }
+            }
+          ),
            
         ],
       
@@ -227,6 +332,10 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
     );
   }
 }
+
+
+
+
 
 
 

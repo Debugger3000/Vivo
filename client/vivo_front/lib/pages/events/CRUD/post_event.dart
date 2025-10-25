@@ -39,6 +39,8 @@ class PostEventFormState extends State<PostEventForm> {
   bool _isSubmitting = false;
   String _resultMessage = '';
 
+  ValueNotifier<bool> isEventWindow = ValueNotifier<bool>(false);
+
 
   // Form controllers
   final _titleController = TextEditingController();
@@ -75,6 +77,16 @@ class PostEventFormState extends State<PostEventForm> {
   }
 
   // ----------------------------
+
+
+  void showWindow() {
+    isEventWindow.value = true;
+  }
+
+
+
+
+
 
 
   Future<void> _loadData() async {

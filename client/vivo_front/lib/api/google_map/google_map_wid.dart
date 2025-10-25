@@ -20,6 +20,7 @@ class MapSample extends StatefulWidget {
   final bool zoomControlsEnabled;
   final Function(GoogleMapController)? onMapCreated;
   final double? height;
+  final void Function(int)? callback;
 
   const MapSample({
     super.key,
@@ -32,6 +33,7 @@ class MapSample extends StatefulWidget {
     this.zoomControlsEnabled = true,
     this.onMapCreated,
     this.height,
+    this.callback,
   });
 
   @override
@@ -91,7 +93,7 @@ class _MapSampleState extends State<MapSample> {
         final event = widget.events![i];
         // Skip invalid coordinates
         if (event.longitude == 0.0 || event.latitude == 0.0) continue;
-        final marker = MarkerBuilder.build(lat: event.latitude, lng: event.longitude, title: event.title, description: event.description);
+        final marker = MarkerBuilderWithWindow.build(index: i, lat: event.latitude, lng: event.longitude, title: event.title, description: event.description, onTap: widget.callback! );
         
         // add a marker to the new set
         markers.add(marker);
