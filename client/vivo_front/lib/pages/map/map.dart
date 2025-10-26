@@ -8,6 +8,7 @@ import 'package:vivo_front/api/api_service.dart';
 
 import 'package:vivo_front/api/google_map/google_map_wid.dart';
 import 'package:vivo_front/pages/events/event_window.dart';
+import 'package:vivo_front/pages/map/search_bar.dart';
 import 'package:vivo_front/types/event.dart';
 
 
@@ -160,6 +161,12 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
 
 
 
+  void searchResults(List<GetEventPreview> eventList) {
+
+  }
+
+
+
 //   void _showEventOverlay(GetEventPreview event) {
 
 //   _overlayEntry = OverlayEntry(
@@ -230,57 +237,17 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
             }
           ),
 
-
-          
-
-          // create google map instance from widget
-          // MapSample(
-          //   mapPosition: _initialPosition,  
-          //   zoom: 11.0,
-          //   myLocationEnabled: true,
-          //   myLocationButtonEnabled: true,
-          //   zoomControlsEnabled: true,
-          //   events: eventsList.value,
-          // ),
-
           // 🔍 Search bar overlay
           Positioned(
             top: 10,
-            left: 20,
-            right: 20,
-            child: SafeArea(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 15),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.15),
-                      blurRadius: 6,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.search, color: Colors.grey),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: TextField(
-                        decoration: const InputDecoration(
-                          hintText: 'Search location...',
-                          border: InputBorder.none,
-                        ),
-                        onChanged: (value) {
-                          // TODO: handle live search here
-
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            left: 10,
+            right: 10,
+            child: SearchBarOverlay(
+              // onSelected: (query) {
+              //   print('🔍 Searching for: $query');
+              //   // TODO: handle live search or API call
+              // },
+              onSearch: searchResults,
             ),
           ),
           // 📍 Floating button overlay

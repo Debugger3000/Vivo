@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:vivo_front/com_ui_widgets/animations/pulsing_dot.dart';
 
 // enum for type of time displays...
-enum TimeDisplayType { live, today, tomorrow, days }
+enum TimeDisplayType { live, today, tomorrow, days, past }
 
 class TimeDisplay extends StatelessWidget {
   final String startTime; // takes UTC string
@@ -39,13 +39,20 @@ class TimeDisplay extends StatelessWidget {
       return TimeDisplayType.today;
     }
 
+    // tomorrow
+    if (curTime.year == startTime.year &&
+        curTime.month == startTime.month &&
+        startTime.day - curTime.day == 1) {
+      return TimeDisplayType.tomorrow;
+    }
+
     // DAYS → curTime is before startTime but not today
     if (curTime.isBefore(startTime)) {
       return TimeDisplayType.days;
     }
 
     // Optional: if curTime is after endTime, you could return "past" or "days" again
-    return TimeDisplayType.live;
+    return TimeDisplayType.past;
   }
 
 
@@ -97,6 +104,10 @@ class TimeDisplay extends StatelessWidget {
       case TimeDisplayType.days:
         // build the "Days away" style
         return _buildDaysDisplay();
+
+      case TimeDisplayType.past:
+        // build the "Days away" style
+        return _buildPastDisplay();
     }
   }
 
@@ -185,7 +196,11 @@ Widget _buildLiveDisplay() {
 
 
   Widget _buildTodayDisplay() {
-    return const Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+    // mainAxisSize: MainAxisSize.min,
+    children: [
+      Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(Icons.event_available, color: Colors.green, size: 14),
@@ -198,11 +213,20 @@ Widget _buildLiveDisplay() {
           ),
         ),
       ],
+    ),
+     _buildBasicTime(),
+
+    ]
     );
+    
   }
 
   Widget _buildTomorrowDisplay() {
-    return const Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+    // mainAxisSize: MainAxisSize.min,
+    children: [
+      Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(Icons.event_available, color: Colors.green, size: 14),
@@ -215,11 +239,18 @@ Widget _buildLiveDisplay() {
           ),
         ),
       ],
+    ),
+     _buildBasicTime(),
+    ]
     );
   }
 
   Widget _buildDaysDisplay() {
-    return const Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+    // mainAxisSize: MainAxisSize.min,
+    children: [
+      Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(Icons.calendar_month, color: Colors.blueGrey, size: 14),
@@ -229,10 +260,31 @@ Widget _buildLiveDisplay() {
           style: TextStyle(color: Colors.blueGrey),
         ),
       ],
+    ),
+    _buildBasicTime(),
+    ]
     );
   }
 
-
-
+  // Past events
+  Widget _buildPastDisplay() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+    // mainAxisSize: MainAxisSize.min,
+    children: [
+      Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(Icons.calendar_month, color: Colors.blueGrey, size: 14),
+        SizedBox(width: 6),
+        Text(
+          'Past',
+          style: TextStyle(color: Colors.blueGrey),
+        ),
+      ],
+    ),
+    ]
+    );
+  }
 
 }

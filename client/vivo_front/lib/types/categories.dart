@@ -51,4 +51,13 @@ class ResponseMessage {
   }
 }
 
+// enums for categories...
+const List<String> categoriesEnum = [
+  'Alcohol',
+  'Sports',
+  'Entertainment',
+  'Food',
+  'Gaming'
+];
 
+// education, music
