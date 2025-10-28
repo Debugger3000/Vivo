@@ -44,6 +44,18 @@ import (
 
 // events + groups
 
+// 
+// TODO
+// Events refreshing / populate system
+// ---
+// SEARCH BAR - to just go to cities...
+	//  places api bar
+	// We can refresh events on new current initial position set on MAPS
+	// Where to cache events ?
+	// How to set / use a LATLONG radius from current position ?
+	// When on a position, how to cycle through events ?
+	// if we use search bar to go to places, how do we FILTER EVENTS ?
+
 // ---------------------------------------------
 
 type SearchBody struct {
@@ -53,7 +65,6 @@ type SearchBody struct {
 // ---------------------------------------------------
 
 // []string `json:"categories"`
-
 // ideally, we could return event data.. via this same request
 // Search Body Post --> Event Get
 
@@ -69,7 +80,6 @@ func EventSearchBar(c *fiber.Ctx) error {
 
 	// log the body
 	fmt.Println("Search bar Post body: ", body)
-	
 
 	// Insert into table
 	_, err := database.Pool.Query(
@@ -82,9 +92,6 @@ func EventSearchBar(c *fiber.Ctx) error {
 			"error": "Failed to get event data on Search Bar.",
 		})
 	}
-
-
-
 
 	fmt.Println("Event Get: ", )
 
