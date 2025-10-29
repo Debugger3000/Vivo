@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:vivo_front/api/Events/get_events.dart';
+import 'package:vivo_front/api/Location/core_gps.dart';
 import 'package:vivo_front/pages/events/CRUD/post_event.dart';
 import 'package:vivo_front/api/api_service.dart';
 // import 'package:geocoding/geocoding.dart';
@@ -10,6 +11,8 @@ import 'package:vivo_front/api/google_map/google_map_wid.dart';
 import 'package:vivo_front/pages/events/event_window.dart';
 import 'package:vivo_front/pages/map/search_bar.dart';
 import 'package:vivo_front/types/event.dart';
+import 'package:geolocator/geolocator.dart';
+
 
 
 // Map Page Sub Page Navigator 
@@ -58,7 +61,11 @@ class MapPage extends StatefulWidget {
 class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
   final ApiService api = ApiService(); 
   // 📍 Initial location — you can change this to your preferred coordinates
-  final LatLng _initialPosition = const LatLng(44.389355, -79.690331);
+  //late LatLng? currentDeviceLocation;
+
+  ValueNotifier<LatLng?> currentDeviceLocation = ValueNotifier<LatLng?>(null);
+  // LatLng _initialPosition = const LatLng(44.389355, -79.690331);
+
   // event previews List
   // List<GetEventPreview> eventsList = List.empty();
 
@@ -68,22 +75,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
 
   // selected event
 
-  OverlayEntry? _overlayEntry; // hold overlay reference
 
-
-
-// Update this widget + its ancestors
-// super useful...
-// -----------
-// our reactive value holder
-//  final ValueNotifier<int> counter = ValueNotifier<int>(0);
-// //  ValueListenableBuilder<int>(
-//           valueListenable: counter,
-//           builder: (context, value, _) {
-//             print('Only this builder rebuilds');
-//             return Text('Count: $value');
-//           },
-//         ),
 
 // -------------------------------
 
@@ -93,6 +85,10 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     print('init state in map.dart');
     _loadEvents();
+
+    
+
+    
   }
 
   // ---------------------------
@@ -102,7 +98,12 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
     
       print("set state for events list...");
     eventsList.value = events;
-    
+
+    final result = await getCurrentPosition();
+    print("current position ");
+    print(result.latitude);
+    print(result.longitude);
+    currentDeviceLocation.value = LatLng(result.latitude, result.longitude);
   }
 
   // watch life cycle state of this page
@@ -165,6 +166,37 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
 
   }
 
+  // -----------------------------------------------------
+  // location functions
+
+  // run a stream to update map as position is changing.....
+      // boilerplate for now...
+  // -----------------
+
+  // void _startLocationUpdates() async {
+  //   // Make sure permissions are granted
+  //   bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  //   if (!serviceEnabled) return; // optionally show error
+
+  //   LocationPermission permission = await Geolocator.checkPermission();
+  //   if (permission == LocationPermission.denied) {
+  //     permission = await Geolocator.requestPermission();
+  //     if (permission == LocationPermission.denied) return;
+  //   }
+  //   if (permission == LocationPermission.deniedForever) return;
+
+  //   // ✅ Listen to location updates
+  //   Geolocator.getPositionStream(
+  //     locationSettings: const LocationSettings(
+  //       accuracy: LocationAccuracy.bestForNavigation,
+  //       distanceFilter: 5, // meters before update triggers
+  //     ),
+  //   ).listen((Position position) {
+  //     currentDeviceLocation.value =
+  //         LatLng(position.latitude, position.longitude);
+  //   });
+  // }
+
 
 
 //   void _showEventOverlay(GetEventPreview event) {
@@ -188,54 +220,59 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
 
 
 
-  // Convert address to coordinates
-  // Future<void> _searchAddress(String address) async {
-  //   try {
-  //     List<Location> locations = await locationFromAddress(address);
-  //     if (locations.isNotEmpty) {
-  //       final loc = locations.first;
-  //       setState(() {
-  //         _initialPosition = LatLng(loc.latitude, loc.longitude);
-  //         _marker = Marker(
-  //           markerId: MarkerId('marker_1'),
-  //           position: _initialPosition,
-  //         );
-  //       });
-
-  //       // Move camera
-  //       mapController?.animateCamera(
-  //         CameraUpdate.newLatLngZoom(_initialPosition, 15),
-  //       );
-  //     }
-  //   } catch (e) {
-  //     print('Error: $e');
-  //   }
-  // }
-
-
-
 @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: null,
       body: Stack(
         children: [
-          ValueListenableBuilder(
-            valueListenable: eventsList, 
-            builder: (context, list, _) {
-              
-              print('🔁 List rebuilt heheheheheheheheh');
-              return MapSample(
-                mapPosition: _initialPosition,  
-                zoom: 11.0,
-                myLocationEnabled: true,
-                myLocationButtonEnabled: true,
-                zoomControlsEnabled: true,
-                events: list,
-                callback: openEventMarkerWindow,
+
+          // if (currentDeviceLocation.value == null) 
+          //   const Center(child: CircularProgressIndicator())
+          // else 
+          // ValueListenableBuilder<List<GetEventPreview>>(
+          //   valueListenable: eventsList,
+          //   builder: (context, list, _) {
+          //         print('🔁 Rebuilt because either events or location changed');
+          //         return MapSample(
+          //           mapPosition: currentDeviceLocation.value!,
+          //           zoom: 11.0,
+          //           myLocationEnabled: true,
+          //           myLocationButtonEnabled: true,
+          //           zoomControlsEnabled: true,
+          //           events: list,
+          //           callback: openEventMarkerWindow,
+          //         );
+          //   },
+          // ),
+          
+
+          ValueListenableBuilder<LatLng?>(
+            valueListenable: currentDeviceLocation,
+            builder: (context, location, _) {
+              if (location == null) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              return ValueListenableBuilder<List<GetEventPreview>>(
+                valueListenable: eventsList,
+                builder: (context, list, _) {
+                  print('🔁 Rebuilt because either events or location changed');
+                  return MapSample(
+                    mapPosition: location,
+                    zoom: 11.0,
+                    myLocationEnabled: true,
+                    myLocationButtonEnabled: true,
+                    zoomControlsEnabled: true,
+                    events: list,
+                    callback: openEventMarkerWindow,
+                  );
+                },
               );
-            }
+            },
           ),
+
+
 
           // 🔍 Search bar overlay
           Positioned(

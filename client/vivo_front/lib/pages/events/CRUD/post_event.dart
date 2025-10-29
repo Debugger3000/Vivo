@@ -112,7 +112,6 @@ class PostEventFormState extends State<PostEventForm> {
         curLat = lat; // set lat 
         curLng = lng; // set lng
         curAddress = placeDetails.result.formatted_address!;
-        print(placeDetails.result.formatted_address!);
       
         // set State to show new marker for clicked on address.
         setState(() {

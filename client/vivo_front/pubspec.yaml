@@ -43,6 +43,7 @@ dependencies:
   google_places_api_flutter: ^2.0.0
   lucide_icons: ^0.257.0
   intl: ^0.20.2
+  geolocator: ^14.0.2
 
 dev_dependencies:
   flutter_test:
