@@ -89,12 +89,19 @@ class _ProfilePageState extends State<ProfilePage> with RouteAware {
       const SnackBar(content: Text('Logged out successfully')),
     );
 
-    Navigator.pushNamedAndRemoveUntil(
-      context,
-      '/login',
-      (route) => false,
-    );
+    // Navigator.pushNamedAndRemoveUntil(
+    //   context,
+    //   '/login',
+    //   (route) => false,
+    // );
+    //await Navigator.of(context).pushNamed('/login');
+    Navigator.of(context).pushNamedAndRemoveUntil(
+    '/login',
+    (route) => false,
+  );
   }
+
+ 
 
 
   @override

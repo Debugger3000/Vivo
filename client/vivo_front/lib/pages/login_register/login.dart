@@ -70,49 +70,57 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
+
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Vivo')),
-      body: Center(
-        child: SizedBox(
-          width: 400,
-          child: Stack(
-            children: [
-              Opacity(
-                opacity: isLoading ? 0.5 : 1,
-                child: AbsorbPointer(
-                  absorbing: isLoading,
-                  child: SupaEmailAuth(
-                    redirectTo: kIsWeb ? null : _mobileRedirect,
-                    onSignUpComplete: (response) async {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Check your email to confirm your account.')),
-                      );
-                    },
-                    onSignInComplete: (response) async {
-                      // No navigation here; rely on onAuthStateChange for consistency
-                    },
-                    metadataFields: [
-                      MetaDataField(
-                        prefixIcon: const Icon(Icons.person),
-                        label: 'Username',
-                        key: 'username',
-                        validator: (val) =>
-                        (val == null || val.isEmpty) ? 'Please enter something' : null,
-                      ),
-                    ],
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(title: const Text('Vivo')),
+    body: Center(
+      child: SizedBox(
+        width: 400,
+        child: Stack(
+          children: [
+            Column(
+              children: [
+                const SizedBox(height: 24), // space under AppBar
+                Opacity(
+                  opacity: isLoading ? 0.5 : 1,
+                  child: AbsorbPointer(
+                    absorbing: isLoading,
+                    child: SupaEmailAuth(
+                      redirectTo: kIsWeb ? null : _mobileRedirect,
+                      onSignUpComplete: (response) async {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Check your email to confirm your account.')),
+                        );
+                      },
+                      onSignInComplete: (response) async {
+                        // rely on onAuthStateChange
+                      },
+                      metadataFields: [
+                        MetaDataField(
+                          prefixIcon: const Icon(Icons.person),
+                          label: 'Username',
+                          key: 'username',
+                          validator: (val) =>
+                              (val == null || val.isEmpty) ? 'Please enter something' : null,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
+              ],
+            ),
+
+            // Loading spinner overlay
+            if (isLoading)
+              const Positioned.fill(
+                child: Center(child: CircularProgressIndicator()),
               ),
-              if (isLoading)
-                const Positioned.fill(
-                  child: Center(child: CircularProgressIndicator()),
-                ),
-            ],
-          ),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

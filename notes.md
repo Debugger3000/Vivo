@@ -1,6 +1,35 @@
 # To-do list
 
 
+# Test Users
+ - Tester01
+
+
+# Run Dev commands
+- Client:
+    - cd to /Vivo/client/vivo_front
+
+    - How I set up my dev environment:
+        - Download emulator packages within android studio
+        - Medium Phone API 34
+        - In Vs code, 'CTRL + SHIFT + P'
+        - Flutter: run emulators, choose to run Emulator of choice
+        - Emu should boot up
+        - 
+        - Then, 'flutter run' in directory above, and app should rip
+
+        - ALTERNATE:
+            - launch emulator in vs code like above
+            - Use 'F5' to run flutter run in debug, and HOT RELOAD should work
+
+- Server:
+    - cd to /Vivo/server
+    - run command 'air' (basically nodemon...)
+    
+
+
+
+
 # Rules
 
 - Use Snake Case (file_name)
@@ -38,10 +67,7 @@
 ### Frontend
     * Functionality of the front end (buttons, swiping, data display, map)
 
-    - [ ] 
-
-    - [ ] 3 Main pages (able to swipe to each)
-    - [ ] Bottom Menu bar 
+    - Auth Logout... Logout doesn't put user to /login nav route as it should
 
 ### UX/UI
     * Purely the design aspect
