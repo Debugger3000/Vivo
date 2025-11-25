@@ -18,7 +18,7 @@ class EventWindow extends StatefulWidget {
 
 class _EventWindowState extends State<EventWindow> {
 
-   bool _loading = false;
+   final bool _loading = false;
 
 
   @override

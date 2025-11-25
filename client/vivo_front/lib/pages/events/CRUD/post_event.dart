@@ -24,7 +24,7 @@ class PostEventFormState extends State<PostEventForm> {
   final ApiService api = ApiService(); 
 
   // 📍 Initial location - should be grabbed from USER DEVICE
-  LatLng _initialPosition = const LatLng(44.389355, -79.690331);
+  final LatLng _initialPosition = const LatLng(44.389355, -79.690331);
   double curLat = 44.389355;
   double curLng = -79.690331;
   String curAddress = "18 Claudio Crescent";

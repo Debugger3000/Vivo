@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:app_links/app_links.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 import 'package:vivo_front/navigation_wrapper.dart';
 

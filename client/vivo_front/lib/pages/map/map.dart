@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:vivo_front/api/Events/get_events.dart';
@@ -11,7 +10,6 @@ import 'package:vivo_front/api/google_map/google_map_wid.dart';
 import 'package:vivo_front/pages/events/event_window.dart';
 import 'package:vivo_front/pages/map/search_bar.dart';
 import 'package:vivo_front/types/event.dart';
-import 'package:geolocator/geolocator.dart';
 
 
 

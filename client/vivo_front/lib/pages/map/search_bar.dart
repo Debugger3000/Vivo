@@ -16,7 +16,7 @@ class _SearchBarOverlayState extends State<SearchBarOverlay> {
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   bool _showDropdown = false;
-  bool _loading = false;
+  final bool _loading = false;
 
   @override
   void initState() {
