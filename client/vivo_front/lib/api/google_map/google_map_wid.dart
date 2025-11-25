@@ -117,7 +117,6 @@ class _MapSampleState extends State<MapSample> {
     print("Map widget rebuild triggered, markers: ${_markersSet.length}");
     
     final mapWidget = GoogleMap(
-      key: ValueKey(Random().nextInt(1000)),
       onMapCreated: _onMapCreated,
       initialCameraPosition:CameraPosition(
         target: widget.mapPosition,

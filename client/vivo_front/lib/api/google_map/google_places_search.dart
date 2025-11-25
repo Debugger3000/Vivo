@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_places_api_flutter/google_places_api_flutter.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 // class PlacesSearch extends StatelessWidget {
 //   final void Function(Prediction placeId, PlaceDetailsModel? latLng) onPlaceSelectedCallback;
@@ -15,7 +16,7 @@ import 'package:google_places_api_flutter/google_places_api_flutter.dart';
 //     return Padding(
 //         padding: const EdgeInsets.all(16.0),
 //         child: PlaceSearchField(
-//           apiKey: "AIzaSyC_o3tXMGvFS0mbvg_pTJdPwzj52uCL02w", // your API key
+//           apiKey: "", // your API key
 //           isLatLongRequired: true,
 //           onPlaceSelected: (prediction, placeDetails) {
 //             try {
@@ -95,6 +96,7 @@ class _PlacesSearchState extends State<PlacesSearch> {
 
   @override
   Widget build(BuildContext context) {
+    final placesApiKey = dotenv.env['MAPS_API_KEY'] ?? '';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -124,7 +126,7 @@ class _PlacesSearchState extends State<PlacesSearch> {
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 0),
             child: PlaceSearchField(
-              apiKey: "AIzaSyC_o3tXMGvFS0mbvg_pTJdPwzj52uCL02w",
+              apiKey: placesApiKey,
               controller: _searchController,
               isLatLongRequired: true,
               
