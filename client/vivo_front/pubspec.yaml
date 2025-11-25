@@ -45,6 +45,8 @@ dependencies:
   intl: ^0.20.2
   geolocator: ^14.0.2
 
+  app_links: any
+  supabase_flutter: any
 dev_dependencies:
   flutter_test:
     sdk: flutter

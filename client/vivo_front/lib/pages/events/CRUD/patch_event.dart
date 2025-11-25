@@ -26,7 +26,7 @@ class PatchEventFormState extends State<PatchEventForm> {
   final ApiService api = ApiService(); 
 
   // 📍 Initial location — you can change this to your preferred coordinates
-  LatLng _initialPosition = const LatLng(44.389355, -79.690331);
+  final LatLng _initialPosition = const LatLng(44.389355, -79.690331);
   late Set<Marker> _markerSet = {};
 
   // These should be set to the ADDRESS / LAT/LNG set for that event
