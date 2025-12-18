@@ -1,0 +1,8 @@
+version: 1.0
+runtime: go1
+build:
+  commands:
+    build:
+      - go build -o app index.go
+run:
+  command: ./app
