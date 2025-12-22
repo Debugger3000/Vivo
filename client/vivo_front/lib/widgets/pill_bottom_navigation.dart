@@ -1,53 +1,24 @@
-
-
-
-
 import 'package:flutter/material.dart';
-import 'package:vivo_front/pages/map/map.dart';
-import 'package:vivo_front/pages/profile/profile.dart';
-import 'package:vivo_front/pages/events/events.dart';
-// import './package:vivo_front/pages/profile_page.dart';
 
-class NavigationWrapper extends StatefulWidget {
-  const NavigationWrapper({super.key});
+class PillBottomNavigation extends StatefulWidget {
+  const PillBottomNavigation({Key? key, required int selectedIndex, required void Function(int index) onTabSelected}) : super(key: key);
 
   @override
-  State<NavigationWrapper> createState() => _NavigationWrapperState();
+  State<PillBottomNavigation> createState() => _PillBottomNavigationState();
 }
 
-class _NavigationWrapperState extends State<NavigationWrapper> {
-  int _selectedIndex = 1;
+class _PillBottomNavigationState extends State<PillBottomNavigation> {
+  int selectedIndex = 1;
+  
+  int? get _selectedIndex => null;
 
-  // Optional: a key for the nested navigator in MapTab
-  final GlobalKey<NavigatorState> _eventsNavKey = GlobalKey<NavigatorState>();
-  final GlobalKey<NavigatorState> _mapNavKey = GlobalKey<NavigatorState>();
-  final GlobalKey<NavigatorState> _profileNavKey = GlobalKey<NavigatorState>();
-
-   final List<Widget> _tabs = [];
-
-  // run on widget build
   @override
-  void initState() {
-    super.initState();
-    _tabs.addAll([
-      EventsTab(navigatorKey: _eventsNavKey),
-      MapTab(navigatorKey: _mapNavKey), // <-- use MapTab here
-      ProfileTab(navigatorKey: _profileNavKey),
-    ]);
-  }
-
-
-  void _onTabTapped(int index) {
-    setState(() => _selectedIndex = index);
-  }
-
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: null,
+  Widget build(BuildContext context) {
+    return Scaffold(
+       appBar: null,
     body: IndexedStack(
       index: _selectedIndex,
-      children: _tabs,
+      //children: _tabs,
     ),
   bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -101,7 +72,7 @@ Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
         setState(() {
-          _selectedIndex = index;
+         // _selectedIndex = index;
         });
       },
       child: AnimatedContainer(
@@ -140,10 +111,3 @@ Widget build(BuildContext context) {
     );
   }
 }
-
-
-// 
-// Navigator.push(
-//   context,
-//   MaterialPageRoute(builder: (_) => const MapPage()),
-// );

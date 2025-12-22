@@ -38,7 +38,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Vivo Front',
       theme: AppTheme.lightTheme,
-      initialRoute: '/auth_gate',
+      initialRoute: '/login',
       // Root navigation
       routes: {
         '/auth_gate': (context) => const AuthGate(),
