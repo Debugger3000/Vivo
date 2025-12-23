@@ -111,7 +111,7 @@ Widget build(BuildContext context) {
           vertical: 12,
         ),
         decoration: BoxDecoration(
-          color: isSelected && isCenter
+          color: isSelected
               ? Colors.grey.shade200
               : Colors.transparent,
           borderRadius: BorderRadius.circular(30),

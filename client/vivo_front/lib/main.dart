@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:vivo_front/pages/login_register/login.dart';
+import 'package:vivo_front/pages/profile/profile.dart';
 import 'package:vivo_front/theme/app_theme.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 import 'package:vivo_front/navigation_wrapper.dart';
@@ -38,12 +39,13 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Vivo Front',
       theme: AppTheme.lightTheme,
-      initialRoute: '/login',
+      initialRoute: '/navigation',
       // Root navigation
       routes: {
         '/auth_gate': (context) => const AuthGate(),
         '/login': (context) => const LoginPage(),
         '/navigation': (context) => const NavigationWrapper(),
+        '/profile': (context) => const ProfilePage(),
       },
       navigatorObservers: [routeObserver],
     );

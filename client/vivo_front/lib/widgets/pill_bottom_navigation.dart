@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class PillBottomNavigation extends StatefulWidget {
-  const PillBottomNavigation({Key? key, required int selectedIndex, required void Function(int index) onTabSelected}) : super(key: key);
+  const PillBottomNavigation({super.key, required int selectedIndex, required void Function(int index) onTabSelected});
 
   @override
   State<PillBottomNavigation> createState() => _PillBottomNavigationState();
