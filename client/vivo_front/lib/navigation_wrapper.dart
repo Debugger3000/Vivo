@@ -79,7 +79,7 @@ Widget build(BuildContext context) {
                 isCenter: true,
               ),
               _navItem(
-                icon: Icons.change_history,
+                icon: Icons.settings,
                 label: 'Profile',
                 index: 2,
               ),

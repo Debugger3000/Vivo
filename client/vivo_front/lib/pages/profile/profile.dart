@@ -84,7 +84,6 @@ class _ProfilePageState extends State<ProfilePage> with RouteAware {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const MainPageHeader(),
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(

@@ -124,7 +124,7 @@ class _EventsState extends State<EventsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: MainPageHeader(),
+    
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _goToCreate,
         icon: const Icon(Icons.add),
