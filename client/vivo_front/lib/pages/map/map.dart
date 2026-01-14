@@ -294,9 +294,14 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
               onPressed: () {
                 Navigator.of(context).pushNamed('/post_event');
               },
-              backgroundColor: Colors.blue,
-              child: Icon(Icons.add),
+              shape: CircleBorder(
+
+                side: BorderSide(color: Colors.grey.shade200, width: 4),
+              ),
+              backgroundColor: Colors.grey.shade200,
+              child: Icon(Icons.add,color: Colors.blue),
             ),
+           
           ),
 
           // -----------------------------------

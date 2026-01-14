@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:vivo_front/api/api_service.dart'; // your ApiService
-import 'package:supabase_auth_ui/supabase_auth_ui.dart';
+import 'package:vivo_front/api/api_service.dart';
 import 'package:vivo_front/pages/events/CRUD/post_event.dart';
 import 'package:vivo_front/com_ui_widgets/mainpage_header.dart';
 import 'dart:developer' as developer;
 import 'package:vivo_front/main.dart';
-import 'package:vivo_front/stateless/generic_callback_button.dart';
-
-
 
 class ProfileTab extends StatelessWidget {
   final GlobalKey<NavigatorState> navigatorKey;
@@ -25,13 +21,13 @@ class ProfileTab extends StatelessWidget {
 
         switch (settings.name) {
           case '/profile':
-            builder = (context) => ProfilePage(); // Your main map UI
+            builder = (context) => const ProfilePage();
             break;
           case '/settings':
-            builder = (context) => PostEventForm(); // Subpage to push
+            builder = (context) => PostEventForm();
             break;
           default:
-            builder = (context) => ProfilePage();
+            builder = (context) => const ProfilePage();
         }
 
         return MaterialPageRoute(builder: builder, settings: settings);
@@ -42,9 +38,6 @@ class ProfileTab extends StatelessWidget {
 
 // ---------------------------------------------
 
-
-
-// stateful profile widget
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
@@ -53,10 +46,7 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> with RouteAware {
-  // final _formKey = GlobalKey<FormState>();
   final ApiService api = ApiService();
-
-  final GlobalKey<PostEventFormState> postEventFormKey = GlobalKey<PostEventFormState>();
 
   @override
   void didChangeDependencies() {
@@ -70,49 +60,121 @@ class _ProfilePageState extends State<ProfilePage> with RouteAware {
     super.dispose();
   }
 
-  // Called when returning to this page
   @override
   void didPopNext() {
-    developer.log("Post event form has ran hehe", name:'vivo-loggy', level: 0);
-    print("did pop next in profile.... calling get CATTERsss");
-    // Calls _getCategories on the PostEventForm component
+    developer.log("Returned to profile page", name: 'vivo-loggy');
   }
 
-  // ----------------------
-
-  // Supabase logout logic
-  void logout(BuildContext context) async {
-    // 🔐 Sign out from Supabase
+  // 🔐 Supabase logout
+  Future<void> logout(BuildContext context) async {
     await Supabase.instance.client.auth.signOut();
+
+    if (!mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Logged out successfully')),
     );
 
-    // Navigator.pushNamedAndRemoveUntil(
-    //   context,
-    //   '/login',
-    //   (route) => false,
-    // );
-    //await Navigator.of(context).pushNamed('/login');
     Navigator.of(context).pushNamedAndRemoveUntil(
-    '/login',
-    (route) => false,
-  );
+      '/login',
+      (route) => false,
+    );
   }
-
- 
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const MainPageHeader(),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: 
-          GenericCallBackButton(name: 'Logout', onPressed: () => logout(context)), // use generic call back button...
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Column(
+          children: [
+            const SizedBox(height: 54),
+
+            // Profile image
+            const CircleAvatar(
+              radius: 32,
+              backgroundImage: AssetImage(
+                'assets/images/profile.jpg', // replace if needed
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            // Name (replace later with Supabase user data)
+            const Text(
+              'Chad Bosing',
+              style: TextStyle(
+                fontSize: 26,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+
+            const SizedBox(height: 20),
+            const Divider(),
+
+            _ProfileItem(
+              title: 'Profile',
+              onTap: () {
+                // push profile details later
+              },
+            ),
+            _ProfileItem(
+              title: 'Account',
+              onTap: () {
+                // push account page
+              },
+            ),
+            _ProfileItem(
+              title: 'Accessibility',
+              onTap: () {
+                // push accessibility page
+              },
+            ),
+
+            const SizedBox(height: 8),
+
+            // Logout
+            ListTile(
+              title: const Text(
+                'Logout',
+                style: TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              onTap: () => logout(context),
+            ),
+          ],
+        ),
       ),
+    );
+  }
+}
+
+// ---------------------------------------------
+
+class _ProfileItem extends StatelessWidget {
+  final String title;
+  final VoidCallback onTap;
+
+  const _ProfileItem({
+    required this.title,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        ListTile(
+          title: Text(
+            title,
+            style: const TextStyle(fontSize: 16),
+          ),
+          onTap: onTap,
+        ),
+        const Divider(height: 1),
+      ],
     );
   }
 }

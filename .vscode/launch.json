@@ -1,0 +1,28 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "vivo_front",
+            "cwd": "client/vivo_front",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "vivo_front (profile mode)",
+            "cwd": "client/vivo_front",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "vivo_front (release mode)",
+            "cwd": "client/vivo_front",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        }
+    ]
+}
