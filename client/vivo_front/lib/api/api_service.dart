@@ -3,10 +3,11 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 // import 'dart:developer' as developer;
 import 'package:vivo_front/types/categories.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 
 class ApiService {
-  final String _baseUrl = 'http://10.0.0.195:3001';
+  final String _baseUrl = dotenv.env['HOST_IP'] ?? '';
   final Map<String, String> _defaultHeaders = {
     'Content-Type': 'application/json',
   };
