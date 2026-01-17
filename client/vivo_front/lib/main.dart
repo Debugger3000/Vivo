@@ -40,15 +40,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Vivo Front',
       theme: AppTheme.lightTheme,
-<<<<<<< HEAD
-<<<<<<< HEAD
-      initialRoute: '/register',
-=======
+
       initialRoute: '/navigation',
->>>>>>> parent of c968934 (Update main.dart)
-=======
-      initialRoute: '/navigation',
->>>>>>> parent of c968934 (Update main.dart)
       // Root navigation
       routes: {
         '/register': (context) => const RegisterPage(),
