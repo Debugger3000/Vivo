@@ -40,7 +40,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Vivo Front',
       theme: AppTheme.lightTheme,
-      initialRoute: '/auth_gate',
+      initialRoute: '/register',
       // Root navigation
       routes: {
         '/register': (context) => const RegisterPage(),

@@ -365,7 +365,7 @@ class _InputField extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
+        //color: const Color.fromARGB(255, 161, 53, 53),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -382,7 +382,11 @@ class _InputField extends StatelessWidget {
             obscureText: obscure,
             decoration: InputDecoration(
               hintText: hint,
-              border: InputBorder.none,
+              border: UnderlineInputBorder(
+                borderSide: BorderSide(width: 1.0)),
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(width: 1.0, color:const Color(0xFF9FF3FF))
+                  )
             ),
           ),
         ],

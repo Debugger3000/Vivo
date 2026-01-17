@@ -108,7 +108,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     _InputField(
                       label: 'Username',
                       controller: _usernameController,
-                      hint: 'yourname',
+                      hint: 'name',
                     ),
 
                     const SizedBox(height: 20),
@@ -210,7 +210,7 @@ class _InputField extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
+        //color: Colors.grey.shade100,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -227,7 +227,11 @@ class _InputField extends StatelessWidget {
             obscureText: obscure,
             decoration: InputDecoration(
               hintText: hint,
-              border: InputBorder.none,
+              border: UnderlineInputBorder(
+                borderSide: BorderSide(width: 1.0)),
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(width: 1.0, color:const Color(0xFF9FF3FF))
+                  )
             ),
           ),
         ],
