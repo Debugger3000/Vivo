@@ -19,6 +19,10 @@ Future<void> main() async {
   // Load the .env file
   await dotenv.load(fileName: ".env");
 
+  final maps_api = dotenv.get('MAPS_API_KEY');
+  print("maps api key: ");
+  print(maps_api);
+
   // Supabase initialization
   final supabaseUrl = dotenv.get('SUPABASE_URL');
   final supabaseKey = dotenv.get('SUPABASE_PUBLISHABLE_KEY');
