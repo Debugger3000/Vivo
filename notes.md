@@ -22,6 +22,13 @@
             - launch emulator in vs code like above
             - Use 'F5' to run flutter run in debug, and HOT RELOAD should work
 
+
+    - update flutter:
+        - flutter clean (clean)
+        - flutter pub get (update packages in pubspec.yaml)
+        - flutter run ()
+
+
 - Server:
     - cd to /Vivo/server
     - run command 'air' (basically nodemon...)
