@@ -22,6 +22,10 @@
             - launch emulator in vs code like above
             - Use 'F5' to run flutter run in debug, and HOT RELOAD should work
 
+    - Terminals
+        - Flutter run
+        - Flutter logs
+        - Golang server
 
     - update flutter:
         - flutter clean (clean)

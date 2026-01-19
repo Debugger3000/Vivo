@@ -94,8 +94,12 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
   Future<void> _loadEvents() async {
     final events = await getEvents(api);
     
-      print("set state for events list...");
+    print("set state for events list...");
     eventsList.value = events;
+
+    print("Map Events: ");
+    print(events);
+
 
     final result = await getCurrentPosition();
     print("current position ");
@@ -106,6 +110,8 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
     final barrie_pos = LatLng(44.370591,-79.689321);
     currentDeviceLocation.value = barrie_pos;
   }
+
+  
 
   // watch life cycle state of this page
   // 

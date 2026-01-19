@@ -53,7 +53,9 @@ class _MapSampleState extends State<MapSample> {
   @override
   void initState() {
     super.initState();
-    // _buildMarkers();
+    // build markers for events onto map... on map load...
+    _buildMarkers();
+    
   }
 
 
