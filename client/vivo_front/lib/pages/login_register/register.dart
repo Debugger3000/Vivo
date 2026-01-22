@@ -36,7 +36,7 @@ class _RegisterPageState extends State<RegisterPage> {
         ),
       );
 
-      Navigator.pop(context); // back to login
+      Navigator.pushReplacementNamed(context, '/login');
     } on AuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(e.message)),
