@@ -19,6 +19,10 @@ Future<void> main() async {
   // Load the .env file
   await dotenv.load(fileName: ".env");
 
+  final maps_api = dotenv.get('MAPS_API_KEY');
+  print("maps api key: ");
+  print(maps_api);
+
   // Supabase initialization
   final supabaseUrl = dotenv.get('SUPABASE_URL');
   final supabaseKey = dotenv.get('SUPABASE_PUBLISHABLE_KEY');
@@ -40,7 +44,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Vivo Front',
       theme: AppTheme.lightTheme,
-      initialRoute: '/register',
+      initialRoute: '/auth_gate',
       // Root navigation
       routes: {
         '/register': (context) => const RegisterPage(),
@@ -81,7 +85,7 @@ class AuthGate extends StatelessWidget {
 
   Future<String> _getInitialRoute() async {
     final session = Supabase.instance.client.auth.currentSession;
-    return session == null ? '/login' : '/navigation';
+    return session == null ? '/register' : '/navigation';
   }
 
   @override
