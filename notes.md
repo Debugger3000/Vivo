@@ -36,6 +36,7 @@
 - Server:
     - cd to /Vivo/server
     - run command 'air' (basically nodemon...)
+    - go get -u ./... (update all the packages)
     - go run index.go
 
 
