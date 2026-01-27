@@ -125,11 +125,22 @@ class _EventsState extends State<EventsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
     
+      // floatingActionButton: FloatingActionButton.extended(
+      //   onPressed: _goToCreate,
+      //   icon: const Icon(Icons.add),
+      //   label: const Text('Create event'),
+      // ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: _goToCreate,
-        icon: const Icon(Icons.add),
-        label: const Text('Create event'),
-      ),
+              onPressed: () {
+                 _goToCreate();
+              },
+              // shape: CircleBorder(
+              //   side: BorderSide(color: Colors.grey.shade200, width: 4),
+              // ),
+              backgroundColor: Colors.grey.shade200,
+              icon: const Icon(Icons.add,color: Colors.blue),
+              label: const Text('Create Event', style: TextStyle(color: Colors.blue,fontWeight: FontWeight.bold)),
+            ),
       body: Column(
         children: [
 
