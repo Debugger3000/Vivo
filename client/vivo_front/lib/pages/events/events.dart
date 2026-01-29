@@ -144,25 +144,81 @@ class _EventsState extends State<EventsPage> {
       body: Column(
         children: [
 
+          // Expanded(
+          //   child: ListView.builder(
+          //     itemCount: eventsList.length,
+          //     itemBuilder: (context, index) {
+          //       final event = eventsList[index];
+          //       return ListTile(
+          //         leading: const Icon(Icons.event),
+          //         title: Text(event.title),
+          //         subtitle: Text(
+          //             '${event.startTime} → ${event.endTime}\n${event.description}'),
+          //         isThreeLine: true,
+          //         trailing: Text('${event.interested} 👍'),
+          //         onTap: () {
+          //           _goToEventPage(event);
+          //         },
+          //       );
+          //     },
+          // ),
+          // ),
           Expanded(
-            child: ListView.builder(
-              itemCount: eventsList.length,
-              itemBuilder: (context, index) {
-                final event = eventsList[index];
-                return ListTile(
-                  leading: const Icon(Icons.event),
-                  title: Text(event.title),
-                  subtitle: Text(
-                      '${event.startTime} → ${event.endTime}\n${event.description}'),
-                  isThreeLine: true,
-                  trailing: Text('${event.interested} 👍'),
-                  onTap: () {
-                    _goToEventPage(event);
-                  },
-                );
-              },
+  child: ListView.separated(
+    padding: const EdgeInsets.only(bottom: 100),
+    itemCount: eventsList.length,
+    separatorBuilder: (_, __) => const Divider(
+      thickness: 1.5,
+      height: 1,
+      color: Colors.black,
+    ),
+    itemBuilder: (context, index) {
+      final event = eventsList[index];
+
+      return InkWell(
+        onTap: () => _goToEventPage(event),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 14,
           ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              /// Event Image
+              Container(
+  width: 70,
+  height: 70,
+  decoration: BoxDecoration(
+    color: Colors.grey.shade300,
+    borderRadius: BorderRadius.circular(112),
+  ),
+  child: const Icon(Icons.event, size: 58),
+),
+
+
+              const SizedBox(width: 16),
+
+              /// Event Title
+              Expanded(
+                child: Text(
+                  event.title,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    height: 1.3,
+                  ),
+                ),
+              ),
+            ],
           ),
+        ),
+      );
+    },
+  ),
+),
+
         ]
           
       ),
