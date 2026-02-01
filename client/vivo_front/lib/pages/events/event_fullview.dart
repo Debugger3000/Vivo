@@ -247,29 +247,29 @@ class _EventFullViewState extends State<EventFullView> {
 
     bottomNavigationBar: Padding(
       padding: const EdgeInsets.fromLTRB(20, 10, 20, 25),
-      child: SizedBox(
-        height: 56,
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF7FE6F2),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
-            ),
-            elevation: 6,
-          ),
-          onPressed: () {
-            // TODO: Interested logic
-          },
-          child: const Text(
-            "Im Interested",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: Colors.black,
-            ),
-          ),
-        ),
-      ),
+      // child: SizedBox(
+      //   height: 56,
+      //   child: ElevatedButton(
+      //     style: ElevatedButton.styleFrom(
+      //       backgroundColor: const Color(0xFF7FE6F2),
+      //       shape: RoundedRectangleBorder(
+      //         borderRadius: BorderRadius.circular(30),
+      //       ),
+      //       elevation: 6,
+      //     ),
+      //     onPressed: () {
+      //       // TODO: Interested logic
+      //     },
+      //     child: const Text(
+      //       "Im Interested",
+      //       style: TextStyle(
+      //         fontSize: 18,
+      //         fontWeight: FontWeight.w600,
+      //         color: Colors.black,
+      //       ),
+      //     ),
+      //   ),
+      // ),
     ),
     body: SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -287,9 +287,6 @@ class _EventFullViewState extends State<EventFullView> {
           ),
 
           const SizedBox(height: 20),
-
-
-
 
        /// LOCATION
        Text(
@@ -413,8 +410,33 @@ if (widget.event.categories.isNotEmpty) ...[
             ),
             ],
 
-          const SizedBox(height: 80), // space for button
-        ],
+          const SizedBox(height: 50), // space for button
+          Center(
+              child: ElevatedButton.icon(
+                label: const Text(
+                  "Im Interested",
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF7FE6F2),
+                  minimumSize: const Size(17500, 55),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  
+                  elevation: 6,
+                ),
+                onPressed: () {
+                  // TODO: Im Interested logic
+                },
+              ),
+            ),
+            const SizedBox(height: 8),
+            ],
       ),
     ),
   );

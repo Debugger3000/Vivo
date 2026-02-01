@@ -187,14 +187,14 @@ class _EventsState extends State<EventsPage> {
             children: [
               /// Event Image
               Container(
-  width: 70,
-  height: 70,
-  decoration: BoxDecoration(
-    color: Colors.grey.shade300,
-    borderRadius: BorderRadius.circular(112),
-  ),
-  child: const Icon(Icons.event, size: 58),
-),
+              width: 70,
+              height: 70,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(112),
+              ),
+              child: const Icon(Icons.event, size: 58),
+            ),
 
 
               const SizedBox(width: 16),
