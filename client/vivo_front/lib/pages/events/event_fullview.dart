@@ -282,10 +282,12 @@ class _EventFullViewState extends State<EventFullView> {
             borderRadius: BorderRadius.circular(20),
             child: AspectRatio(
               aspectRatio: 4 / 3,
-              child: const Icon(Icons.event, size: 100, color: Colors.black),
+              child: Container(
+                color: Colors.grey.shade300,
+              child: const Icon(Icons.add_a_photo_outlined, size: 100, color: Colors.black,),
             ),
           ),
-
+          ),
           const SizedBox(height: 20),
 
        /// LOCATION
@@ -333,6 +335,28 @@ class _EventFullViewState extends State<EventFullView> {
             ),
 
         const SizedBox(height: 10),
+         /// DESCRIPTION TITLE
+          const Text(
+            "Description",
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+
+          const SizedBox(height: 8),
+
+          /// DESCRIPTION TEXT
+          Text(
+            widget.event.description,
+            style: TextStyle(
+              fontSize: 15,
+              color: Colors.grey[800],
+              height: 1.4,
+            ),
+          ),
+
+          const SizedBox(height: 14),
 
 //           /// CATEGORY
 if (widget.event.categories.isNotEmpty) ...[
@@ -356,30 +380,7 @@ if (widget.event.categories.isNotEmpty) ...[
               const SizedBox(height: 20),
             ],
 
-          /// DESCRIPTION TITLE
-          const Text(
-            "Description",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-
-          const SizedBox(height: 8),
-
-          /// DESCRIPTION TEXT
-          Text(
-            widget.event.description,
-            style: TextStyle(
-              fontSize: 15,
-              color: Colors.grey[800],
-              height: 1.4,
-            ),
-          ),
-
-          const SizedBox(height: 14),
-
-//           /// HASHTAGS
+      /// HASHTAGS
    if (widget.event.tags.isNotEmpty) ...[
               Text(
                 "Tags",

@@ -191,9 +191,9 @@ class _EventsState extends State<EventsPage> {
               height: 70,
               decoration: BoxDecoration(
                 color: Colors.grey.shade300,
-                borderRadius: BorderRadius.circular(112),
+                borderRadius: BorderRadius.circular(20),
               ),
-              child: const Icon(Icons.event, size: 58),
+              child: const Icon(Icons.add_a_photo_outlined, size: 58),
             ),
 
 
