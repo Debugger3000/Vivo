@@ -7,6 +7,7 @@ import 'package:vivo_front/api/api_service.dart';
 import 'package:vivo_front/com_ui_widgets/mainpage_header.dart';
 import 'package:vivo_front/pages/events/event_fullview.dart';
 import 'package:vivo_front/types/event.dart';
+import 'package:intl/intl.dart';
 
 
 class EventsTab extends StatelessWidget {
@@ -119,11 +120,9 @@ class _EventsState extends State<EventsPage> {
     // }
   }
 
-
-
-  @override
+ @override
   Widget build(BuildContext context) {
-    return Scaffold(
+return Scaffold(
     
       // floatingActionButton: FloatingActionButton.extended(
       //   onPressed: _goToCreate,
@@ -143,73 +142,96 @@ class _EventsState extends State<EventsPage> {
             ),
       body: Column(
         children: [
-
-          // Expanded(
-          //   child: ListView.builder(
-          //     itemCount: eventsList.length,
-          //     itemBuilder: (context, index) {
-          //       final event = eventsList[index];
-          //       return ListTile(
-          //         leading: const Icon(Icons.event),
-          //         title: Text(event.title),
-          //         subtitle: Text(
-          //             '${event.startTime} → ${event.endTime}\n${event.description}'),
-          //         isThreeLine: true,
-          //         trailing: Text('${event.interested} 👍'),
-          //         onTap: () {
-          //           _goToEventPage(event);
-          //         },
-          //       );
-          //     },
-          // ),
-          // ),
-          Expanded(
-  child: ListView.separated(
-    padding: const EdgeInsets.only(bottom: 100),
+Expanded(
+  child: ListView.builder(
+    padding: const EdgeInsets.fromLTRB(16, 20, 16, 120),
     itemCount: eventsList.length,
-    separatorBuilder: (_, __) => const Divider(
-      thickness: 1.5,
-      height: 1,
-      color: Colors.black,
-    ),
     itemBuilder: (context, index) {
       final event = eventsList[index];
 
-      return InkWell(
+      return GestureDetector(
         onTap: () => _goToEventPage(event),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 14,
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.06),
+                blurRadius: 18,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              /// Event Image
+              /// Icon badge (left)
               Container(
-              width: 70,
-              height: 70,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: const Icon(Icons.add_a_photo_outlined, size: 58),
-            ),
-
-
-              const SizedBox(width: 16),
-
-              /// Event Title
-              Expanded(
-                child: Text(
-                  event.title,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    height: 1.3,
-                  ),
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade100,
+                  shape: BoxShape.circle,
                 ),
+                child: const Icon(
+                  Icons.event,
+                  color: Colors.blue,
+                  size: 26,
+                ),
+              ),
+
+              const SizedBox(width: 14),
+
+              /// Title + subtitle (center)
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      event.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      DateFormat('MMMM d, h:mm a').format(DateTime.parse(event.startTime)),
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              /// Right-side stat
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    textAlign: TextAlign.center,
+                    '${event.interested}',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'interested',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -218,10 +240,6 @@ class _EventsState extends State<EventsPage> {
     },
   ),
 ),
-
-        ]
-          
-      ),
+    ] ),
     );
-  }
-}
+  }}
