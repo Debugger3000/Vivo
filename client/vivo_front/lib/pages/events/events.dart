@@ -53,7 +53,6 @@ class EventsTab extends StatelessWidget {
 
 
 
-
 class EventsPage extends StatefulWidget {
   const EventsPage({super.key});
 
@@ -159,8 +158,8 @@ Expanded(
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.06),
-                blurRadius: 18,
+                color: Colors.black.withOpacity(0.16),
+                blurRadius: 10,
                 offset: const Offset(0, 8),
               ),
             ],
@@ -169,14 +168,15 @@ Expanded(
             children: [
               /// Icon badge (left)
               Container(
-                width: 52,
-                height: 52,
+                width: 100,
+                height: 100,
                 decoration: BoxDecoration(
                   color: Colors.blue.shade100,
-                  shape: BoxShape.circle,
+                  shape: BoxShape.rectangle, // Default value, often implied
+                 borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Icon(
-                  Icons.event,
+                child: Icon(
+                Icons.event,
                   color: Colors.blue,
                   size: 26,
                 ),
@@ -212,7 +212,7 @@ Expanded(
 
               /// Right-side stat
               Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
                     textAlign: TextAlign.center,
@@ -225,7 +225,7 @@ Expanded(
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'interested',
+                    'Interested',
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.grey.shade600,
