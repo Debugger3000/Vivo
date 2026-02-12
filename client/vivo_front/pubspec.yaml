@@ -47,6 +47,8 @@ dependencies:
 
   app_links: any
   supabase_flutter: any
+  minio: ^3.5.8
+  image_picker: ^1.2.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
