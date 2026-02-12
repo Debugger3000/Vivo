@@ -6,6 +6,7 @@ import 'package:vivo_front/pages/events/CRUD/post_event.dart';
 import 'package:vivo_front/api/api_service.dart';
 import 'package:vivo_front/com_ui_widgets/mainpage_header.dart';
 import 'package:vivo_front/pages/events/event_fullview.dart';
+import 'package:vivo_front/stateless/imageview.dart';
 import 'package:vivo_front/types/event.dart';
 import 'package:intl/intl.dart';
 
@@ -167,31 +168,8 @@ Expanded(
           ),
           child: Row(
             children: [
-              /// Icon badge (left)
-              Container(
-                width: 100,
-                height: 100,
-                // 1. Crucial: This clips the image to your BorderRadius
-                clipBehavior: Clip.antiAlias, 
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade100,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Image.network(
-                  event.eventImage,
-                  fit: BoxFit.cover, // Makes the image fill the box
-                  errorBuilder: (context, error, stackTrace) {
-                    // 2. Fallback if the URL fails or 404s
-                    return Icon(Icons.broken_image, color: Colors.blue);
-                  },
-                  loadingBuilder: (context, child, loadingProgress) {
-                    // 3. Show a spinner while downloading from S3
-                    if (loadingProgress == null) return child;
-                    return Center(child: CircularProgressIndicator());
-                  },
-                ),
-              ),
-
+              /// Image view container for the event...
+              ImageView(imageUrl: event.eventImage),
               const SizedBox(width: 14),
 
               /// Title + subtitle (center)

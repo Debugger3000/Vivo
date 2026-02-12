@@ -3,9 +3,11 @@ import 'package:vivo_front/api/Events/delete_event.dart';
 import 'package:vivo_front/api/api_service.dart';
 import 'package:vivo_front/stateless/delete_button.dart';
 import 'package:vivo_front/stateless/generic_callback_button.dart';
+import 'package:vivo_front/stateless/imageview.dart';
 import 'package:vivo_front/stateless/yes_no_dialog.dart';
 import 'package:vivo_front/types/event.dart';
 import 'package:intl/intl.dart';
+import 'package:vivo_front/utility/user_functions.dart';
 
 
 class EventFullView extends StatefulWidget {
@@ -19,8 +21,26 @@ class EventFullView extends StatefulWidget {
 
 class _EventFullViewState extends State<EventFullView> {
   final ApiService api = ApiService(); 
+  String? userId;
 
   // late GetEventPreview widget.event;
+
+
+
+  @override
+  void initState() {
+    super.initState();
+    // 1. Initialize your data or controllers here
+    print("Page is initializing...");
+    wrapGetId(); // get user id on call....
+  }
+
+  Future<void> wrapGetId() async{
+    String? id = await getCurrentUserId();
+    setState(() {
+      userId = id;
+  });
+  }
 
   void _goToEditEvent() async {
     print('going to edit event page...');
@@ -52,6 +72,8 @@ class _EventFullViewState extends State<EventFullView> {
     // Reload events after returning
     // await _load();
   }
+
+
 
 
 
@@ -220,11 +242,11 @@ class _EventFullViewState extends State<EventFullView> {
 
  @override
  Widget build(BuildContext context) {
-  final formattedStartTime = DateFormat(
-  'MMMM d, h:mm a',
-).format(
-  DateTime.parse(widget.event.startTime),
-);
+    final formattedStartTime = DateFormat(
+      'MMMM d, h:mm a',
+    ).format(
+      DateTime.parse(widget.event.startTime),
+    );
 
    return Scaffold(
      backgroundColor: Colors.white,
@@ -243,6 +265,7 @@ class _EventFullViewState extends State<EventFullView> {
         ),
       ),
       centerTitle: true,
+      
     ),
 
     bottomNavigationBar: Padding(
@@ -276,18 +299,19 @@ class _EventFullViewState extends State<EventFullView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          ImageView(imageUrl: widget.event.eventImage),
 
 //           // EVENT IMAGE
-          ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: AspectRatio(
-              aspectRatio: 4 / 3,
-              child: Container(
-                color: Colors.grey.shade300,
-              child: const Icon(Icons.add_a_photo_outlined, size: 100, color: Colors.black,),
-            ),
-          ),
-          ),
+          // ClipRRect(
+          //   borderRadius: BorderRadius.circular(20),
+          //   child: AspectRatio(
+          //     aspectRatio: 4 / 3,
+          //     child: Container(
+          //       color: Colors.grey.shade300,
+          //     child: const Icon(Icons.add_a_photo_outlined, size: 100, color: Colors.black,),
+          //   ),
+          // ),
+          // ),
           const SizedBox(height: 20),
 
        /// LOCATION
@@ -436,9 +460,28 @@ if (widget.event.categories.isNotEmpty) ...[
                 },
               ),
             ),
-            const SizedBox(height: 8),
+            //const SizedBox(height: 8),
+            if(userId == widget.event.userId)
+              const SizedBox(height: 50),
+              DeleteButton(text: 'Delete Event', onPressed: () async {
+                // pop up first
+                final confirmed = await showYesNoDialog(
+                  context,
+                  title: "Are you sure you want to delete this Event?",
+                );
+
+                if (confirmed == true) {
+                  _deleteEvent();
+                }
+              }),
+            
+             
+              const SizedBox(height: 50),
+              GenericCallBackButton(name: "Edit", onPressed: () {_goToEditEvent();})
             ],
+            
       ),
+      
     ),
   );
 }
