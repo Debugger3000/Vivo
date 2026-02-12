@@ -11,6 +11,8 @@ import 'package:vivo_front/navigation_wrapper.dart';
 // import 'package:vivo_front/api/google_map/google_map_wid.dart';
 
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
+final ValueNotifier<ThemeMode> themeModeNotifier =
+    ValueNotifier<ThemeMode>(ThemeMode.light);
 
 
 Future<void> main() async {
@@ -40,20 +42,26 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-    return MaterialApp(
-      title: 'Vivo Front',
-      theme: AppTheme.lightTheme,
-      initialRoute: '/auth_gate',
-      // Root navigation
-      routes: {
-        '/register': (context) => const RegisterPage(),
-        '/auth_gate': (context) => const AuthGate(),
-        '/login': (context) => const LoginPage(),
-        '/navigation': (context) => const NavigationWrapper(),
-        '/profile': (context) => const ProfilePage(),
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: themeModeNotifier,
+      builder: (context, themeMode, _) {
+        return MaterialApp(
+          title: 'Vivo Front',
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: themeMode,
+          initialRoute: '/auth_gate',
+          // Root navigation
+          routes: {
+            '/register': (context) => const RegisterPage(),
+            '/auth_gate': (context) => const AuthGate(),
+            '/login': (context) => const LoginPage(),
+            '/navigation': (context) => const NavigationWrapper(),
+            '/profile': (context) => const ProfilePage(),
+          },
+          navigatorObservers: [routeObserver],
+        );
       },
-      navigatorObservers: [routeObserver],
     );
   }
 }
