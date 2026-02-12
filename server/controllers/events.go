@@ -20,6 +20,7 @@ type EventsBody struct {
 	Address     string   `json:"address"`
 	Lat         float64  `json:"lat"`
 	Lng         float64  `json:"lng"` // access field | data type | FIELD to map from req body
+	EventImage  string   `json:"eventImage"`
 }
 
 type EventsBodyGet struct {
@@ -36,6 +37,7 @@ type EventsBodyGet struct {
 	Address     string             `json:"address"`
 	StartTime   pgtype.Timestamptz `json:"startTime"`
 	EndTime     pgtype.Timestamptz `json:"endTime"`
+	EventImage  string             `json:"eventImage"`
 }
 
 // []string `json:"categories"`
@@ -57,8 +59,8 @@ func CreateEvent(c *fiber.Ctx) error {
 	// Insert into table
 	_, err := database.Pool.Query(
 		context.Background(),
-		"INSERT INTO events (user_id, title, description, tags, categories, start_time, end_time, address, latitude, longitude) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)",
-		body.UserId, body.Title, body.Description, body.Tags, body.Categories, body.StartTime, body.EndTime, body.Address, body.Lat, body.Lng,
+		"INSERT INTO events (user_id, title, description, tags, categories, start_time, end_time, address, latitude, longitude, event_image) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)",
+		body.UserId, body.Title, body.Description, body.Tags, body.Categories, body.StartTime, body.EndTime, body.Address, body.Lat, body.Lng, body.EventImage,
 	)
 	if err != nil {
 		fmt.Println(err)
@@ -120,7 +122,7 @@ func GetEvents(c *fiber.Ctx) error {
 
 	rows, err := database.Pool.Query(
 		context.Background(),
-		"SELECT id, user_id, title, description, created_at, interested, latitude, longitude, start_time, end_time, tags, categories, address FROM events",
+		"SELECT id, user_id, title, description, created_at, interested, latitude, longitude, start_time, end_time, tags, categories, address, event_image FROM events",
 	)
 	// check if there was error fetching data
 	if err != nil {
@@ -155,6 +157,7 @@ func GetEvents(c *fiber.Ctx) error {
 			&tags,
 			&categories,
 			&ev.Address,
+			&ev.EventImage,
 		); err != nil {
 			// println("Get Events preview failure:", err.Error())
 			// return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -185,44 +188,43 @@ func GetEvents(c *fiber.Ctx) error {
 	// 	})
 	// }
 
-	fmt.Printf("event data: %+v\n", len(events))
+	fmt.Printf("events length: %+v\n", len(events))
+	fmt.Printf("event data: %+v\n", events)
 
 	return c.JSON(events)
 }
 
-
 // DELETE /api/events/:id
 func DeleteEvent(c *fiber.Ctx) error {
-    // Grab the event ID from the route parameter
-    eventID := c.Params("id")
-    if eventID == "" {
-        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-            "error": "missing event ID",
-        })
-    }
+	// Grab the event ID from the route parameter
+	eventID := c.Params("id")
+	if eventID == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "missing event ID",
+		})
+	}
 
-    // Execute the delete query
-    commandTag, err := database.Pool.Exec(
-        context.Background(),
-        "DELETE FROM events WHERE id = $1",
-        eventID,
-    )
-    if err != nil {
-        fmt.Println("Delete error:", err)
-        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-            "error": "failed to delete event",
-        })
-    }
+	// Execute the delete query
+	commandTag, err := database.Pool.Exec(
+		context.Background(),
+		"DELETE FROM events WHERE id = $1",
+		eventID,
+	)
+	if err != nil {
+		fmt.Println("Delete error:", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "failed to delete event",
+		})
+	}
 
-    if commandTag.RowsAffected() == 0 {
-        return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-            "error": "event not found",
-        })
-    }
+	if commandTag.RowsAffected() == 0 {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": "event not found",
+		})
+	}
 
-    return c.JSON(fiber.Map{
-        "message": "Event deleted successfully",
-        "id": eventID,
-    })
+	return c.JSON(fiber.Map{
+		"message": "Event deleted successfully",
+		"id":      eventID,
+	})
 }
-

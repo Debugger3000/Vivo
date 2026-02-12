@@ -1,6 +1,9 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:mime/mime.dart';
+import 'package:uuid/uuid.dart';
 import 'package:vivo_front/api/api_service.dart';
 import 'package:vivo_front/api/categories/get_categories.dart';
 import 'package:vivo_front/api/google_map/google_map_wid.dart';
@@ -50,6 +53,9 @@ class PostEventFormState extends State<PostEventForm> {
 
   // image uplioad url
   File? _uploadedImageUrl;
+  String finalImageString = "";
+  // re useable uuid instance
+  final _uuid = Uuid(); 
 
 
   // Form controllers
@@ -148,23 +154,42 @@ class PostEventFormState extends State<PostEventForm> {
 
 
   Future<void> uploadFile(String filePath, Minio minio) async {
+    print("attempting to upload file to S3 bucket...............................");
+    String extension = p.extension(filePath); 
+    final String? contentType = lookupMimeType(filePath);
 
-      String extension = p.extension(filePath); 
+    String uniqueId = _uuid.v4();
 
-    // 2. Generate a unique name (e.g., '1715432100_unique.jpg')
     // In production, use a UUID package for better uniqueness
-    String objectName = '/${DateTime.now().millisecondsSinceEpoch}$extension';
-    print(objectName);
+    String fileName = 'images/$uniqueId$extension';
+    print(fileName);
 
-      await minio.fPutObject(
+    // get byte stream and size
+    final Stream<Uint8List> stream = _uploadedImageUrl!.openRead().map((chunk) => Uint8List.fromList(chunk));
+    final size = await _uploadedImageUrl!.length();
+
+    
+    try{
+      await minio.putObject(
         'vivo-image-storage', 
-        objectName, // destination name of the image
-        filePath, // local path to the image itself
+        fileName, // destination name of the image
+        stream, // local path to the image itself
+        size: size,
+        metadata: {'Content-Type': contentType ?? 'application/octet-stream'},
       );
+    }
+    catch (e){
+      return;
+    }
+
+      
     print("Upload complete!");
 
     // string to give to database for that image wherever it lives...
     //String finalUrl = 'https://vivo-image-storage.s3.amazonaws.com/$objectName';
+
+    // store the actuual image link...
+    finalImageString = 'https://vivo-image-storage.s3.us-east-1.amazonaws.com/$fileName';
 
   }
 
@@ -199,29 +224,26 @@ class PostEventFormState extends State<PostEventForm> {
     try {
       // create aws wrapper to upload
       final minio = Minio(
-        endPoint: 'https://us-east-1.console.aws.amazon.com/s3/buckets/', // or your region specific endpoint
+        endPoint: 's3.amazonaws.com', // or your region specific endpoint
         accessKey: dotenv.get('S3_ACCESS_KEY'),
         secretKey: dotenv.get('S3_SECRET_KEY'),
         region: 'us-east-1',
+        useSSL: true
       );
       
       await uploadFile(_uploadedImageUrl!.path, minio);
-      
+      //s3://vivo-image-storage/gamescreenshot.png
+
+      print("uploa dmaybe worked idk");
       
     } catch (e) {
       setState(() {
         _resultMessage = 'Submit event image upload error: $e';
       });
     } finally {
-      setState(() {
-        _isSubmitting = false;
-      });
+      print("s3 upload finally");
     }
     
-
-    
-
-
     try {
       // get user id
       final userId = await getCurrentUserId();
@@ -238,6 +260,7 @@ class PostEventFormState extends State<PostEventForm> {
           'address': curAddress, //needs to take physical address (77 dancer rd, toronto, On, Canada)
           'lat': curLat,
           'lng': curLng,
+          'eventImage': finalImageString
         });
 
       final newEvent = await api.request(
@@ -254,6 +277,7 @@ class PostEventFormState extends State<PostEventForm> {
           'address': curAddress, //needs to take physical address (77 dancer rd, toronto, On, Canada)
           'lat': curLat,
           'lng': curLng,
+          'eventImage': finalImageString
         },
       );
 

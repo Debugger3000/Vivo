@@ -11,10 +11,11 @@ Future<List<GetEventPreview>> getEvents(ApiService api) async {
         endpoint: '/api/events-preview',
         parser: (item) => GetEventPreview.fromJson(item as Map<String, dynamic>),
       );
-      print(events.length);
+      //print(events.length);
+      //print(events);
       return events;
     } catch (e) {
-      print('Error on getEvents in event.dart: $e');
+      print('Error in get_Events API: $e');
       return [];
     } 
   }

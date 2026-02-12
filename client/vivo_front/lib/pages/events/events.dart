@@ -86,7 +86,8 @@ class _EventsState extends State<EventsPage> {
       print("-------------set state for events list----------");
       eventsList = events;
       for (var e in eventsList) {
-      print('Event: ${e.id}, ${e.title}, ${e.startTime} → ${e.endTime}, ${e.address}');
+      // print('Event: ${e.id}, ${e.title}, ${e.startTime} → ${e.endTime}, ${e.address}');
+      print('Event image link: ${e.eventImage}');
       }
     });
   }
@@ -170,15 +171,24 @@ Expanded(
               Container(
                 width: 100,
                 height: 100,
+                // 1. Crucial: This clips the image to your BorderRadius
+                clipBehavior: Clip.antiAlias, 
                 decoration: BoxDecoration(
                   color: Colors.blue.shade100,
-                  shape: BoxShape.rectangle, // Default value, often implied
-                 borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(20),
                 ),
-                child: Icon(
-                Icons.event,
-                  color: Colors.blue,
-                  size: 26,
+                child: Image.network(
+                  event.eventImage,
+                  fit: BoxFit.cover, // Makes the image fill the box
+                  errorBuilder: (context, error, stackTrace) {
+                    // 2. Fallback if the URL fails or 404s
+                    return Icon(Icons.broken_image, color: Colors.blue);
+                  },
+                  loadingBuilder: (context, child, loadingProgress) {
+                    // 3. Show a spinner while downloading from S3
+                    if (loadingProgress == null) return child;
+                    return Center(child: CircularProgressIndicator());
+                  },
                 ),
               ),
 

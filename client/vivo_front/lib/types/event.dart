@@ -5,6 +5,7 @@ class EventVivo {
   final List<String> tags;
   final List<String> categories;
   final String date;
+  final String eventImage;
 
   EventVivo({
     required this.userId,
@@ -13,6 +14,7 @@ class EventVivo {
     required this.tags,
     required this.categories,
     required this.date,
+    required this.eventImage,
   });
 
   factory EventVivo.fromJson(Map<String, dynamic> json) {
@@ -23,6 +25,7 @@ class EventVivo {
       tags: json['tags'] as List<String>,
       categories: json['categories'] as List<String>,
       date: json['date'] as String,
+      eventImage: json['eventImage'] as String,
     );
   }
 }
@@ -44,6 +47,7 @@ class GetEventPreview {
   final List<String> tags;
   final List<String> categories;
   final String address;
+  final String eventImage;
 
 
   GetEventPreview({
@@ -59,7 +63,8 @@ class GetEventPreview {
     this.interested = 0,
     this.tags = const [],
     this.categories = const [],
-    required this.address
+    required this.address,
+    required this.eventImage
   });
 
   factory GetEventPreview.fromJson(Map<String, dynamic> json) {
@@ -83,6 +88,7 @@ class GetEventPreview {
               .toList() ??
           [],
       address: json['address'] as String,
+      eventImage: json['eventImage'] as String,
     );
   }
 }
