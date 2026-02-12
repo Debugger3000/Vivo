@@ -7,6 +7,7 @@ import 'package:vivo_front/api/api_service.dart';
 import 'package:vivo_front/com_ui_widgets/mainpage_header.dart';
 import 'package:vivo_front/pages/events/event_fullview.dart';
 import 'package:vivo_front/types/event.dart';
+import 'package:intl/intl.dart';
 
 
 class EventsTab extends StatelessWidget {
@@ -48,7 +49,6 @@ class EventsTab extends StatelessWidget {
     );
   }
 }
-
 
 
 
@@ -119,11 +119,9 @@ class _EventsState extends State<EventsPage> {
     // }
   }
 
-
-
-  @override
+ @override
   Widget build(BuildContext context) {
-    return Scaffold(
+return Scaffold(
     
       // floatingActionButton: FloatingActionButton.extended(
       //   onPressed: _goToCreate,
@@ -143,29 +141,105 @@ class _EventsState extends State<EventsPage> {
             ),
       body: Column(
         children: [
+Expanded(
+  child: ListView.builder(
+    padding: const EdgeInsets.fromLTRB(16, 20, 16, 120),
+    itemCount: eventsList.length,
+    itemBuilder: (context, index) {
+      final event = eventsList[index];
 
-          Expanded(
-            child: ListView.builder(
-              itemCount: eventsList.length,
-              itemBuilder: (context, index) {
-                final event = eventsList[index];
-                return ListTile(
-                  leading: const Icon(Icons.event),
-                  title: Text(event.title),
-                  subtitle: Text(
-                      '${event.startTime} → ${event.endTime}\n${event.description}'),
-                  isThreeLine: true,
-                  trailing: Text('${event.interested} 👍'),
-                  onTap: () {
-                    _goToEventPage(event);
-                  },
-                );
-              },
+      return GestureDetector(
+        onTap: () => _goToEventPage(event),
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.16),
+                blurRadius: 10,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
+          child: Row(
+            children: [
+              /// Icon badge (left)
+              Container(
+                width: 100,
+                height: 100,
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade100,
+                  shape: BoxShape.rectangle, // Default value, often implied
+                 borderRadius: BorderRadius.circular(20),
+                ),
+                child: Icon(
+                Icons.event,
+                  color: Colors.blue,
+                  size: 26,
+                ),
+              ),
+
+              const SizedBox(width: 14),
+
+              /// Title + subtitle (center)
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      event.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      DateFormat('MMMM d, h:mm a').format(DateTime.parse(event.startTime)),
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              /// Right-side stat
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    textAlign: TextAlign.center,
+                    '${event.interested}',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Interested',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-        ]
-          
-      ),
+        ),
+      );
+    },
+  ),
+),
+    ] ),
     );
-  }
-}
+  }}

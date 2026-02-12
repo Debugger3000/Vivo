@@ -132,6 +132,7 @@ import 'package:flutter/material.dart';
 import 'package:app_links/app_links.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vivo_front/navigation_wrapper.dart';
+import 'package:vivo_front/pages/login_register/register.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -323,10 +324,22 @@ class _LoginPageState extends State<LoginPage> {
 
                     const SizedBox(height: 24),
 
-                    const Text(
-                      'Log In as a Business',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w500,
+                    // const Text(
+                    //   'Log In as a Business',
+                    //   style: TextStyle(
+                    //     fontWeight: FontWeight.w500,
+                    //   ),
+                    // ),
+                     GestureDetector(
+                      onTap: () =>  Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const RegisterPage()),
+    ),
+                      child: const Text(
+                        'Don\'t have an account? Register Now!',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
 
@@ -385,7 +398,7 @@ class _InputField extends StatelessWidget {
               border: UnderlineInputBorder(
                 borderSide: BorderSide(width: 1.0)),
                 focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(width: 1.0, color:const Color(0xFF9FF3FF))
+                  borderSide: BorderSide(width: 1.0, color: const Color(0xFF9FF3FF))
                   )
             ),
           ),

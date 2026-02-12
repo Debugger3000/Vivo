@@ -85,7 +85,7 @@ class AuthGate extends StatelessWidget {
 
   Future<String> _getInitialRoute() async {
     final session = Supabase.instance.client.auth.currentSession;
-    return session == null ? '/register' : '/navigation';
+    return session == null ? '/login' : '/navigation';
   }
 
   @override
