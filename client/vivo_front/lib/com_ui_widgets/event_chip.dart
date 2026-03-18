@@ -10,12 +10,14 @@ class EventChip extends StatelessWidget {
   final String label;
   final bool isCategory;
   final Color? color;
+  final VoidCallback? onTap;
 
   const EventChip({
     super.key,
     required this.label,
     this.isCategory = true,
-    this.color
+    this.color,
+    this.onTap
   });
 
   @override
@@ -23,28 +25,24 @@ class EventChip extends StatelessWidget {
     final icon = _getIcon(label);
     final color = _getColor(label);
     
-    if(isCategory){
-      return Chip(
-      avatar: icon != null ? Icon(icon, size: 18, color: Colors.white) : null,
-      label: Text(
-        label,
-        style: const TextStyle(color: Colors.white),
-      ),
-      backgroundColor: color,
+    return GestureDetector(
+      onTap: onTap,
+      child: isCategory
+          ? Chip(
+              avatar: icon != null ? Icon(icon, size: 18, color: Colors.white) : null,
+              label: Text(label, style: const TextStyle(color: Colors.white)),
+              backgroundColor: color,
+            )
+          : Chip(
+              avatar: icon != null ? Icon(icon, size: 18, color: Colors.white) : null,
+              label: Text(label),
+            ),
     );
-
-    }
-    else{
-      return Chip(
-      avatar: icon != null ? Icon(icon, size: 18, color: Colors.white) : null,
-      label: Text(label),
-      );
-    }
 
     
   }
 
-  // 🎨 Choose an icon based on label
+  // Choose an icon based on label
   IconData? _getIcon(String name) {
     switch (name.toLowerCase()) {
       case 'entertainment':

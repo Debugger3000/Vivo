@@ -168,9 +168,10 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
   }
 
 
-
+  // be able to populate events from search bar
   void searchResults(List<GetEventPreview> eventList) {
-
+    
+    eventsList.value = eventList; // populate new events that were searched...
   }
 
   // -----------------------------------------------------
