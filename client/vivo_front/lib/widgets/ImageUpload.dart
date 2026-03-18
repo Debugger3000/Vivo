@@ -14,7 +14,7 @@ class _ImageUploadState extends State<ImageUpload> {
   final ImagePicker _picker = ImagePicker();
 
   Future<void> _pickAndUpload() async {
-    // 1. Pick the image from gallery
+    // Pick the image from gallery
     final XFile? pickedFile = await _picker.pickImage(
       source: ImageSource.gallery,
       imageQuality: 70, // Pro-tip: Compress a bit to save S3 costs!
@@ -27,7 +27,7 @@ class _ImageUploadState extends State<ImageUpload> {
 
       widget.onUploadComplete(_selectedImage);
 
-      // 2. Call your existing MinIO upload function
+      // call upload function
       //await uploadFile(pickedFile.path); 
     }
   }

@@ -299,20 +299,9 @@ class _EventFullViewState extends State<EventFullView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Display Event image
           ImageView(imageUrl: widget.event.eventImage),
-
-//           // EVENT IMAGE
-          // ClipRRect(
-          //   borderRadius: BorderRadius.circular(20),
-          //   child: AspectRatio(
-          //     aspectRatio: 4 / 3,
-          //     child: Container(
-          //       color: Colors.grey.shade300,
-          //     child: const Icon(Icons.add_a_photo_outlined, size: 100, color: Colors.black,),
-          //   ),
-          // ),
-          // ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 20), // spacing
 
        /// LOCATION
        Text(

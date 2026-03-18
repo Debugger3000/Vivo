@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 // import 'dart:developer' as developer;
 import 'package:vivo_front/types/categories.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:vivo_front/types/event.dart';
 
 
 class ApiService {
@@ -104,9 +105,9 @@ Future<ResponseMessage> request({
       print(jsonList.length);
       return jsonList.map((item) => parser(item)).toList();
     }
-
-
   }
+
+
 
 
   // -------------------------

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vivo_front/com_ui_widgets/event_chip.dart';
+import 'package:vivo_front/stateless/imageview.dart';
 import 'package:vivo_front/stateless/time_helpers.dart';
 import 'package:vivo_front/types/event.dart';
 
@@ -65,6 +66,8 @@ class _EventWindowState extends State<EventWindow> {
                   onPressed: () => widget.closeWindow(),
                 ),
               ),
+             
+              //ImageView(imageUrl: widget.event.eventImage),
 
               Padding(
                 padding: const EdgeInsets.only(top: 40),
@@ -72,6 +75,8 @@ class _EventWindowState extends State<EventWindow> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    ImageView(imageUrl: widget.event.eventImage),
+                    const SizedBox(height: 8),
                     Text(
                       widget.event.title,
                       style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),

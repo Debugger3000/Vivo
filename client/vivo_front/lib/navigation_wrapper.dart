@@ -68,18 +68,18 @@ Widget build(BuildContext context) {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _navItem(
-                icon: Icons.square,
+                icon: Icons.list,
                 label: 'List',
                 index: 0,
               ),
               _navItem(
-                icon: Icons.circle,
+                icon: Icons.map_outlined,
                 label: 'Map',
                 index: 1,
                 isCenter: true,
               ),
               _navItem(
-                icon: Icons.settings,
+                icon: Icons.person_4_outlined,
                 label: 'Profile',
                 index: 2,
               ),
