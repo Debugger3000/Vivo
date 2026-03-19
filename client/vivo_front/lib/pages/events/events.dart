@@ -9,6 +9,7 @@ import 'package:vivo_front/pages/events/event_fullview.dart';
 import 'package:vivo_front/stateless/imageview.dart';
 import 'package:vivo_front/types/event.dart';
 import 'package:intl/intl.dart';
+import 'package:vivo_front/utility/user_functions.dart';
 
 
 class EventsTab extends StatelessWidget {
@@ -70,26 +71,41 @@ class _EventsState extends State<EventsPage> {
   // String? _error;
 
   int increTest = 0;
+  bool isShowingAll = true; 
+  bool _isLoading = false;
+  String? userId;
 
 
   @override
   void initState() {
     super.initState();
-    _loadEvents();
+    _initialLoad(); // load initial events...
       print("after get events after post frame");
   }
 
   // -------------------------------------------
 
+  Future<void> _initialLoad() async {
+    // Get the user ID first so we have it for the "Interested" tab
+    userId = await getCurrentUserId(); 
+    _loadEvents();
+  }
+
   Future<void> _loadEvents() async {
-    final events = await getEvents(api);
+    setState(() => _isLoading = true);
+    
+    List<GetEventPreview> events;
+    
+    if (isShowingAll) {
+      events = await getEvents(api);
+    } else {
+      // Call your new interested events function
+      events = await getInterestedEvents(api, userId ?? "");
+    }
+
     setState(() {
-      print("-------------set state for events list----------");
       eventsList = events;
-      for (var e in eventsList) {
-      // print('Event: ${e.id}, ${e.title}, ${e.startTime} → ${e.endTime}, ${e.address}');
-      print('Event image link: ${e.eventImage}');
-      }
+      _isLoading = false;
     });
   }
 
@@ -143,6 +159,36 @@ return Scaffold(
             ),
       body: Column(
         children: [
+
+          // toggle for all events vs user interested
+          // --- NEW TOGGLE ELEMENT ---
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 60, 16, 10),
+          child: Container(
+            height: 50,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade200,
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: Row(
+              children: [
+                _buildToggleButton("All Events", isShowingAll, () {
+                  if (!isShowingAll) {
+                    setState(() => isShowingAll = true);
+                    _loadEvents();
+                  }
+                }),
+                _buildToggleButton("Interested", !isShowingAll, () {
+                  if (isShowingAll) {
+                    setState(() => isShowingAll = false);
+                    _loadEvents();
+                  }
+                }),
+              ],
+            ),
+          ),
+        ),
+
 Expanded(
   child: ListView.builder(
     padding: const EdgeInsets.fromLTRB(16, 20, 16, 120),
@@ -231,3 +277,30 @@ Expanded(
     ] ),
     );
   }}
+
+
+
+// Helper widget for the toggle buttons
+Widget _buildToggleButton(String text, bool active, VoidCallback onTap) {
+  return Expanded(
+    child: GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: active ? Colors.white : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: active ? [BoxShadow(color: Colors.black12, blurRadius: 4)] : [],
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          text,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: active ? Colors.blue : Colors.grey,
+          ),
+        ),
+      ),
+    ),
+  );
+}

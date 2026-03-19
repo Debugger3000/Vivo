@@ -6,10 +6,15 @@ import 'package:flutter/material.dart';
 import 'package:vivo_front/pages/map/map.dart';
 import 'package:vivo_front/pages/profile/profile.dart';
 import 'package:vivo_front/pages/events/events.dart';
+import 'package:vivo_front/types/event.dart';
 // import './package:vivo_front/pages/profile_page.dart';
 
 class NavigationWrapper extends StatefulWidget {
   const NavigationWrapper({super.key});
+
+  // expose nav state to client tabs ?
+  static _NavigationWrapperState? of(BuildContext context) =>
+      context.findAncestorStateOfType<_NavigationWrapperState>();
 
   @override
   State<NavigationWrapper> createState() => _NavigationWrapperState();
@@ -39,6 +44,34 @@ class _NavigationWrapperState extends State<NavigationWrapper> {
 
   void _onTabTapped(int index) {
     setState(() => _selectedIndex = index);
+  }
+
+  void switchToEventsAndPush(GetEventPreview event) {
+    setState(() {
+      _selectedIndex = 0; // Switch to Events Tab
+    });
+
+    // Wait for the tab to actually exist in the UI, then push the page
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _eventsNavKey.currentState?.pushNamed(
+        '/view_event',
+        arguments: event,
+      );
+    });
+  }
+
+  void navigateToEvent(GetEventPreview event) {
+    setState(() {
+      _selectedIndex = 0; // Switch to Events Tab
+    });
+
+    // Wait a tiny bit for the IndexedStack to swap, then push to the internal navigator
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _eventsNavKey.currentState?.pushNamed(
+        '/view_event',
+        arguments: event,
+      );
+    });
   }
 
 @override

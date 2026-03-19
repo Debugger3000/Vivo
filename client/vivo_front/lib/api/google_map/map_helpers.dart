@@ -24,10 +24,10 @@ class MarkerBuilderWithWindow {
       markerId: MarkerId('${lat}_$lng'),
       position: LatLng(lat, lng),
       infoWindow: InfoWindow(
-        // onTap: () {
-        //   onTap(index);
-        //   print("YOU PRESSED ON EVENT MARKER infowindow");
-        // },
+        onTap: () {
+          onTap(index);
+          print("YOU PRESSED ON EVENT MARKER infowindow");
+        },
         title: title ?? 'Event Title',
         // description with time
         snippet: timeDisplay,

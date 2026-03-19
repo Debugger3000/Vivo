@@ -12,7 +12,9 @@ import 'package:intl/intl.dart';
 /// Returns only the user ID, or `null` if not logged in.
 Future<String?> getCurrentUserId() async {
   final user = Supabase.instance.client.auth.currentUser;
-  return user?.id;
+  
+    return user?.id;
+  
 }
 
 

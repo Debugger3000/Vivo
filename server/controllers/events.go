@@ -228,3 +228,148 @@ func DeleteEvent(c *fiber.Ctx) error {
 		"id":      eventID,
 	})
 }
+
+// interested in events
+// POST /api/events-interested
+func ToggleInterest(c *fiber.Ctx) error {
+	//  Parse the body (matches your Flutter request)
+	type InterestRequest struct {
+		EventId string `json:"eventId"`
+		UserId  string `json:"userId"`
+	}
+
+	var req InterestRequest
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "Invalid request body"})
+	}
+
+	//  Start a transaction
+	ctx := context.Background()
+	tx, err := database.Pool.Begin(ctx)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Transaction failed"})
+	}
+	// Rollback if we don't commit
+	defer tx.Rollback(ctx)
+
+	// First DB Call
+	// Increment the interested count in 'events' table
+	_, err = tx.Exec(ctx,
+		"UPDATE events SET interested = interested + 1 WHERE id = $1",
+		req.EventId,
+	)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Failed to update event count"})
+	}
+
+	// Second DB call
+	// Add to profile's interested_events list using helper
+	if err := AddEventToProfileInterest(ctx, tx, req.UserId, req.EventId); err != nil {
+		fmt.Println("Profile update error:", err)
+		return c.Status(500).JSON(fiber.Map{"error": "Failed to update profile"})
+	}
+
+	//  Commit the transaction
+	if err := tx.Commit(ctx); err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Failed to save changes"})
+	}
+
+	return c.JSON(fiber.Map{
+		"success": true,
+		"message": "Interest registered successfully",
+	})
+}
+
+// POST /api/events-uninterested
+func UntoggleInterest(c *fiber.Ctx) error {
+	type InterestRequest struct {
+		EventId string `json:"eventId"`
+		UserId  string `json:"userId"`
+	}
+
+	var req InterestRequest
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "Invalid request body"})
+	}
+
+	ctx := context.Background()
+	tx, err := database.Pool.Begin(ctx)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Transaction failed"})
+	}
+	defer tx.Rollback(ctx)
+
+	// Decrement the interested count (ensure it doesn't go below 0 if you want)
+	_, err = tx.Exec(ctx,
+		"UPDATE events SET interested = GREATEST(0, interested - 1) WHERE id = $1",
+		req.EventId,
+	)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Failed to update event count"})
+	}
+
+	// 2. Remove from profile's interested_events list using the new helper
+	if err := RemoveEventFromProfileInterest(ctx, tx, req.UserId, req.EventId); err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Failed to update profile"})
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Failed to save changes"})
+	}
+
+	return c.JSON(fiber.Map{
+		"success": true,
+		"message": "Interest removed successfully",
+	})
+}
+
+// -----------
+
+// Get events user has flagged as interested
+func GetUserInterestedEvents(c *fiber.Ctx) error {
+	userId := c.Query("userId")
+	if userId == "" {
+		return c.Status(400).JSON(fiber.Map{"error": "userId is required"})
+	}
+
+	// This SQL query selects events where the event ID is found
+	// inside the interested_events array of the specific user
+	query := `
+        SELECT id, user_id, title, description, created_at, interested, 
+               latitude, longitude, start_time, end_time, tags, 
+               categories, address, event_image 
+        FROM events 
+        WHERE id = ANY(
+            SELECT unnest(interested_events) 
+            FROM profiles 
+            WHERE id = $1
+        )`
+
+	rows, err := database.Pool.Query(context.Background(), query, userId)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "failed to fetch events"})
+	}
+	defer rows.Close()
+
+	var events []EventsBodyGet
+	for rows.Next() {
+		var ev EventsBodyGet
+		var tags, categories pgtype.Array[string]
+
+		err := rows.Scan(
+			&ev.Id, &ev.UserId, &ev.Title, &ev.Description, &ev.CreatedAt,
+			&ev.Interested, &ev.Latitude, &ev.Longitude, &ev.StartTime,
+			&ev.EndTime, &tags, &categories, &ev.Address, &ev.EventImage,
+		)
+		if err != nil {
+			continue
+		}
+
+		// Use the logic from your previous GetEvents to convert pgtype arrays
+		ev.Tags = tags.Elements
+		ev.Categories = categories.Elements
+		events = append(events, ev)
+	}
+
+	return c.JSON(events)
+}

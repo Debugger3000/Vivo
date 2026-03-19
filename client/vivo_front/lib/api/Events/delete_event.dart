@@ -1,4 +1,4 @@
- import 'package:vivo_front/api/api_service.dart';
+import 'package:vivo_front/api/api_service.dart';
 
 Future<bool> deleteEvent(ApiService api, String eventId) async {
     try {

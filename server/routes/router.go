@@ -22,12 +22,20 @@ func SetupTesterRoutes(app *fiber.App) {
 
 	app.Get("/api/events-search", controllers.EventSearch)
 
+	// event interest
+	app.Post("/api/events-interested", controllers.ToggleInterest)
+	app.Post("/api/events-uninterested", controllers.UntoggleInterest)
+	app.Post("/api/events-interested-check", controllers.CheckInterest)
+
 	//
 	//app.Get("/api/events-search", controllers.EventSearchBarCategorySelected)
 
 	// Events
 	app.Get("/api/events-preview", controllers.GetEvents)
+	app.Get("/api/events-user-interested", controllers.GetUserInterestedEvents)
 
 	// Categories
 	app.Get("/api/categories", controllers.GetCategories)
+
+	app.Get("/api/profile", controllers.GetProfiles)
 }

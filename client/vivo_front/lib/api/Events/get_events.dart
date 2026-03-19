@@ -55,3 +55,21 @@ Future<List<GetEventPreview>> getEvents(ApiService api) async {
     return [];
   }
 }
+
+
+Future<List<GetEventPreview>> getInterestedEvents(ApiService api, String userId) async {
+  try {
+    // pass user id as query param
+    final String query = Uri.encodeComponent(userId);
+
+    final events = await api.requestList<GetEventPreview>(
+      endpoint: '/api/events-user-interested?userId=$query',
+      parser: (item) => GetEventPreview.fromJson(item as Map<String, dynamic>),
+    );
+    
+    return events;
+  } catch (e) {
+    print('Error fetching interested events: $e');
+    return [];
+  }
+}
