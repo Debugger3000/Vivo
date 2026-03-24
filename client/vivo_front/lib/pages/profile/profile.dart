@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:vivo_front/api/api_service.dart';
-import 'package:vivo_front/pages/events/CRUD/post_event.dart';
-import 'package:vivo_front/com_ui_widgets/mainpage_header.dart';
 import 'dart:developer' as developer;
 import 'package:vivo_front/main.dart';
+import 'package:vivo_front/pages/profile/profile_details.dart';
+import 'package:vivo_front/pages/profile/account_page.dart';
+import 'package:vivo_front/pages/profile/accessibility_page.dart';
 
 class ProfileTab extends StatelessWidget {
   final GlobalKey<NavigatorState> navigatorKey;
@@ -23,8 +23,14 @@ class ProfileTab extends StatelessWidget {
           case '/profile':
             builder = (context) => const ProfilePage();
             break;
-          case '/settings':
-            builder = (context) => PostEventForm();
+          case '/profile/details':
+            builder = (context) => const ProfileDetailsPage();
+            break;
+          case '/profile/account':
+            builder = (context) => const AccountPage();
+            break;
+          case '/profile/accessibility':
+            builder = (context) => const AccessibilityPage();
             break;
           default:
             builder = (context) => const ProfilePage();
@@ -46,8 +52,6 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> with RouteAware {
-  final ApiService api = ApiService();
-
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -101,9 +105,9 @@ class _ProfilePageState extends State<ProfilePage> with RouteAware {
             const SizedBox(height: 12),
 
             // Name (replace later with Supabase user data)
-            const Text(
-              'Chad Bosing',
-              style: TextStyle(
+            Text(
+              _displayName(),
+              style: const TextStyle(
                 fontSize: 26,
                 fontWeight: FontWeight.w600,
               ),
@@ -115,19 +119,19 @@ class _ProfilePageState extends State<ProfilePage> with RouteAware {
             _ProfileItem(
               title: 'Profile',
               onTap: () {
-                // push profile details later
+                Navigator.of(context).pushNamed('/profile/details');
               },
             ),
             _ProfileItem(
               title: 'Account',
               onTap: () {
-                // push account page
+                Navigator.of(context).pushNamed('/profile/account');
               },
             ),
             _ProfileItem(
               title: 'Accessibility',
               onTap: () {
-                // push accessibility page
+                Navigator.of(context).pushNamed('/profile/accessibility');
               },
             ),
 
@@ -152,6 +156,16 @@ class _ProfilePageState extends State<ProfilePage> with RouteAware {
 }
 
 // ---------------------------------------------
+
+String _displayName() {
+  final user = Supabase.instance.client.auth.currentUser;
+  final metadata = user?.userMetadata ?? const {};
+  final username = metadata['username'];
+  if (username is String && username.trim().isNotEmpty) {
+    return username.trim();
+  }
+  return 'User';
+}
 
 class _ProfileItem extends StatelessWidget {
   final String title;

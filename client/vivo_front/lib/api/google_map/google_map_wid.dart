@@ -95,7 +95,7 @@ class _MapSampleState extends State<MapSample> {
         final event = widget.events![i];
         // Skip invalid coordinates
         if (event.longitude == 0.0 || event.latitude == 0.0) continue;
-        final marker = MarkerBuilderWithWindow.build(index: i, lat: event.latitude, lng: event.longitude, title: event.title, description: event.description, onTap: widget.callback! );
+        final marker = MarkerBuilderWithWindow.build(index: i, lat: event.latitude, lng: event.longitude, title: event.title, description: event.description, startTime: event.startTime, endTime: event.endTime, onTap: widget.callback! );
         
         // add a marker to the new set
         markers.add(marker);

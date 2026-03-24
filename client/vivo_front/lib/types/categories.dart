@@ -33,20 +33,49 @@ class Categories {
 
 // POST return type
 
+// class ResponseMessage {
+//   final String message;
+
+//   ResponseMessage({required this.message});
+
+//   factory ResponseMessage.fromJson(Map<String, dynamic> json) {
+//     return ResponseMessage(
+//       message: json['message'] as String,
+//     );
+//   }
+
+//   Map<String, dynamic> toJson() {
+//     return {
+//       'message': message,
+//     };
+//   }
+// }
+
 class ResponseMessage {
   final String message;
+  final bool success; // Optional: good for status checks
+  final Map<String, dynamic>? data; // This captures the "extra" stuff
 
-  ResponseMessage({required this.message});
+  ResponseMessage({
+    required this.message,
+    this.success = true,
+    this.data,
+  });
 
   factory ResponseMessage.fromJson(Map<String, dynamic> json) {
     return ResponseMessage(
-      message: json['message'] as String,
+      message: json['message'] as String? ?? '',
+      success: json['success'] as bool? ?? true,
+      // Store the whole JSON map here so you can access ANY field later
+      data: json, 
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'message': message,
+      'success': success,
+      ...?(data), // Merges the dynamic data back in
     };
   }
 }

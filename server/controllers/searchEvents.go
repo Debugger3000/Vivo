@@ -6,133 +6,76 @@ import (
 
 	"github.com/Debugger3000/Vivo/database"
 	"github.com/gofiber/fiber/v2"
+	"github.com/jackc/pgx/v5/pgtype"
 	// "github.com/jackc/pgx/v5/pgtype"
 )
 
 // ----------------------------------------------
 
-// General Events Grabbed on load... could be filtered via location distance, favourite categories, interested...
-// Search Bar - grabs events based on search criteria : tags
-// title - might be bad criteria as its not guaranteed to be fully descriptive
+func EventSearch(c *fiber.Ctx) error {
+	// Get query parameters from the URL
+	title := c.Query("title")
+	category := c.Query("categories")
 
-// ideally user would want to search things like a specific place like a restaurant, bar or anything like that
-// username
-// or a thing like darts
-// tags
+	// Base SQL
+	query := "SELECT id, user_id, title, description, created_at, interested, latitude, longitude, start_time, end_time, tags, categories, address, event_image FROM events WHERE 1=1"
+	var args []interface{}
+	argCount := 1
 
-// -------
-// Search Bar UI - if searches on client resemble categories, we can have dropdown of categories to click.
-// grid - the fuck out of category icons for search bar dropdown... fck yeah
-
-// big brain thought
-// this app with 'promotions' can pop the fuck off.
-// imagine various stores in barrie all having their current promotions for whatever products available all in one place.
-// ---------
-// Small stores - manual posting
-// corporations - business account / promo link to company
-
-// vibe of the app
-// in the moment, whats live tonight, whats happening around me ?
-	// Find places that have events happening or things going on (promotions: 2 for 1 pints, smash burger + fries for $5)
-	// random live music, shows or whatever cool things the city has to offer. 
-// largely for the man, small stores, individuals, or groups.
-// ---
-// Groups is key too. This needs to be fleshed out.
-	// Get involved with your community, find people with common hobbies
-	// communities on the app. That generally is supposed to be based upon person to person interaction
-
-
-// events + groups
-
-// 
-// TODO
-// Events refreshing / populate system
-// ---
-// SEARCH BAR - to just go to cities...
-	//  places api bar
-	// We can refresh events on new current initial position set on MAPS
-	// Where to cache events ?
-	// How to set / use a LATLONG radius from current position ?
-	// When on a position, how to cycle through events ?
-	// if we use search bar to go to places, how do we FILTER EVENTS ?
-
-// ---------------------------------------------
-
-type SearchBody struct {
-	SearchBarData      string   `json:"searchBarData"`
-}
-
-// ---------------------------------------------------
-
-// []string `json:"categories"`
-// ideally, we could return event data.. via this same request
-// Search Body Post --> Event Get
-
-// POST /tester
-func EventSearchBar(c *fiber.Ctx) error {
-	// grab request body into variable
-	var body EventsBody
-	if err := c.BodyParser(&body); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "cannot parse JSON",
-		})
+	// 1. Add Title Filter (ILIKE for case-insensitive partial match)
+	if title != "" {
+		query += fmt.Sprintf(" AND title ILIKE $%d", argCount)
+		args = append(args, "%"+title+"%")
+		argCount++
 	}
 
-	// log the body
-	fmt.Println("Search bar Post body: ", body)
+	// 2. Add Category Filter (Checks if string exists in the Postgres array)
+	if category != "" {
+		query += fmt.Sprintf(" AND $%d = ANY(categories)", argCount)
+		args = append(args, category)
+		argCount++
+	}
 
-	// Insert into table
-	_, err := database.Pool.Query(
-		context.Background(),
-		"select * from events ",
-	)
+	// Execute Query
+	rows, err := database.Pool.Query(context.Background(), query, args...)
 	if err != nil {
-		fmt.Println(err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to get event data on Search Bar.",
-		})
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Query failed"})
+	}
+	defer rows.Close()
+
+	var events []EventsBodyGet
+	for rows.Next() {
+		var ev EventsBodyGet
+		var tags pgtype.Array[string]
+		var categories pgtype.Array[string]
+
+		err := rows.Scan(
+			&ev.Id, &ev.UserId, &ev.Title, &ev.Description, &ev.CreatedAt,
+			&ev.Interested, &ev.Latitude, &ev.Longitude, &ev.StartTime,
+			&ev.EndTime, &tags, &categories, &ev.Address, &ev.EventImage,
+		)
+		if err != nil {
+			continue
+		}
+
+		// Helper to convert pgtype to slices
+		ev.Tags = flattenPgArray(tags)
+		ev.Categories = flattenPgArray(categories)
+		events = append(events, ev)
 	}
 
-	fmt.Println("Event Get: ", )
+	return c.JSON(events)
+}
 
-	return c.JSON(fiber.Map{
-		"message": "Events data inserted successfully",
-	})
+// Helper to clean up your scanner code
+func flattenPgArray(arr pgtype.Array[string]) []string {
+	res := make([]string, len(arr.Elements))
+	for i, e := range arr.Elements {
+		res[i] = e
+	}
+	return res
 }
 
 
-// POST /tester
-func EventSearchBarCategorySelected(c *fiber.Ctx) error {
-	// grab request body into variable
-	var body EventsBody
-	if err := c.BodyParser(&body); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "cannot parse JSON",
-		})
-	}
-
-	// log the body
-	fmt.Println("Search bar Post body: ", body)
-	
-
-	// Insert into table
-	_, err := database.Pool.Query(
-		context.Background(),
-		"select * from events ",
-	)
-	if err != nil {
-		fmt.Println(err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to get event data on Search Bar.",
-		})
-	}
 
 
-
-
-	fmt.Println("Event Get: ", )
-
-	return c.JSON(fiber.Map{
-		"message": "Events data inserted successfully",
-	})
-}

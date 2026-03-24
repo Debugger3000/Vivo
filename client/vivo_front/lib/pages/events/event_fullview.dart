@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:vivo_front/api/Events/delete_event.dart';
+import 'package:vivo_front/api/Events/interested.dart';
 import 'package:vivo_front/api/api_service.dart';
 import 'package:vivo_front/stateless/delete_button.dart';
 import 'package:vivo_front/stateless/generic_callback_button.dart';
+import 'package:vivo_front/stateless/imageview.dart';
 import 'package:vivo_front/stateless/yes_no_dialog.dart';
 import 'package:vivo_front/types/event.dart';
 import 'package:intl/intl.dart';
+import 'package:vivo_front/utility/user_functions.dart';
 
 
 class EventFullView extends StatefulWidget {
@@ -19,8 +22,47 @@ class EventFullView extends StatefulWidget {
 
 class _EventFullViewState extends State<EventFullView> {
   final ApiService api = ApiService(); 
+  String? userId;
+  bool isInterested = false; // Initial state
 
   // late GetEventPreview widget.event;
+
+
+
+  @override
+  void initState() {
+    super.initState();
+    // 1. Initialize your data or controllers here
+    print("Page is initializing...");
+    wrapGetId(); // get user id on call....
+
+    // make call to see if user has already interested this event
+    wrapCheckInterest();
+
+  }
+
+  Future<void> wrapCheckInterest() async{
+    String? id = await getCurrentUserId();
+    if(id != null && id is String){
+      print("checking interest on event...");
+      bool interestResponse = await checkEventInterest(api, widget.event.id, id);
+      print("event reutnred,. interest is: ");
+      print(interestResponse);
+      setState(() {
+        isInterested = interestResponse;
+      });
+      
+    }
+  }
+
+  Future<void> wrapGetId() async{
+    String? id = await getCurrentUserId();
+    if(userId != null && userId is String){
+      setState(() {
+        userId = id;
+      });
+    }
+  }
 
   void _goToEditEvent() async {
     print('going to edit event page...');
@@ -52,6 +94,71 @@ class _EventFullViewState extends State<EventFullView> {
     // Reload events after returning
     // await _load();
   }
+
+  // user is interested...
+  void _interestedClicked() async {
+
+    // get user id
+    final userId = await getCurrentUserId();
+    // make sure user id is not null
+    if(userId != null && userId is String){
+      // get event id
+      final eventId = widget.event.id;
+      final return_val = toggleEventInterest(api, eventId, userId);
+      print("return val interest clicked... ");
+      print(return_val);
+    }
+  }
+
+  // user is uninterested
+  void _interestedUnClicked() async {
+
+    // get user id
+    final userId = await getCurrentUserId();
+    // make sure user id is not null
+    if(userId != null && userId is String){
+      // get event id
+      final eventId = widget.event.id;
+      final return_val = toggleEventInterest(api, eventId, userId);
+      print("return val interest clicked... ");
+      print(return_val);
+    }
+  }
+
+  void _handleInterestToggle() async {
+  // if (_isLoading) return;
+  // setState(() => _isLoading = true);
+
+  final String endpoint = isInterested 
+      ? '/api/events-uninterested' 
+      : '/api/events-interested';
+
+  try {
+    final userId = await getCurrentUserId();
+    // make sure user id is not null
+    if(userId != null){
+      final response = await api.request(
+        endpoint: endpoint,
+        method: 'POST',
+        body: {'eventId': widget.event.id, 'userId': userId},
+      );
+
+    if (response.toJson()['success'] == true) {
+      setState(() {
+        isInterested = !isInterested; // Flip the state
+      });
+    }
+    }
+  } catch (e) {
+    print("Toggle failed: $e");
+  } finally {
+    // setState(() => _isLoading = false);
+  }
+}
+
+
+
+
 
 
 
@@ -220,11 +327,11 @@ class _EventFullViewState extends State<EventFullView> {
 
  @override
  Widget build(BuildContext context) {
-  final formattedStartTime = DateFormat(
-  'MMMM d, h:mm a',
-).format(
-  DateTime.parse(widget.event.startTime),
-);
+    final formattedStartTime = DateFormat(
+      'MMMM d, h:mm a',
+    ).format(
+      DateTime.parse(widget.event.startTime),
+    );
 
    return Scaffold(
      backgroundColor: Colors.white,
@@ -243,6 +350,7 @@ class _EventFullViewState extends State<EventFullView> {
         ),
       ),
       centerTitle: true,
+      
     ),
 
     bottomNavigationBar: Padding(
@@ -276,19 +384,9 @@ class _EventFullViewState extends State<EventFullView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
-//           // EVENT IMAGE
-          ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: AspectRatio(
-              aspectRatio: 4 / 3,
-              child: Container(
-                color: Colors.grey.shade300,
-              child: const Icon(Icons.add_a_photo_outlined, size: 100, color: Colors.black,),
-            ),
-          ),
-          ),
-          const SizedBox(height: 20),
+          // Display Event image
+          ImageView(imageUrl: widget.event.eventImage),
+          const SizedBox(height: 20), // spacing
 
        /// LOCATION
        Text(
@@ -413,32 +511,75 @@ if (widget.event.categories.isNotEmpty) ...[
 
           const SizedBox(height: 50), // space for button
           Center(
-              child: ElevatedButton.icon(
-                label: const Text(
-                  "Im Interested",
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),
+            child: ElevatedButton.icon(
+              // Toggle the Label Text
+              label: Text(
+                isInterested ? "Interested" : "RU Interested",
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
                 ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF7FE6F2),
-                  minimumSize: const Size(17500, 55),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  
-                  elevation: 6,
-                ),
-                onPressed: () {
-                  // TODO: Im Interested logic
-                },
               ),
+              // Toggle the Icon (Optional, but looks good)
+              // icon: Icon(
+              //   isInterested ? Icons.check_circle : Icons.add_circle_outline,
+              //   color: Colors.black,
+              // ),
+              style: ElevatedButton.styleFrom(
+                // TOGGLE BACKGROUND COLOR HERE
+                backgroundColor: isInterested ? const Color(0xFF7FE6F2) : Colors.white,
+                
+                minimumSize: const Size(double.infinity, 55), // Changed from 17500 to infinity for safety
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                  side: BorderSide(
+                    color: isInterested ? Colors.transparent : Colors.grey.shade300,
+                    width: 1,
+                  ),
+                ),
+                elevation: isInterested ? 6 : 2,
+              ),
+              onPressed: () {
+                _handleInterestToggle();
+                // if(isInterested){
+                //   setState(() {
+                //     isInterested = !isInterested;
+                //   });
+                //   // user alreayd interested, and they can unclick...
+                // }
+                // else{
+                //   setState(() {
+                //     isInterested = !isInterested;
+                //   });
+                //   _interestedClicked(); // user not already interested, so they can add interest
+                // }
+                
+              },
             ),
-            const SizedBox(height: 8),
+          ),
+            //const SizedBox(height: 8),
+            if(userId == widget.event.userId)
+              const SizedBox(height: 50),
+              DeleteButton(text: 'Delete Event', onPressed: () async {
+                // pop up first
+                final confirmed = await showYesNoDialog(
+                  context,
+                  title: "Are you sure you want to delete this Event?",
+                );
+
+                if (confirmed == true) {
+                  _deleteEvent();
+                }
+              }),
+            
+             
+              const SizedBox(height: 50),
+              GenericCallBackButton(name: "Edit", onPressed: () {_goToEditEvent();})
             ],
+            
       ),
+      
     ),
   );
 }

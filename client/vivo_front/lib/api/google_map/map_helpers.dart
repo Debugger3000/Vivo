@@ -1,5 +1,6 @@
 
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:vivo_front/utility/user_functions.dart';
 
 
 // Just build a marker for the google map - Set<Marker>
@@ -11,22 +12,26 @@ class MarkerBuilderWithWindow {
     required void Function(int) onTap,
     String? title,
     String? description,
+    String? startTime,
+    String? endTime,
   }) {
+
+    final start = formatEventTime(startTime);
+    final end = formatEventTime(endTime);
+    final timeDisplay = "$start - $end";
+
     return Marker(
       markerId: MarkerId('${lat}_$lng'),
       position: LatLng(lat, lng),
-      //onTap: () {
-       
-      //},
-      //icon: , // use BitMapDescriptor
       infoWindow: InfoWindow(
-        // on tap for info window...
         onTap: () {
           onTap(index);
           print("YOU PRESSED ON EVENT MARKER infowindow");
         },
-        title: title ?? 'Your New Event!',
-        snippet: description ?? 'Make it a time!',
+        title: title ?? 'Event Title',
+        // description with time
+        snippet: timeDisplay,
+        
       ),
     );
   }
@@ -43,9 +48,6 @@ class MarkerBuilder {
     return Marker(
       markerId: MarkerId('${lat}_$lng'),
       position: LatLng(lat, lng),
-      //onTap: () {
-       
-      //},
       infoWindow: InfoWindow(
         // on tap for info window...
         onTap: () {

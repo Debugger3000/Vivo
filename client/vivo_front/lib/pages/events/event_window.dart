@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vivo_front/com_ui_widgets/event_chip.dart';
+import 'package:vivo_front/navigation_wrapper.dart';
+import 'package:vivo_front/stateless/imageview.dart';
 import 'package:vivo_front/stateless/time_helpers.dart';
 import 'package:vivo_front/types/event.dart';
 
@@ -19,6 +21,20 @@ class EventWindow extends StatefulWidget {
 class _EventWindowState extends State<EventWindow> {
 
    final bool _loading = false;
+
+
+     
+
+  // full view for an event...
+  void _goToEventPage(GetEventPreview event) {
+    print('Switching tabs and going to full view...');
+    
+    // 1. Close the small map overlay window
+    widget.closeWindow();
+
+    // 2. Find the wrapper and trigger the logic
+    NavigationWrapper.of(context)?.switchToEventsAndPush(event);
+  }
 
 
   @override
@@ -65,6 +81,8 @@ class _EventWindowState extends State<EventWindow> {
                   onPressed: () => widget.closeWindow(),
                 ),
               ),
+             
+              //ImageView(imageUrl: widget.event.eventImage),
 
               Padding(
                 padding: const EdgeInsets.only(top: 40),
@@ -72,12 +90,14 @@ class _EventWindowState extends State<EventWindow> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    ImageView(imageUrl: widget.event.eventImage),
+                    const SizedBox(height: 8),
                     Text(
                       widget.event.title,
                       style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
-                    Text(widget.event.description),
+                    // Text(widget.event.description), description sahould be on main page ?
                     const SizedBox(height: 8),
                     Text("Address: ${widget.event.address}"),
 
@@ -94,6 +114,26 @@ class _EventWindowState extends State<EventWindow> {
                     Wrap(
                       spacing: 6,
                       children: widget.event.tags.map((tag) => EventChip(label: tag, isCategory: false)).toList(),
+                    ),
+                    // --- NEW GO TO MAIN PAGE BUTTON ---
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                        onPressed: () {
+                          print('Navigating to full view...');
+                          _goToEventPage(widget.event); // go to events full page...
+                        },
+                        child: const Text(
+                          "View Full Details",
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                      ),
                     ),
                   ],
                 ),

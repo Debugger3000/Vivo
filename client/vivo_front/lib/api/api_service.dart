@@ -4,6 +4,38 @@ import 'package:http/http.dart' as http;
 // import 'dart:developer' as developer;
 import 'package:vivo_front/types/categories.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:vivo_front/types/event.dart';
+
+
+
+// class ResponseMessage {
+//   final String message;
+//   final bool success; // Optional: good for status checks
+//   final Map<String, dynamic>? data; // This captures the "extra" stuff
+
+//   ResponseMessage({
+//     required this.message,
+//     this.success = true,
+//     this.data,
+//   });
+
+//   factory ResponseMessage.fromJson(Map<String, dynamic> json) {
+//     return ResponseMessage(
+//       message: json['message'] as String? ?? '',
+//       success: json['success'] as bool? ?? true,
+//       // Store the whole JSON map here so you can access ANY field later
+//       data: json, 
+//     );
+//   }
+
+//   Map<String, dynamic> toJson() {
+//     return {
+//       'message': message,
+//       'success': success,
+//       ...?(data), // Merges the dynamic data back in
+//     };
+//   }
+// }
 
 
 class ApiService {
@@ -104,9 +136,9 @@ Future<ResponseMessage> request({
       print(jsonList.length);
       return jsonList.map((item) => parser(item)).toList();
     }
-
-
   }
+
+
 
 
   // -------------------------
