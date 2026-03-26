@@ -4,7 +4,6 @@ import 'package:vivo_front/api/Events/get_events.dart';
 import 'package:vivo_front/pages/events/CRUD/patch_event.dart';
 import 'package:vivo_front/pages/events/CRUD/post_event.dart';
 import 'package:vivo_front/api/api_service.dart';
-import 'package:vivo_front/com_ui_widgets/mainpage_header.dart';
 import 'package:vivo_front/pages/events/event_fullview.dart';
 import 'package:vivo_front/stateless/imageview.dart';
 import 'package:vivo_front/types/event.dart';

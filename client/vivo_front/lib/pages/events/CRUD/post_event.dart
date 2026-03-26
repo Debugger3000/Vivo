@@ -15,7 +15,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:vivo_front/api/google_map/google_places_search.dart';
 import 'package:google_places_api_flutter/google_places_api_flutter.dart';
 import 'package:minio/minio.dart';
-import 'package:minio/io.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:vivo_front/widgets/ImageUpload.dart';
 import 'package:path/path.dart' as p;

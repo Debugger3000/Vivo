@@ -127,7 +127,6 @@ Widget build(BuildContext context) {
 
 // lib/screens/login.dart
 import 'dart:async';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:app_links/app_links.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
