@@ -43,7 +43,7 @@ class _EventFullViewState extends State<EventFullView> {
 
   Future<void> wrapCheckInterest() async{
     String? id = await getCurrentUserId();
-    if(id != null && id is String){
+    if(id != null){
       print("checking interest on event...");
       bool interestResponse = await checkEventInterest(api, widget.event.id, id);
       print("event reutnred,. interest is: ");
@@ -101,12 +101,12 @@ class _EventFullViewState extends State<EventFullView> {
     // get user id
     final userId = await getCurrentUserId();
     // make sure user id is not null
-    if(userId != null && userId is String){
+    if(userId != null){
       // get event id
       final eventId = widget.event.id;
-      final return_val = toggleEventInterest(api, eventId, userId);
+      final returnVal = toggleEventInterest(api, eventId, userId);
       print("return val interest clicked... ");
-      print(return_val);
+      print(returnVal);
     }
   }
 
@@ -116,12 +116,12 @@ class _EventFullViewState extends State<EventFullView> {
     // get user id
     final userId = await getCurrentUserId();
     // make sure user id is not null
-    if(userId != null && userId is String){
+    if(userId != null){
       // get event id
       final eventId = widget.event.id;
-      final return_val = toggleEventInterest(api, eventId, userId);
+      final returnVal = toggleEventInterest(api, eventId, userId);
       print("return val interest clicked... ");
-      print(return_val);
+      print(returnVal);
     }
   }
 

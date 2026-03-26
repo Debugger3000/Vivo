@@ -107,8 +107,8 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
     print(result.longitude);
     // 44.370591 - lat
     // -79.689321 - long
-    final barrie_pos = LatLng(44.370591,-79.689321);
-    currentDeviceLocation.value = barrie_pos;
+    final barriePos = LatLng(44.370591,-79.689321);
+    currentDeviceLocation.value = barriePos;
   }
 
   
